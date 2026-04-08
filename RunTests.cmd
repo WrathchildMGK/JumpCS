@@ -1,0 +1,1 @@
+dotnet test CSharp.Tests/CSharp.Tests.csproj

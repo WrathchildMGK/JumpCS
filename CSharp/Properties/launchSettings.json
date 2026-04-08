@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "CSharp": {
+      "commandName": "Project",
+      "commandLineArgs": "-V TestMath\\bin\\Debug\\net10.0\\TestMath",
+      "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
+    }
+  }
+}
