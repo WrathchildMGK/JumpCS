@@ -59,7 +59,7 @@ namespace JumpCS.Core
                 return null;
 
             // Look for type with Main method or entry point
-            foreach (var type in _assembly.GetTypes())
+        foreach (var type in _assembly.GetTypes())
             {
                 var mainMethod = type.GetMethod("<Main>$", 
                     System.Reflection.BindingFlags.Static | 

@@ -66,10 +66,35 @@ namespace JumpCS.Core
             if (opcode.OperandType != OperandType.InlineNone)
             {
                 operand = DecodeOperand(opcode);
+                // Update _nextIndex based on operand size
+                _nextIndex += GetOperandSize(opcode);
             }
 
             CurrentOperand = operand;
             return true;
+        }
+
+        /// <summary>Get the size of an operand based on opcode type</summary>
+        private int GetOperandSize(OpCode opcode)
+        {
+            return opcode.OperandType switch
+            {
+                OperandType.InlineI => 4,
+                OperandType.InlineI8 => 8,
+                OperandType.InlineR => 8,
+                OperandType.InlineVar => 2,
+                OperandType.ShortInlineI => 1,
+                OperandType.ShortInlineVar => 1,
+                OperandType.InlineTok => 4,
+                OperandType.InlineMethod => 4,
+                OperandType.InlineField => 4,
+                OperandType.InlineType => 4,
+                OperandType.InlineString => 4,
+                OperandType.InlineBrTarget => 4,
+                OperandType.ShortInlineBrTarget => 1,
+                OperandType.InlineSwitch => 0,  // Handled specially in ReadSwitchTargets
+                _ => 0
+            };
         }
 
         /// <summary>Decode operand value based on opcode type</summary>

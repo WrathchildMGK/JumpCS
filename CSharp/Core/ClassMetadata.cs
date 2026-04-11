@@ -169,7 +169,7 @@ namespace JumpCS.Core
                     methodMetadata.MaxStack = methodBody.MaxStackSize;
                     methodMetadata.MaxLocals = methodBody.LocalVariables.Count;
                     
-                    if (Program.CodeOptions?.Verbosity > 1)
+                    if (Program.CodeOptions?.Verbosity >= 1)
                     {
                         Console.WriteLine($"  Method {method.Name}: CodeLength={methodMetadata.CodeLength}, MaxStack={methodMetadata.MaxStack}, MaxLocals={methodMetadata.MaxLocals}");
                     }
@@ -182,7 +182,7 @@ namespace JumpCS.Core
                     methodMetadata.MaxStack = 0;
                     methodMetadata.MaxLocals = 0;
                     
-                    if (Program.CodeOptions?.Verbosity > 2)
+                    if (Program.CodeOptions?.Verbosity > 1)
                     {
                         Console.WriteLine($"  Method {method.Name}: No body (abstract/P/Invoke/interface)");
                     }
@@ -192,7 +192,7 @@ namespace JumpCS.Core
             {
                 // IL extraction may fail for some methods (e.g., P/Invoke, abstract)
                 // This is expected and safe to ignore
-                if (Program.CodeOptions?.Verbosity > 1)
+                if (Program.CodeOptions?.Verbosity >= 1)
                 {
                     Console.WriteLine($"Warning: Could not extract IL for {FullName}.{method.Name}: {ex.Message}");
                 }
