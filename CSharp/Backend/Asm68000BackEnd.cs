@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using JumpCS.Core;
+using JumpCS.Backend.SystemTypes;  // Add this at the top
 
 namespace JumpCS.Backend
 {
@@ -21,72 +22,6 @@ namespace JumpCS.Backend
         private const string A1 = "A1";    // Address register
         private const string A6 = "A6";    // Frame pointer
         private const string A7 = "A7";    // Stack pointer
-
-        /// <summary>Stack simulator for tracking evaluation stack during MSIL translation</summary>
-        private class StackSimulator
-        {
-            private List<string> _stack = new();
-            private int _spillOffset;
-            private readonly int _maxLocals;
-            private readonly int _maxStack;
-            private readonly string[] _dataRegisters = { "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7" };
-
-            public int StackDepth => _stack.Count;
-            public int CurrentFrameOffset => _spillOffset;
-
-            public StackSimulator(int maxLocals, int maxStack)
-            {
-                _maxLocals = maxLocals;
-                _maxStack = maxStack;
-                _spillOffset = -maxLocals * 4 - 4;
-            }
-
-            /// <summary>Get next available register based on current stack depth</summary>
-            public string GetNextRegister()
-            {
-                int registerIndex = _stack.Count;
-                
-                if (registerIndex < _dataRegisters.Length)
-                {
-                    return _dataRegisters[registerIndex];
-                }
-                
-                return _dataRegisters[registerIndex % _dataRegisters.Length];
-            }
-
-            /// <summary>Push a register onto the evaluation stack</summary>
-            public void Push(string register)
-            {
-                if (_stack.Count >= _maxStack)
-                    throw new InvalidOperationException("Evaluation stack overflow");
-                _stack.Add(register);
-            }
-
-            /// <summary>Pop a register from the evaluation stack</summary>
-            public string Pop()
-            {
-                if (_stack.Count == 0)
-                    throw new InvalidOperationException("Evaluation stack underflow");
-                string register = _stack[^1];
-                _stack.RemoveAt(_stack.Count - 1);
-                return register;
-            }
-
-            /// <summary>Peek at top of stack without popping</summary>
-            public string Peek()
-            {
-                if (_stack.Count == 0)
-                    throw new InvalidOperationException("Evaluation stack is empty");
-                return _stack[^1];
-            }
-
-            /// <summary>Clear the stack and reset register allocation</summary>
-            public void Clear()
-            {
-                _stack.Clear();
-                _spillOffset = -_maxLocals * 4 - 4;
-            }
-        }
 
         /// <summary>Label mapping for control flow targets</summary>
         private class LabelMapper
@@ -108,6 +43,8 @@ namespace JumpCS.Backend
                 _offsetToLabel.Clear();
             }
         }
+
+        private SystemDecimalHandler _decimalHandler; // Add this field
 
         public Asm68000BackEnd(string outputBaseName) : base(outputBaseName)
         {
@@ -316,6 +253,13 @@ namespace JumpCS.Backend
 
             using (_asmWriter = new StreamWriter(outputPath, false, Encoding.ASCII))
             {
+                // Initialize decimal handler
+                _decimalHandler = new SystemDecimalHandler(
+                    _asmWriter,
+                    (stack) => GetAvailableRegister(stack),
+                    () => GetUniqueLabel()
+                );
+
                 WriteHeader();
                 WriteClassDefinitions();
                 WriteClassTable();
@@ -450,7 +394,7 @@ namespace JumpCS.Backend
             int maxStack = Math.Max(method.MaxStack, 2);  // Minimum of 2 registers
             int maxLocals = Math.Max(method.MaxLocals, 0);
 
-            var stackSim = new StackSimulator(maxLocals, maxStack);
+            var stackSim = new Asm68000StackSimulator(maxLocals, maxStack);
             var labelMapper = new LabelMapper();
             var msilIterator = new MsilIterator(method.Code, method);
 
@@ -469,7 +413,7 @@ namespace JumpCS.Backend
         }
 
         /// <summary>Translate a single MSIL opcode to 68000 assembly</summary>
-        private void TranslateOpcode(MsilIterator iterator, MethodMetadata method, StackSimulator stack, LabelMapper labels)
+        private void TranslateOpcode(MsilIterator iterator, MethodMetadata method, Asm68000StackSimulator stack, LabelMapper labels)
         {
             OpCode opcode = iterator.CurrentOpcode;
             object? operand = iterator.CurrentOperand;
@@ -601,70 +545,127 @@ namespace JumpCS.Backend
                     _asmWriter?.WriteLine($"    MOVE.L {src},{offset}(A6)  ; Store to local {localIdx}");
                 }
             }
-            // Arithmetic operations
-            else if (opcode == OpCodes.Add)
+            // Load local variable address (for passing by reference)
+            else if (opcode == OpCodes.Ldloca_S)
             {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ADD.L {val2},{val1}  ; Add");
-                stack.Push(val1);
+                if (operand is int localAddr)
+                {
+                    int offset = -4 - (localAddr * 4);
+                    string targetReg = stack.GetNextRegister();
+                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of local {localAddr}");
+                    stack.Push(targetReg);
+                }
             }
-            else if (opcode == OpCodes.Sub)
+            else if (opcode == OpCodes.Ldloca)
             {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    SUB.L {val2},{val1}  ; Subtract");
-                stack.Push(val1);
+                if (operand is int localAddrIdx)
+                {
+                    int offset = -4 - (localAddrIdx * 4);
+                    string targetReg = stack.GetNextRegister();
+                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of local {localAddrIdx}");
+                    stack.Push(targetReg);
+                }
             }
-            else if (opcode == OpCodes.Mul)
+            // Load local variables
+            else if (opcode == OpCodes.Ldloc)
             {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    MULS.L {val2},{val1} ; Multiply");
-                stack.Push(val1);
+                if (operand is int localIndex)
+                {
+                    int offset = -4 - (localIndex * 4);
+                    string targetReg = stack.GetNextRegister();
+                    _asmWriter?.WriteLine($"    MOVE.L {offset}(A6),{targetReg} ; Load local {localIndex}");
+                    stack.Push(targetReg);
+                }
             }
-            else if (opcode == OpCodes.Div)
+            else if (opcode == OpCodes.Ldloc_0)
             {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    DIVS.L {val2},{val1} ; Divide");
-                stack.Push(val1);
+                string targetReg = stack.GetNextRegister();
+                _asmWriter?.WriteLine($"    MOVE.L -4(A6),{targetReg}   ; Load local 0");
+                stack.Push(targetReg);
             }
-            // Comparison and branching
-            else if (opcode == OpCodes.Brfalse || opcode == OpCodes.Brfalse_S)
+            else if (opcode == OpCodes.Ldloc_1)
             {
-                string val = stack.Pop();
-                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                _asmWriter?.WriteLine($"    TST.L {val}");
-                _asmWriter?.WriteLine($"    BEQ {label}");
+                string targetReg = stack.GetNextRegister();
+                _asmWriter?.WriteLine($"    MOVE.L -8(A6),{targetReg}   ; Load local 1");
+                stack.Push(targetReg);
             }
-            else if (opcode == OpCodes.Brtrue || opcode == OpCodes.Brtrue_S)
+            else if (opcode == OpCodes.Ldloc_2)
             {
-                string val = stack.Pop();
-                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                _asmWriter?.WriteLine($"    TST.L {val}");
-                _asmWriter?.WriteLine($"    BNE {label}");
+                string targetReg = stack.GetNextRegister();
+                _asmWriter?.WriteLine($"    MOVE.L -12(A6),{targetReg}  ; Load local 2");
+                stack.Push(targetReg);
             }
-            else if (opcode == OpCodes.Br || opcode == OpCodes.Br_S)
+            else if (opcode == OpCodes.Ldloc_3)
             {
-                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                _asmWriter?.WriteLine($"    BRA {label}");
+                string targetReg = stack.GetNextRegister();
+                _asmWriter?.WriteLine($"    MOVE.L -16(A6),{targetReg}  ; Load local 3");
+                stack.Push(targetReg);
             }
-            else if (opcode == OpCodes.Beq || opcode == OpCodes.Beq_S)
+            // Branch if greater than (signed)
+            else if (opcode == OpCodes.Bgt || opcode == OpCodes.Bgt_S)
             {
                 string val2 = stack.Pop();
                 string val1 = stack.Pop();
                 string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
                 _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                _asmWriter?.WriteLine($"    BEQ {label}");
+                _asmWriter?.WriteLine($"    BGT {label}  ; Branch if greater than (signed)");
             }
+            // Branch if less than (unsigned)
+            else if (opcode == OpCodes.Blt_Un || opcode == OpCodes.Blt_Un_S)
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                _asmWriter?.WriteLine($"    BLO {label}  ; Branch if less than (unsigned)");
+            }
+            // Branch if less than (signed)
+            else if (opcode == OpCodes.Blt || opcode == OpCodes.Blt_S)
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                _asmWriter?.WriteLine($"    BLT {label}  ; Branch if less than (signed)");
+            }
+            // Load field (static or instance)
+            else if (opcode == OpCodes.Ldfld)
+            {
+                if (operand is int fieldToken)
+                {
+                    _asmWriter?.WriteLine($"    ; TODO: ldfld token {fieldToken:X8}");
+                    string targetReg = GetAvailableRegister(stack);
+                    _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Load field {fieldToken:X8}");
+                    stack.Push(targetReg);
+                }
+            }
+            // Store field (static or instance)
+            else if (opcode == OpCodes.Stfld)
+            {
+                if (operand is int fieldToken)
+                {
+                    string valueToStore = stack.Pop();
+                    _asmWriter?.WriteLine($"    ; TODO: stfld token {fieldToken:X8}");
+                    _asmWriter?.WriteLine($"    CLR.L {valueToStore}  ; TODO: Store field {fieldToken:X8}");
+                }
+            }
+            // Branch if not equal (unsigned)
             else if (opcode == OpCodes.Bne_Un || opcode == OpCodes.Bne_Un_S)
             {
                 string val2 = stack.Pop();
                 string val1 = stack.Pop();
                 string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
                 _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                _asmWriter?.WriteLine($"    BNE {label}");
+                _asmWriter?.WriteLine($"    BNE {label}  ; Branch if not equal (unsigned)");
+            }
+            // Branch if equal (signed)
+            else if (opcode == OpCodes.Beq || opcode == OpCodes.Beq_S)
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                _asmWriter?.WriteLine($"    BEQ {label}  ; Branch if equal (signed)");
             }
             // Method calls
             else if (opcode == OpCodes.Call || opcode == OpCodes.Callvirt)
@@ -675,41 +676,10 @@ namespace JumpCS.Backend
 
                     if (targetMethod != null)
                     {
-                        // Check if this is a System.* framework method that shouldn't be compiled
-                        if (targetMethod.OwningClass.FullName.StartsWith("System."))
+                        // Check for System.Decimal special handling
+                        if (_decimalHandler.TryHandleDecimalMethod(targetMethod, stack))
                         {
-                            // Handle framework methods via reflection instead
-                            var reflectionMethod = TryResolveFrameworkMethod(method.OwningClass, methodToken);
-                            if (reflectionMethod != null)
-                            {
-                                if (reflectionMethod.DeclaringType?.FullName == "System.Decimal")
-                                {
-                                    HandleSystemDecimalMethodByReflection(reflectionMethod, stack);
-                                }
-                                else if (IsSystemMathMethod(reflectionMethod))
-                                {
-                                    HandleSystemMathCall(reflectionMethod, stack);
-                                }
-                                else
-                                {
-                                    _asmWriter?.WriteLine($"    ; TODO: {reflectionMethod.DeclaringType?.FullName}::{reflectionMethod.Name}");
-                                    var paramCount = reflectionMethod is MethodInfo mi ? mi.GetParameters().Length : 0;
-                                    for (int i = 0; i < paramCount; i++)
-                                    {
-                                        try { stack.Pop(); } catch { }
-                                    }
-                                    if (reflectionMethod is MethodInfo methodInfo && methodInfo.ReturnType != typeof(void))
-                                    {
-                                        string resultReg = GetAvailableRegister(stack);
-                                        stack.Push(resultReg);
-                                    }
-                                }
-                            }
-                        }
-                        // Check for System.Decimal special handling from compiled metadata
-                        else if (IsSystemDecimalMethod(targetMethod))
-                        {
-                            HandleSystemDecimalCall(targetMethod, stack);
+                            // Handled by SystemDecimalHandler
                         }
                         else
                         {
@@ -732,12 +702,12 @@ namespace JumpCS.Backend
                     {
                         // Method not in our compiled metadata - try reflection for framework types
                         var reflectionMethod = TryResolveFrameworkMethod(method.OwningClass, methodToken);
-                        
+
                         if (reflectionMethod != null)
                         {
-                            if (reflectionMethod.DeclaringType?.FullName == "System.Decimal")
+                            if (_decimalHandler.TryHandleDecimalMethodByReflection(reflectionMethod, stack))
                             {
-                                HandleSystemDecimalMethodByReflection(reflectionMethod, stack);     
+                                // Handled by SystemDecimalHandler
                             }
                             else if (IsSystemMathMethod(reflectionMethod))
                             {
@@ -747,7 +717,7 @@ namespace JumpCS.Backend
                             {
                                 _asmWriter?.WriteLine($"    ; Framework method: {reflectionMethod.DeclaringType?.FullName}::{reflectionMethod.Name}");
                                 _asmWriter?.WriteLine($"    ; TODO: Implement framework call");
-                                var paramCount = reflectionMethod is MethodInfo mi ? 
+                                var paramCount = reflectionMethod is MethodInfo mi ?
                                     mi.GetParameters().Length : 0;
                                 for (int i = 0; i < paramCount; i++)
                                 {
@@ -775,12 +745,8 @@ namespace JumpCS.Backend
                 if (operand is int methodToken)
                 {
                     var reflectionMethod = TryResolveFrameworkMethod(method.OwningClass, methodToken);
-                    
-                    if (reflectionMethod?.DeclaringType?.FullName == "System.Decimal")
-                    {
-                        HandleSystemDecimalNewObj(reflectionMethod, stack);
-                    }
-                    else
+
+                    if (!_decimalHandler.TryHandleDecimalNewObj(reflectionMethod, stack))
                     {
                         _asmWriter?.WriteLine($"    ; TODO: newobj {methodToken:X8}");
                     }
@@ -829,7 +795,7 @@ namespace JumpCS.Backend
                 int targetOffset = iterator.NextIndex + (int)(operand ?? 0);
                 string label = labels.GetOrCreateLabel(targetOffset);
                 _asmWriter?.WriteLine($"    BRA {label}  ; leave - exit exception handler");
-                
+
                 // leave clears the stack
                 stack.Clear();
             }
@@ -918,7 +884,7 @@ namespace JumpCS.Backend
         /// Offset 8-11: low 32 bits
         /// Offset 12-15: mid 32 bits
         /// </remarks>
-        private void HandleSystemDecimalConstructor(MethodMetadata method, StackSimulator stack)
+        private void HandleSystemDecimalConstructor(MethodMetadata method, Asm68000StackSimulator stack)
         {
             // Pop all constructor parameters in reverse order
             // Stack order: this (address), lo, mid, hi, isNegative, scale
@@ -958,376 +924,48 @@ namespace JumpCS.Backend
             _asmWriter?.WriteLine($"    ; Decimal constructor complete");
         }
 
-        /// <summary>Handle System.Decimal method calls inline</summary>
-        private void HandleSystemDecimalCall(MethodMetadata method, StackSimulator stack)
-        {
-            if (method.Name == "op_Addition")
-            {
-                HandleDecimalAddition(stack);
-            }
-            else if (method.Name == "op_Subtraction")
-            {
-                HandleDecimalSubtraction(stack);
-            }
-            else if (method.Name == "op_Multiply")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Multiply");
-                _asmWriter?.WriteLine($"    ; {val1} * {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (method.Name == "op_Division")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Division");
-                _asmWriter?.WriteLine($"    ; {val1} / {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (method.Name == "op_Modulus")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Modulus");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (method.Name == "op_UnaryNegation")
-            {
-                string val = stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    NEG.L {val}     ; Negate");
-                if (resultReg != val)
-                {
-                    _asmWriter?.WriteLine($"    MOVE.L {val},{resultReg}");
-                }
-                stack.Push(resultReg);
-            }
-            else if (method.Name == "Equals")
-            {
-                HandleDecimalEquals(stack);
-            }
-            else
-            {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{method.Name}");
-            }
-        }
-
         /// <summary>Check if a method is System.Math method</summary>
-        private bool IsSystemMathMethod(MethodBase method)
+        private bool IsSystemMathMethod(System.Reflection.MethodBase method)
         {
-            return method.DeclaringType?.FullName == "System.Math";
+            bool isSystemMath = method.DeclaringType?.FullName == "System.Math";
+            if (isSystemMath && Program.CodeOptions?.Verbosity > 1)
+            {
+                Console.WriteLine($"  Identified System.Math.{method.Name}");
+            }
+            return isSystemMath;
         }
 
         /// <summary>Handle System.Math method calls</summary>
-        private void HandleSystemMathCall(MethodBase methodInfo, StackSimulator stack)
+        private void HandleSystemMathCall(System.Reflection.MethodBase methodInfo, Asm68000StackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            var parameters = ((MethodInfo)methodInfo).GetParameters();
+            var parameters = ((System.Reflection.MethodInfo)methodInfo).GetParameters();
             int paramCount = parameters.Length;
             
             _asmWriter?.WriteLine($"    ; System.Math.{methodName} - {paramCount} parameters (stub)");
 
-            // Pop all arguments
+            // Pop all arguments in reverse order
+            var poppedValues = new List<string>();
             for (int i = 0; i < paramCount; i++)
             {
                 try
                 {
-                    stack.Pop();
+                    string poppedVal = stack.Pop();
+                    poppedValues.Add(poppedVal);
+                    _asmWriter?.WriteLine($"    ; Pop argument {i}: {poppedVal}");
                 }
-                catch
+                catch (Exception ex)
                 {
-                    _asmWriter?.WriteLine($"    ; WARNING: Could not pop argument {i}");
+                    _asmWriter?.WriteLine($"    ; WARNING: Could not pop argument {i}: {ex.Message}");
                 }
             }
 
             // Push return value if non-void
-            if (((MethodInfo)methodInfo).ReturnType != typeof(void))
+            if (((System.Reflection.MethodInfo)methodInfo).ReturnType != typeof(void))
             {
                 string resultReg = GetAvailableRegister(stack);
                 _asmWriter?.WriteLine($"    MOVE.L #0,{resultReg}     ; TODO: {methodName} result");
                 stack.Push(resultReg);
-            }
-        }
-
-        /// <summary>Handle System.Decimal method calls identified by reflection</summary>
-        private void HandleSystemDecimalMethodByReflection(System.Reflection.MethodBase methodInfo, StackSimulator stack)
-        {
-            string methodName = methodInfo.Name;
-
-            _asmWriter?.WriteLine($"    ; System.Decimal.{methodName} (inline)");
-
-            if (methodName == ".ctor")
-            {
-                HandleSystemDecimalInstanceConstructor(methodInfo, stack);
-            }
-            else if (methodName == "op_Addition")
-            {
-                HandleDecimalAddition(stack);
-            }
-            else if (methodName == "op_Subtraction")
-            {
-                HandleDecimalSubtraction(stack);
-            }
-            else if (methodName == "op_Multiply")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} * {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_Division")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} / {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_Modulus")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} % {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_UnaryNegation")
-            {
-                string val = stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    NEG.L {val}     ; Negate");
-                if (resultReg != val)
-                {
-                    _asmWriter?.WriteLine($"    MOVE.L {val},{resultReg}");
-                }
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_LessThan")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} < {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_GreaterThan")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} > {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_LessThanOrEqual")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} <= {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_GreaterThanOrEqual")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} >= {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_Equality")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} == {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_Inequality")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1} != {val2}");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "Equals")
-            {
-                HandleDecimalEquals(stack);
-            }
-            else if (methodName == "CompareTo")
-            {
-                string val2 = stack.Pop();
-                string val1 = stack.Pop();
-                _asmWriter?.WriteLine($"    ; TODO: {val1}.CompareTo({val2})");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else
-            {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{methodName}");
-                // Generic fallback: pop parameters if it's a MethodInfo
-                if (methodInfo is System.Reflection.MethodInfo mi)
-                {
-                    var paramCount = mi.GetParameters().Length;
-                    for (int i = 0; i < paramCount; i++)
-                    {
-                        try { stack.Pop(); } catch { }
-                    }
-                    // Push return value if non-void
-                    if (mi.ReturnType != typeof(void))
-                    {
-                        string resultReg = GetAvailableRegister(stack);
-                        stack.Push(resultReg);
-                    }
-                }
-            }
-        }
-
-        /// <summary>Handle System.Decimal newobj (create new instance)</summary>
-        private void HandleSystemDecimalNewObj(MethodBase methodInfo, StackSimulator stack)
-        {
-            var parameters = methodInfo.GetParameters();
-            
-            _asmWriter?.WriteLine($"    ; System.Decimal newobj - create new instance ({parameters.Length} parameters)");
-
-            // Pop parameters in reverse order (NO this!)
-            var parameterValues = new List<string>();
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                try
-                {
-                    parameterValues.Add(stack.Pop());
-                }
-                catch
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Could not pop parameter {i}");
-                    parameterValues.Add("D0");
-                }
-            }
-            parameterValues.Reverse();
-
-            // Standard Decimal constructor: (int lo, int mid, int hi, bool isNegative, uint8 scale)
-            if (parameterValues.Count == 5)
-            {
-                string scale = parameterValues[4];
-                string isNegative = parameterValues[3];
-                string hi = parameterValues[2];
-                string mid = parameterValues[1];
-                string lo = parameterValues[0];
-
-                // For newobj, allocate space on the stack for the new Decimal
-                string resultAddr = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    LEA -32(A6),{resultAddr}  ; Allocate new Decimal instance");
-
-                _asmWriter?.WriteLine($"    ; System.Decimal newobj inline");
-                _asmWriter?.WriteLine($"    ; result @ {resultAddr}, lo={lo}, mid={mid}, hi={hi}, sign={isNegative}, scale={scale}");
-
-                string skipNegLabel = GetUniqueLabel();
-                
-                _asmWriter?.WriteLine($"    CLR.L D2                  ; Clear flags");
-                _asmWriter?.WriteLine($"    AND.L #0xFF,{scale}      ; Ensure scale is 0-255");
-                _asmWriter?.WriteLine($"    LSL.L #16,{scale}        ; Shift scale to bits 16-23");
-                _asmWriter?.WriteLine($"    OR.L {scale},D2           ; Set scale in flags");
-                
-                _asmWriter?.WriteLine($"    TST.L {isNegative}        ; Check if negative");
-                _asmWriter?.WriteLine($"    BEQ .SkipNegative_{skipNegLabel}");
-                _asmWriter?.WriteLine($"    OR.L #0x80000000,D2      ; Set sign bit if negative");
-                _asmWriter?.WriteLine($".SkipNegative_{skipNegLabel}:");
-
-                _asmWriter?.WriteLine($"    MOVE.L D2,({resultAddr})    ; Store flags at offset 0");
-                _asmWriter?.WriteLine($"    MOVE.L {hi},4({resultAddr}) ; Store high at offset 4");
-                _asmWriter?.WriteLine($"    MOVE.L {lo},8({resultAddr}) ; Store low at offset 8");
-                _asmWriter?.WriteLine($"    MOVE.L {mid},12({resultAddr}) ; Store mid at offset 12");
-                
-                _asmWriter?.WriteLine($"    ; newobj complete - push result address");
-                
-                stack.Push(resultAddr);
-            }
-            else
-            {
-                _asmWriter?.WriteLine($"    ; TODO: Decimal newobj with {parameterValues.Count} parameters (expected 5)");
-                stack.Push("D0");
-            }
-        }
-
-        /// <summary>Handle System.Decimal instance constructor (call .ctor)</summary>
-        private void HandleSystemDecimalInstanceConstructor(MethodBase methodInfo, StackSimulator stack)
-        {
-            var parameters = methodInfo.GetParameters();
-            
-            _asmWriter?.WriteLine($"    ; System.Decimal instance constructor (void) - {parameters.Length} parameters");
-
-            // Pop parameters in reverse order
-            var parameterValues = new List<string>();
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                try
-                {
-                    parameterValues.Add(stack.Pop());
-                }
-                catch
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Could not pop parameter {i}");
-                    parameterValues.Add("D0");
-                }
-            }
-            parameterValues.Reverse();
-
-            // Pop the 'this' address
-            string thisAddr;
-            try
-            {
-                thisAddr = stack.Pop();
-            }
-            catch
-            {
-                _asmWriter?.WriteLine($"    ; WARNING: Could not pop this");
-                thisAddr = "D0";
-            }
-
-            // Standard Decimal constructor: (int lo, int mid, int hi, bool isNegative, uint8 scale)
-            if (parameterValues.Count == 5)
-            {
-                string scale = parameterValues[4];
-                string isNegative = parameterValues[3];
-                string hi = parameterValues[2];
-                string mid = parameterValues[1];
-                string lo = parameterValues[0];
-
-                _asmWriter?.WriteLine($"    ; System.Decimal constructor inline");
-                _asmWriter?.WriteLine($"    ; this @ {thisAddr}, lo={lo}, mid={mid}, hi={hi}, sign={isNegative}, scale={scale}");
-
-                string skipNegLabel = GetUniqueLabel();
-                
-                _asmWriter?.WriteLine($"    CLR.L D2                  ; Clear flags");
-                _asmWriter?.WriteLine($"    AND.L #0xFF,{scale}      ; Ensure scale is 0-255");
-                _asmWriter?.WriteLine($"    LSL.L #16,{scale}        ; Shift scale to bits 16-23");
-                _asmWriter?.WriteLine($"    OR.L {scale},D2           ; Set scale in flags");
-                
-                _asmWriter?.WriteLine($"    TST.L {isNegative}        ; Check if negative");
-                _asmWriter?.WriteLine($"    BEQ .SkipNegative_{skipNegLabel}");
-                _asmWriter?.WriteLine($"    OR.L #0x80000000,D2      ; Set sign bit if negative");
-                _asmWriter?.WriteLine($".SkipNegative_{skipNegLabel}:");
-
-                _asmWriter?.WriteLine($"    MOVE.L D2,({thisAddr})    ; Store flags at offset 0");
-                _asmWriter?.WriteLine($"    MOVE.L {hi},4({thisAddr}) ; Store high at offset 4");
-                _asmWriter?.WriteLine($"    MOVE.L {lo},8({thisAddr}) ; Store low at offset 8");
-                _asmWriter?.WriteLine($"    MOVE.L {mid},12({thisAddr}) ; Store mid at offset 12");
-                
-                _asmWriter?.WriteLine($"    ; Decimal constructor complete (void - nothing pushed)");
-                
-                // Reset register allocation after consuming constructor arguments
-                stack.Clear();
-            }
-            else
-            {
-                _asmWriter?.WriteLine($"    ; TODO: Decimal constructor with {parameterValues.Count} parameters (expected 5)");
-                stack.Clear();
             }
         }
 
@@ -1407,89 +1045,6 @@ namespace JumpCS.Backend
             return null;
         }
 
-        /// <summary>Handle Decimal.op_Addition inline</summary>
-        private void HandleDecimalAddition(StackSimulator stack)
-        {
-            _asmWriter?.WriteLine($"    ; System.Decimal op_Addition inline (simplified)");
-            
-            string rightAddr = stack.Pop();
-            string leftAddr = stack.Pop();
-            
-            string resultAddr = GetAvailableRegister(stack);
-            _asmWriter?.WriteLine($"    LEA -16(A6),{resultAddr}  ; Allocate result space");
-
-            _asmWriter?.WriteLine($"    MOVE.L 8({leftAddr}),D0   ; Load left low");
-            _asmWriter?.WriteLine($"    MOVE.L 8({rightAddr}),D1  ; Load right low");
-            _asmWriter?.WriteLine($"    ADD.L D1,D0               ; Add low parts");
-            _asmWriter?.WriteLine($"    MOVE.L D0,8({resultAddr}) ; Store result low");
-
-            _asmWriter?.WriteLine($"    ; TODO: Complete decimal addition with carry");
-
-            stack.Push(resultAddr);
-        }
-
-        /// <summary>Handle Decimal.op_Subtraction inline</summary>
-        private void HandleDecimalSubtraction(StackSimulator stack)
-        {
-            _asmWriter?.WriteLine($"    ; System.Decimal op_Subtraction inline (simplified)");
-            
-            string rightAddr = stack.Pop();
-            string leftAddr = stack.Pop();
-            
-            string resultAddr = GetAvailableRegister(stack);
-            _asmWriter?.WriteLine($"    LEA -16(A6),{resultAddr}  ; Allocate result space");
-
-            _asmWriter?.WriteLine($"    MOVE.L 8({leftAddr}),D0   ; Load left low");
-            _asmWriter?.WriteLine($"    MOVE.L 8({rightAddr}),D1  ; Load right low");
-            _asmWriter?.WriteLine($"    SUB.L D1,D0               ; Subtract low parts");
-            _asmWriter?.WriteLine($"    MOVE.L D0,8({resultAddr}) ; Store result low");
-
-            _asmWriter?.WriteLine($"    ; TODO: Complete decimal subtraction with borrow");
-
-            stack.Push(resultAddr);
-        }
-
-        /// <summary>Handle Decimal.Equals inline</summary>
-        private void HandleDecimalEquals(StackSimulator stack)
-        {
-            _asmWriter?.WriteLine($"    ; System.Decimal Equals inline");
-            
-            string rightAddr = stack.Pop();
-            string leftAddr = stack.Pop();
-
-            string resultReg = GetAvailableRegister(stack);
-            
-            string notEqualLabel = GetUniqueLabel();
-            string doneLabel = GetUniqueLabel();
-
-            _asmWriter?.WriteLine($"    MOVE.L #1,{resultReg}     ; Assume equal");
-            
-            _asmWriter?.WriteLine($"    MOVE.L ({leftAddr}),D0    ; Load left flags");
-            _asmWriter?.WriteLine($"    CMP.L ({rightAddr}),D0    ; Compare flags");
-            _asmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            _asmWriter?.WriteLine($"    MOVE.L 4({leftAddr}),D0   ; Load left high");
-            _asmWriter?.WriteLine($"    CMP.L 4({rightAddr}),D0   ; Compare high");
-            _asmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            _asmWriter?.WriteLine($"    MOVE.L 8({leftAddr}),D0   ; Load left low");
-            _asmWriter?.WriteLine($"    CMP.L 8({rightAddr}),D0   ; Compare low");
-            _asmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            _asmWriter?.WriteLine($"    MOVE.L 12({leftAddr}),D0  ; Load left mid");
-            _asmWriter?.WriteLine($"    CMP.L 12({rightAddr}),D0  ; Compare mid");
-            _asmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            _asmWriter?.WriteLine($"    BRA .EqualsDone_{doneLabel}");
-
-            _asmWriter?.WriteLine($".NotEqual_{notEqualLabel}:");
-            _asmWriter?.WriteLine($"    CLR.L {resultReg}         ; Not equal = false");
-
-            _asmWriter?.WriteLine($".EqualsDone_{doneLabel}:");
-            
-            stack.Push(resultReg);
-        }
-
         private string GetMethodLabel(ClassMetadata cls, MethodMetadata method)
         {
             return $"{cls.FullName}_{method.Name}";
@@ -1501,7 +1056,7 @@ namespace JumpCS.Backend
         }
 
         /// <summary>Get an available register for the next stack push</summary>
-        private string GetAvailableRegister(StackSimulator stack)
+        private string GetAvailableRegister(Asm68000StackSimulator stack)
         {
             return stack.GetNextRegister();
         }
