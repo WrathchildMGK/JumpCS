@@ -7,7 +7,14 @@ namespace JumpCS.Backend
         private int _spillOffset;
         private readonly int _maxLocals;
         private readonly int _maxStack;
+
+        // Register pools - now separated by purpose
         private readonly string[] _dataRegisters = { "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7" };
+        private readonly string[] _addressRegisters = { "A0", "A1", "A2", "A3", "A4", "A5" };
+
+        // Track which registers are currently allocated
+        private Queue<string> _availableDataRegisters;
+        private Queue<string> _availableAddressRegisters;
 
         public int StackDepth => _stack.Count;
         public int CurrentFrameOffset => _spillOffset;
@@ -17,19 +24,64 @@ namespace JumpCS.Backend
             _maxLocals = maxLocals;
             _maxStack = maxStack;
             _spillOffset = -maxLocals * 4 - 4;
+
+            // Initialize register queues
+            _availableDataRegisters = new Queue<string>(_dataRegisters);
+            _availableAddressRegisters = new Queue<string>(_addressRegisters);
         }
 
-        /// <summary>Get next available register based on current stack depth</summary>
-        public string GetNextRegister()
+        /// <summary>Get next available data register for arithmetic operations</summary>
+        public string GetNextDataRegister()
         {
             int registerIndex = _stack.Count;
-            
+
             if (registerIndex < _dataRegisters.Length)
             {
                 return _dataRegisters[registerIndex];
             }
-            
+
             return _dataRegisters[registerIndex % _dataRegisters.Length];
+        }
+
+        /// <summary>Allocate a data register (D0-D7) for temporary arithmetic use. Safe to destroy.</summary>
+        public string AllocateDataRegister()
+        {
+            if (_availableDataRegisters.Count == 0)
+            {
+                // Wrap around - reuse registers (they're for temporary data anyway)
+                return _dataRegisters[0];
+            }
+
+            return _availableDataRegisters.Dequeue();
+        }
+
+        /// <summary>Release a data register back to the pool for reuse</summary>
+        public void ReleaseDataRegister(string register)
+        {
+            if (Array.Exists(_dataRegisters, r => r == register))
+            {
+                _availableDataRegisters.Enqueue(register);
+            }
+        }
+
+        /// <summary>Allocate an address register (A0-A5) for struct addresses. Must be preserved.</summary>
+        public string AllocateAddressRegister()
+        {
+            if (_availableAddressRegisters.Count == 0)
+            {
+                throw new InvalidOperationException("No address registers available - too many nested struct operations");
+            }
+
+            return _availableAddressRegisters.Dequeue();
+        }
+
+        /// <summary>Release an address register back to the pool for reuse</summary>
+        public void ReleaseAddressRegister(string register)
+        {
+            if (Array.Exists(_addressRegisters, r => r == register))
+            {
+                _availableAddressRegisters.Enqueue(register);
+            }
         }
 
         /// <summary>Push a register onto the evaluation stack</summary>
@@ -63,6 +115,8 @@ namespace JumpCS.Backend
         {
             _stack.Clear();
             _spillOffset = -_maxLocals * 4 - 4;
+            _availableDataRegisters = new Queue<string>(_dataRegisters);
+            _availableAddressRegisters = new Queue<string>(_addressRegisters);
         }
     }
 }
