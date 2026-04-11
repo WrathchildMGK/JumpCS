@@ -1,6 +1,6 @@
 ; Generated 68000 Assembly Code
 ; Converted from C# MSIL
-; Generated: 2026-04-11 03:53:38
+; Generated: 2026-04-11 04:46:14
 
     ; --- Code Section ---
     SECTION CODE
@@ -1910,7 +1910,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_PositiveNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -2082,7 +2082,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_NegativeNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -2254,7 +2254,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_MixedSigns:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -2426,7 +2426,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_PositiveNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -2598,7 +2598,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_NegativeResult:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -2764,7 +2764,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_PositiveNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -2930,7 +2930,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_ByZero:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -3096,7 +3096,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_NegativeNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -3262,7 +3262,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_PositiveNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -3428,7 +3428,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_WithPrecision:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -3594,7 +3594,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_NegativeNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -3760,7 +3760,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_MixedSigns:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -3926,7 +3926,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_PositiveNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -4092,7 +4092,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_NegativeNumbers:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -4218,7 +4218,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_UnaryMinus:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23
@@ -4340,7 +4340,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_UnaryPlus:
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),D1  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D4, scale=D5
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
     CLR.L D2                  ; Clear flags
     AND.L #0xFF,D5      ; Ensure scale is 0-255
     LSL.L #16,D5        ; Shift scale to bits 16-23

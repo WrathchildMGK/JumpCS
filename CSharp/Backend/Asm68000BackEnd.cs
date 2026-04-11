@@ -45,6 +45,7 @@ namespace JumpCS.Backend
         }
 
         private SystemDecimalHandler _decimalHandler; // Add this field
+        private SystemMathHandler _mathHandler;
 
         public Asm68000BackEnd(string outputBaseName) : base(outputBaseName)
         {
@@ -253,11 +254,16 @@ namespace JumpCS.Backend
 
             using (_asmWriter = new StreamWriter(outputPath, false, Encoding.ASCII))
             {
-                // Initialize decimal handler
+                // Initialize handlers
                 _decimalHandler = new SystemDecimalHandler(
                     _asmWriter,
                     (stack) => GetAvailableRegister(stack),
                     () => GetUniqueLabel()
+                );
+
+                _mathHandler = new SystemMathHandler(
+                    _asmWriter,
+                    (stack) => GetAvailableRegister(stack)
                 );
 
                 WriteHeader();
@@ -677,7 +683,7 @@ namespace JumpCS.Backend
                     if (targetMethod != null)
                     {
                         // Check for System.Decimal special handling
-                        if (_decimalHandler.TryHandleDecimalMethod(targetMethod, stack))
+                        if (_decimalHandler.TryHandleMethod(targetMethod, stack))
                         {
                             // Handled by SystemDecimalHandler
                         }
@@ -705,13 +711,13 @@ namespace JumpCS.Backend
 
                         if (reflectionMethod != null)
                         {
-                            if (_decimalHandler.TryHandleDecimalMethodByReflection(reflectionMethod, stack))
+                            if (_decimalHandler.TryHandleReflectionMethod(reflectionMethod, stack))
                             {
                                 // Handled by SystemDecimalHandler
                             }
-                            else if (IsSystemMathMethod(reflectionMethod))
+                            else if (_mathHandler.TryHandleReflectionMethod(reflectionMethod, stack))
                             {
-                                HandleSystemMathCall(reflectionMethod, stack);
+                                // Handled by SystemMathHandler
                             }
                             else
                             {
@@ -746,7 +752,7 @@ namespace JumpCS.Backend
                 {
                     var reflectionMethod = TryResolveFrameworkMethod(method.OwningClass, methodToken);
 
-                    if (!_decimalHandler.TryHandleDecimalNewObj(reflectionMethod, stack))
+                    if (!_decimalHandler.TryHandleNewObj(reflectionMethod, stack))
                     {
                         _asmWriter?.WriteLine($"    ; TODO: newobj {methodToken:X8}");
                     }
@@ -859,114 +865,6 @@ namespace JumpCS.Backend
         private void WriteFooter()
         {
             _asmWriter?.WriteLine("    END");
-        }
-
-        /// <summary>Check if a method is System.Decimal constructor</summary>
-        private bool IsSystemDecimalConstructor(MethodMetadata method)
-        {
-            return method.OwningClass.FullName == "System.Decimal" && method.IsConstructor;
-        }
-
-        /// <summary>Check if a method belongs to System.Decimal</summary>
-        private bool IsSystemDecimalMethod(MethodMetadata method)
-        {
-            return method.OwningClass.FullName == "System.Decimal" && 
-                   (method.Name == "op_Addition" || method.Name == "op_Subtraction" || 
-                    method.Name == "Equals" || method.Name == ".ctor");
-        }
-
-        /// <summary>Handle System.Decimal constructor inline</summary>
-        /// <remarks>
-        /// Decimal constructor signature: .ctor(int32 lo, int32 mid, int32 hi, bool isNegative, uint8 scale)
-        /// Decimal layout in memory (16 bytes):
-        /// Offset 0-3: flags (contains scale in bits 16-23, sign in bit 31)
-        /// Offset 4-7: high 32 bits
-        /// Offset 8-11: low 32 bits
-        /// Offset 12-15: mid 32 bits
-        /// </remarks>
-        private void HandleSystemDecimalConstructor(MethodMetadata method, Asm68000StackSimulator stack)
-        {
-            // Pop all constructor parameters in reverse order
-            // Stack order: this (address), lo, mid, hi, isNegative, scale
-            string scale = stack.Pop();      // uint8 scale
-            string isNegative = stack.Pop(); // bool sign
-            string hi = stack.Pop();         // int32 hi
-            string mid = stack.Pop();        // int32 mid
-            string lo = stack.Pop();         // int32 lo
-            string thisAddr = stack.Pop();   // address of Decimal struct
-
-            _asmWriter?.WriteLine($"    ; System.Decimal constructor inline");
-            _asmWriter?.WriteLine($"    ; this @ {thisAddr}, lo={lo}, mid={mid}, sign={isNegative}, scale={scale}");
-
-            // Construct flags: scale in bits 16-23, sign in bit 31
-            string skipNegLabel = GetUniqueLabel();
-            
-            _asmWriter?.WriteLine($"    CLR.L D2                  ; Clear flags");
-            _asmWriter?.WriteLine($"    AND.L #0xFF,{scale}      ; Ensure scale is 0-255");
-            _asmWriter?.WriteLine($"    LSL.L #16,{scale}        ; Shift scale to bits 16-23");
-            _asmWriter?.WriteLine($"    OR.L {scale},D2           ; Set scale in flags");
-            
-            _asmWriter?.WriteLine($"    TST.L {isNegative}        ; Check if negative");
-            _asmWriter?.WriteLine($"    BEQ .SkipNegative_{skipNegLabel}");
-            _asmWriter?.WriteLine($"    OR.L #0x80000000,D2      ; Set sign bit if negative");
-            _asmWriter?.WriteLine($".SkipNegative_{skipNegLabel}:");
-            _asmWriter?.WriteLine($"    MOVE.L D2,({thisAddr})    ; Store flags");
-
-            // Store high at offset 4
-            _asmWriter?.WriteLine($"    MOVE.L {hi},4({thisAddr}) ; Store high 32 bits");
-
-            // Store low at offset 8
-            _asmWriter?.WriteLine($"    MOVE.L {lo},8({thisAddr}) ; Store low 32 bits");
-
-            // Store mid at offset 12
-            _asmWriter?.WriteLine($"    MOVE.L {mid},12({thisAddr}) ; Store mid 32 bits");
-
-            _asmWriter?.WriteLine($"    ; Decimal constructor complete");
-        }
-
-        /// <summary>Check if a method is System.Math method</summary>
-        private bool IsSystemMathMethod(System.Reflection.MethodBase method)
-        {
-            bool isSystemMath = method.DeclaringType?.FullName == "System.Math";
-            if (isSystemMath && Program.CodeOptions?.Verbosity > 1)
-            {
-                Console.WriteLine($"  Identified System.Math.{method.Name}");
-            }
-            return isSystemMath;
-        }
-
-        /// <summary>Handle System.Math method calls</summary>
-        private void HandleSystemMathCall(System.Reflection.MethodBase methodInfo, Asm68000StackSimulator stack)
-        {
-            string methodName = methodInfo.Name;
-            var parameters = ((System.Reflection.MethodInfo)methodInfo).GetParameters();
-            int paramCount = parameters.Length;
-            
-            _asmWriter?.WriteLine($"    ; System.Math.{methodName} - {paramCount} parameters (stub)");
-
-            // Pop all arguments in reverse order
-            var poppedValues = new List<string>();
-            for (int i = 0; i < paramCount; i++)
-            {
-                try
-                {
-                    string poppedVal = stack.Pop();
-                    poppedValues.Add(poppedVal);
-                    _asmWriter?.WriteLine($"    ; Pop argument {i}: {poppedVal}");
-                }
-                catch (Exception ex)
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Could not pop argument {i}: {ex.Message}");
-                }
-            }
-
-            // Push return value if non-void
-            if (((System.Reflection.MethodInfo)methodInfo).ReturnType != typeof(void))
-            {
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L #0,{resultReg}     ; TODO: {methodName} result");
-                stack.Push(resultReg);
-            }
         }
 
         /// <summary>Try to resolve a framework method using reflection</summary>
