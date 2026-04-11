@@ -85,6 +85,7 @@ namespace JumpCS.Core
                 OperandType.InlineVar => 2,
                 OperandType.ShortInlineI => 1,
                 OperandType.ShortInlineVar => 1,
+                OperandType.ShortInlineR => 4,  // ← ADD THIS: 4-byte float
                 OperandType.InlineTok => 4,
                 OperandType.InlineMethod => 4,
                 OperandType.InlineField => 4,
@@ -100,7 +101,7 @@ namespace JumpCS.Core
         /// <summary>Decode operand value based on opcode type</summary>
         private object? DecodeOperand(OpCode opcode)
         {
-            return opcode.OperandType switch
+            object? result = opcode.OperandType switch
             {
                 OperandType.InlineI =>
                     ReadInt32(_nextIndex),
@@ -109,7 +110,14 @@ namespace JumpCS.Core
                     ReadInt64(_nextIndex),
 
                 OperandType.InlineR =>
+                    // CRITICAL: InlineR is 8 bytes (double)
+                    // ldc.r8 (8-byte double) uses InlineR
                     ReadDouble(_nextIndex),
+
+                OperandType.ShortInlineR =>
+                    // ADD THIS: 4-byte float (single precision)
+                    // ldc.r4 (4-byte float) uses ShortInlineR
+                    ReadFloat(_nextIndex),
 
                 OperandType.InlineVar =>
                     ReadInt16(_nextIndex),
@@ -137,6 +145,36 @@ namespace JumpCS.Core
 
                 _ => null
             };
+
+            // Debug tracing for ldc.r4/ldc.r8
+            if (opcode == OpCodes.Ldc_R4 || opcode == OpCodes.Ldc_R8)
+            {
+                if (Program.CodeOptions?.Verbosity >= 2)
+                {
+                    Console.WriteLine($"[DEBUG] {opcode.Name} at offset {_currentIndex:X4}:");
+                    Console.WriteLine($"  OperandType: {opcode.OperandType}");
+                    Console.WriteLine($"  Result type: {result?.GetType().Name ?? "null"}");
+                    Console.WriteLine($"  Result value: {result ?? "null"}");
+                    if (result != null)
+                    {
+                        Console.WriteLine($"  Hex bytes: {string.Join(" ", _ilBytes.Skip(_nextIndex).Take(8).Select(b => b.ToString("X2")))}");
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>Read 32-bit float (for ldc.r4)</summary>
+        private float ReadFloat(int offset)
+        {
+            if (offset + 3 >= _ilBytes.Length)
+                return 0f;
+            int intBits = _ilBytes[offset] |
+                (_ilBytes[offset + 1] << 8) |
+                (_ilBytes[offset + 2] << 16) |
+                (_ilBytes[offset + 3] << 24);
+            return BitConverter.Int32BitsToSingle(intBits);
         }
 
         /// <summary>Read switch targets</summary>

@@ -445,6 +445,16 @@ namespace JumpCS.Backend
             OpCode opcode = iterator.CurrentOpcode;
             object? operand = iterator.CurrentOperand;
 
+            // Add diagnostic output for problematic instructions
+            if (Program.CodeOptions?.Verbosity >= 2)
+            {
+                string opInfo = $"{opcode.Name}";
+                if (operand != null)
+                    opInfo += $" ({operand})";
+                
+                Console.WriteLine($"[OPCODE] {iterator.CurrentIndex:X4}: {opInfo}");
+            }
+
             _asmWriter?.WriteLine($"    ; Offset {iterator.CurrentIndex:X4}: {opcode.Name}");
 
             if (opcode == OpCodes.Ldc_I4_0)
@@ -555,6 +565,7 @@ namespace JumpCS.Backend
                 float fVal = 0f;
                 bool handled = false;
                 
+                // ldc.r4 operand is a 32-bit float
                 if (operand is float f)
                 {
                     fVal = f;
@@ -562,7 +573,14 @@ namespace JumpCS.Backend
                 }
                 else if (operand is double d)
                 {
+                    // Fallback: if somehow we get a double, convert it
                     fVal = (float)d;
+                    handled = true;
+                }
+                else if (operand is int intBits)
+                {
+                    // Raw int bits interpretation
+                    fVal = BitConverter.Int32BitsToSingle(intBits);
                     handled = true;
                 }
                 
@@ -577,7 +595,7 @@ namespace JumpCS.Backend
                 }
                 else
                 {
-                    _asmWriter?.WriteLine($"    ; WARNING: ldc.r4 operand type: {operand?.GetType().Name ?? "null"}");
+                    _asmWriter?.WriteLine($"    ; WARNING: ldc.r4 operand type: {operand?.GetType().Name ?? "null"} value: {operand}");
                     string targetReg = GetAvailableRegister(stack);
                     _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Load float constant");
                     stack.Push(targetReg);
@@ -790,306 +808,6 @@ namespace JumpCS.Backend
                 _asmWriter?.WriteLine($"    NOT.L {resultReg}");
                 stack.Push(resultReg);
             }
-            else if (opcode == OpCodes.Bgt_Un || opcode == OpCodes.Bgt_Un_S)
-            {
-                if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BHI {label}  ; Branch if greater than (unsigned)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Bgt_Un with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Ldsfld)
-            {
-                if (operand is int fieldToken)
-                {
-                    _asmWriter?.WriteLine($"    ; TODO: ldsfld token {fieldToken:X8}");
-                    string targetReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Load static field {fieldToken:X8}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Stloc_S)
-            {
-                if (operand is int localIdx && stack.StackDepth > 0)
-                {
-                    int offset = -4 - (localIdx * 4);
-                    string src = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {src},{offset}(A6)  ; Store to local {localIdx}");
-                }
-                else if (stack.StackDepth == 0)
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_S with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Ldloca_S)
-            {
-                if (operand is int localAddr)
-                {
-                    int offset = -4 - (localAddr * 4);
-                    string targetReg = stack.AllocateAddressRegister();
-                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of local {localAddr}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldloca)
-            {
-                if (operand is int localAddrIdx)
-                {
-                    int offset = -4 - (localAddrIdx * 4);
-                    string targetReg = stack.AllocateAddressRegister();
-                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of local {localAddrIdx}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldloc)
-            {
-                if (operand is int localIndex)
-                {
-                    int offset = -4 - (localIndex * 4);
-                    string targetReg = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L {offset}(A6),{targetReg} ; Load local {localIndex}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldloc_0)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -4(A6),{targetReg}   ; Load local 0");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldloc_1)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -8(A6),{targetReg}   ; Load local 1");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldloc_2)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -12(A6),{targetReg}  ; Load local 2");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldloc_3)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -16(A6),{targetReg}  ; Load local 3");
-                stack.Push(targetReg);
-            }
-            // ===== PHASE 1 FIX: Added Stloc_0/1/2/3 implementations =====
-            else if (opcode == OpCodes.Stloc_0)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-4(A6)   ; Store to local 0");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_0 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Stloc_1)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-8(A6)   ; Store to local 1");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_1 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Stloc_2)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-12(A6)  ; Store to local 2");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_2 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Stloc_3)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-16(A6)  ; Store to local 3");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_3 with empty stack");
-                }
-            }
-            // ===== END PHASE 1 FIX =====
-            else if (opcode == OpCodes.Ldarg)
-            {
-                if (operand is int argIndex)
-                {
-                    int offset = 8 + (argIndex * 4);
-                    string targetReg = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L {offset}(A6),{targetReg}  ; Load argument {argIndex}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldarg_0)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L 8(A6),{targetReg}   ; Load argument 0");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldarg_1)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L 12(A6),{targetReg}  ; Load argument 1");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldarg_2)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L 16(A6),{targetReg}  ; Load argument 2");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldarg_3)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L 20(A6),{targetReg}  ; Load argument 3");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldarg_S)
-            {
-                if (operand is int shortArgIndex)
-                {
-                    int offset = 8 + (shortArgIndex * 4);
-                    string targetReg = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L {offset}(A6),{targetReg}  ; Load argument {shortArgIndex}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Starg)
-            {
-                if (operand is int argIdx && stack.StackDepth > 0)
-                {
-                    int offset = 8 + (argIdx * 4);
-                    string src = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {src},{offset}(A6)  ; Store to argument {argIdx}");
-                }
-                else if (stack.StackDepth == 0)
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Starg with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Starg_S)
-            {
-                if (operand is int shortArgIdx && stack.StackDepth > 0)
-                {
-                    int offset = 8 + (shortArgIdx * 4);
-                    string src = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {src},{offset}(A6)  ; Store to argument {shortArgIdx}");
-                }
-                else if (stack.StackDepth == 0)
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Starg_S with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Ldarga)
-            {
-                if (operand is int argAddrIndex)
-                {
-                    int offset = 8 + (argAddrIndex * 4);
-                    string targetReg = stack.AllocateAddressRegister();
-                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of argument {argAddrIndex}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldarga_S)
-            {
-                if (operand is int shortArgAddrIndex)
-                {
-                    int offset = 8 + (shortArgAddrIndex * 4);
-                    string targetReg = stack.AllocateAddressRegister();
-                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of argument {shortArgAddrIndex}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Bgt || opcode == OpCodes.Bgt_S)
-            {
-                if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BGT {label}  ; Branch if greater than (signed)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Bgt with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Blt_Un || opcode == OpCodes.Blt_Un_S)
-            {
-                if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BLO {label}  ; Branch if less than (unsigned)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Blt_Un with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Blt || opcode == OpCodes.Blt_S)
-            {
-                if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BLT {label}  ; Branch if less than (signed)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Blt with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Ldfld)
-            {
-                if (operand is int fieldToken)
-                {
-                    _asmWriter?.WriteLine($"    ; TODO: ldfld token {fieldToken:X8}");
-                    string targetReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Load field {fieldToken:X8}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Stfld)
-            {
-                if (operand is int fieldToken && stack.StackDepth > 0)
-                {
-                    string valueToStore = stack.Pop();
-                    _asmWriter?.WriteLine($"    ; TODO: stfld token {fieldToken:X8}");
-                    _asmWriter?.WriteLine($"    CLR.L {valueToStore}  ; TODO: Store field {fieldToken:X8}");
-                }
-                else if (stack.StackDepth == 0)
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stfld with empty stack");
-                }
-            }
             else if (opcode == OpCodes.Bne_Un || opcode == OpCodes.Bne_Un_S)
             {
                 if (stack.StackDepth >= 2)
@@ -1105,6 +823,43 @@ namespace JumpCS.Backend
                     _asmWriter?.WriteLine($"    ; WARNING: Bne_Un with insufficient stack depth ({stack.StackDepth})");
                 }
             }
+            else if (opcode == OpCodes.Blt || opcode == OpCodes.Blt_S)
+            {
+                if (stack.StackDepth >= 2)
+                {
+                    string val2 = stack.Pop();
+                    string val1 = stack.Pop();
+                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                    _asmWriter?.WriteLine($"    BLT {label}  ; Branch if < (signed)");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Blt with insufficient stack depth ({stack.StackDepth})");
+                }
+            }
+            else if (opcode == OpCodes.Blt_Un || opcode == OpCodes.Blt_Un_S)
+            {
+                if (stack.StackDepth >= 2)
+                {
+                    string val2 = stack.Pop();
+                    string val1 = stack.Pop();
+                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                    _asmWriter?.WriteLine($"    BCS {label}  ; Branch if < (unsigned - Carry Set)");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Blt_Un with insufficient stack depth ({stack.StackDepth})");
+                }
+            }
+            else if (opcode == OpCodes.Br || opcode == OpCodes.Br_S)
+            {
+                // Unconditional branch - simple jump to target
+                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                _asmWriter?.WriteLine($"    BRA {label}  ; Unconditional branch");
+                stack.Clear();  // Clear stack after unconditional branch
+            }
             else if (opcode == OpCodes.Beq || opcode == OpCodes.Beq_S)
             {
                 if (stack.StackDepth >= 2)
@@ -1118,6 +873,81 @@ namespace JumpCS.Backend
                 else
                 {
                     _asmWriter?.WriteLine($"    ; WARNING: Beq with insufficient stack depth ({stack.StackDepth})");
+                }
+            }
+            else if (opcode == OpCodes.Bge || opcode == OpCodes.Bge_S)
+            {
+                if (stack.StackDepth >= 2)
+                {
+                    string val2 = stack.Pop();
+                    string val1 = stack.Pop();
+                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                    _asmWriter?.WriteLine($"    BGE {label}  ; Branch if >= (signed)");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Bge with insufficient stack depth ({stack.StackDepth})");
+                }
+            }
+            else if (opcode == OpCodes.Ble || opcode == OpCodes.Ble_S)
+            {
+                if (stack.StackDepth >= 2)
+                {
+                    string val2 = stack.Pop();
+                    string val1 = stack.Pop();
+                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                    _asmWriter?.WriteLine($"    BLE {label}  ; Branch if <= (signed)");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Ble with insufficient stack depth ({stack.StackDepth})");
+                }
+            }
+            else if (opcode == OpCodes.Bgt_Un || opcode == OpCodes.Bgt_Un_S)
+            {
+                if (stack.StackDepth >= 2)
+                {
+                    string val2 = stack.Pop();
+                    string val1 = stack.Pop();
+                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                    _asmWriter?.WriteLine($"    BHI {label}  ; Branch if > (unsigned)");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Bgt_Un with insufficient stack depth ({stack.StackDepth})");
+                }
+            }
+            else if (opcode == OpCodes.Bge_Un || opcode == OpCodes.Bge_Un_S)
+            {
+                if (stack.StackDepth >= 2)
+                {
+                    string val2 = stack.Pop();
+                    string val1 = stack.Pop();
+                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                    _asmWriter?.WriteLine($"    BCC {label}  ; Branch if >= (unsigned)");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Bge_Un with insufficient stack depth ({stack.StackDepth})");
+                }
+            }
+            else if (opcode == OpCodes.Ble_Un || opcode == OpCodes.Ble_Un_S)
+            {
+                if (stack.StackDepth >= 2)
+                {
+                    string val2 = stack.Pop();
+                    string val1 = stack.Pop();
+                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                    _asmWriter?.WriteLine($"    BLS {label}  ; Branch if <= (unsigned)");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Ble_Un with insufficient stack depth ({stack.StackDepth})");
                 }
             }
             else if (opcode == OpCodes.Call || opcode == OpCodes.Callvirt)
@@ -1293,6 +1123,115 @@ namespace JumpCS.Backend
                 else
                 {
                     _asmWriter?.WriteLine($"    ; WARNING: Conv_R8 with empty stack");
+                }
+            }
+            else if (opcode == OpCodes.Ldloc_0 || opcode == OpCodes.Ldloc_1 || 
+                     opcode == OpCodes.Ldloc_2 || opcode == OpCodes.Ldloc_3)
+            {
+                // Load local variable onto evaluation stack
+                int localIndex = 0;
+                if (opcode == OpCodes.Ldloc_1) localIndex = 1;
+                else if (opcode == OpCodes.Ldloc_2) localIndex = 2;
+                else if (opcode == OpCodes.Ldloc_3) localIndex = 3;
+                
+                string targetReg = GetAvailableRegister(stack);
+                int frameOffset = -(localIndex + 1) * 4 - 4;
+                _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIndex}");
+                stack.Push(targetReg);
+            }
+            else if (opcode == OpCodes.Ldloc_S)
+            {
+                // Load short local variable - operand is Int32 (MsilIterator casts byte to int)
+                if (operand is int localIdx)
+                {
+                    string targetReg = GetAvailableRegister(stack);
+                    int frameOffset = -(localIdx + 1) * 4 - 4;
+                    _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIdx}");
+                    stack.Push(targetReg);
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; ERROR: ldloc.s with invalid operand type: {operand?.GetType().Name}");
+                }
+            }
+            else if (opcode == OpCodes.Ldloc)
+            {
+                // Load local variable by index
+                if (operand is ushort localIdx2)
+                {
+                    string targetReg = GetAvailableRegister(stack);
+                    int frameOffset = -(localIdx2 + 1) * 4 - 4;
+                    _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIdx2}");
+                    stack.Push(targetReg);
+                }
+            }
+            else if (opcode == OpCodes.Stloc_0 || opcode == OpCodes.Stloc_1 || 
+                     opcode == OpCodes.Stloc_2 || opcode == OpCodes.Stloc_3)
+            {
+                // Store evaluation stack value to local variable
+                if (stack.StackDepth > 0)
+                {
+                    string valueReg = stack.Pop();
+                    int localIndex = 0;
+                    if (opcode == OpCodes.Stloc_1) localIndex = 1;
+                    else if (opcode == OpCodes.Stloc_2) localIndex = 2;
+                    else if (opcode == OpCodes.Stloc_3) localIndex = 3;
+                    
+                    int frameOffset = -(localIndex + 1) * 4 - 4;
+                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},{frameOffset}(A6)  ; Store local.{localIndex}");
+                    stack.ReleaseDataRegister(valueReg);
+                }
+                else
+                {
+                    int localIndex = 0;
+                    if (opcode == OpCodes.Stloc_1) localIndex = 1;
+                    else if (opcode == OpCodes.Stloc_2) localIndex = 2;
+                    else if (opcode == OpCodes.Stloc_3) localIndex = 3;
+                    _asmWriter?.WriteLine($"    ; WARNING: stloc.{localIndex} with empty stack");
+                }
+            }
+            else if (opcode == OpCodes.Stloc_S)
+            {
+                // Store short local variable - operand is Int32 (MsilIterator casts byte to int)
+                if (operand is int localIdx)
+                {
+                    if (stack.StackDepth > 0)
+                    {
+                        string valueReg = stack.Pop();
+                        int frameOffset = -(localIdx + 1) * 4 - 4;
+                        _asmWriter?.WriteLine($"    MOVE.L {valueReg},{frameOffset}(A6)  ; Store local.{localIdx}");
+                        stack.ReleaseDataRegister(valueReg);
+                    }
+                    else
+                    {
+                        _asmWriter?.WriteLine($"    ; WARNING: stloc.s {localIdx} with empty stack");
+                    }
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; ERROR: stloc.s with invalid operand type: {operand?.GetType().Name}");
+                }
+            }
+            else if (opcode == OpCodes.Stloc)
+            {
+                // Store local variable by index - must have operand
+                if (operand is ushort localIdx2)
+                {
+                    if (stack.StackDepth > 0)
+                    {
+                        string valueReg = stack.Pop();
+                        int frameOffset = -(localIdx2 + 1) * 4 - 4;
+                        _asmWriter?.WriteLine($"    MOVE.L {valueReg},{frameOffset}(A6)  ; Store local.{localIdx2}");
+                        stack.ReleaseDataRegister(valueReg);
+                    }
+                    else
+                    {
+                        _asmWriter?.WriteLine($"    ; WARNING: stloc {localIdx2} with empty stack");
+                    }
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; ERROR: stloc with invalid operand type: {operand?.GetType().Name}");
                 }
             }
             else

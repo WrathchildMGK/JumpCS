@@ -62,11 +62,28 @@ namespace JumpCS.Backend
                 // If still no registers (all 8 are in use on stack), we have a real problem
                 if (_availableDataRegisters.Count == 0)
                 {
-                    throw new InvalidOperationException($"Evaluation stack overflow: all {_dataRegisters.Length} data registers in use");
+                    // Debug output before throwing
+                    if (Program.CodeOptions?.Verbosity >= 2)
+                    {
+                        Console.WriteLine("\n[CRITICAL] REGISTER EXHAUSTION:");
+                        Console.WriteLine($"  Stack depth: {_stack.Count}");
+                        Console.WriteLine($"  Registers on stack: {string.Join(", ", _stack)}");
+                        Console.WriteLine($"  Available registers: {string.Join(", ", _availableDataRegisters)}");
+                        Console.WriteLine($"  All registers: {string.Join(", ", _dataRegisters)}");
+                    }
+                    
+                    throw new InvalidOperationException($"Evaluation stack overflow: all {_dataRegisters.Length} data registers in use. Stack contains: {string.Join(", ", _stack)}");
                 }
             }
 
-            return _availableDataRegisters.Dequeue();
+            string allocated = _availableDataRegisters.Dequeue();
+            
+            if (Program.CodeOptions?.Verbosity >= 2)
+            {
+                Console.WriteLine($"[ALLOC] Allocated {allocated} | Stack depth: {_stack.Count} | Available: {_availableDataRegisters.Count}");
+            }
+
+            return allocated;
         }
 
         /// <summary>Release a data register back to the pool for reuse</summary>
@@ -103,7 +120,13 @@ namespace JumpCS.Backend
         {
             if (_stack.Count > _maxStack)
                 throw new InvalidOperationException("Evaluation stack overflow");
+            
             _stack.Add(register);
+            
+            if (Program.CodeOptions?.Verbosity >= 2)
+            {
+                Console.WriteLine($"[PUSH] {register} | Stack depth: {_stack.Count} ({string.Join(", ", _stack)})");
+            }
         }
 
         /// <summary>Pop a register from the evaluation stack</summary>
@@ -111,13 +134,14 @@ namespace JumpCS.Backend
         {
             if (_stack.Count == 0)
                 throw new InvalidOperationException("Evaluation stack underflow");
+            
             string register = _stack[^1];
             _stack.RemoveAt(_stack.Count - 1);
             
-            // NOTE: DO NOT release registers here!
-            // Registers should only be released at method boundaries or
-            // when explicitly cleared. Releasing immediately causes issues
-            // when multiple values are on the stack simultaneously.
+            if (Program.CodeOptions?.Verbosity >= 2)
+            {
+                Console.WriteLine($"[POP] {register} | Stack depth: {_stack.Count} ({string.Join(", ", _stack)})");
+            }
             
             return register;
         }
