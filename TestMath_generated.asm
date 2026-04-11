@@ -1,6 +1,6 @@
 ; Generated 68000 Assembly Code
 ; Converted from C# MSIL
-; Generated: 2026-04-11 02:01:19
+; Generated: 2026-04-11 02:44:55
 
     ; --- Code Section ---
     SECTION CODE
@@ -1817,7 +1817,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -1855,7 +1854,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -1881,7 +1879,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_PositiveNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Addition
     ; System.Decimal.op_Addition (inline)
     ; System.Decimal op_Addition inline (simplified)
     LEA -16(A6),D0  ; Allocate result space
@@ -1932,6 +1929,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_PositiveNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -1992,7 +1990,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2030,7 +2027,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2056,7 +2052,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_NegativeNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Addition
     ; System.Decimal.op_Addition (inline)
     ; System.Decimal op_Addition inline (simplified)
     LEA -16(A6),D0  ; Allocate result space
@@ -2107,6 +2102,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_NegativeNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -2167,7 +2163,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_MixedSigns:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2205,7 +2200,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_MixedSigns:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2231,7 +2225,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_MixedSigns:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Addition
     ; System.Decimal.op_Addition (inline)
     ; System.Decimal op_Addition inline (simplified)
     LEA -16(A6),D0  ; Allocate result space
@@ -2282,6 +2275,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Addition_MixedSigns:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -2342,7 +2336,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2380,7 +2373,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2406,7 +2398,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_PositiveNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Subtraction
     ; System.Decimal.op_Subtraction (inline)
     ; System.Decimal op_Subtraction inline (simplified)
     LEA -16(A6),D0  ; Allocate result space
@@ -2457,6 +2448,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_PositiveNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -2517,7 +2509,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_NegativeResult:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2555,7 +2546,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_NegativeResult:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2581,7 +2571,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_NegativeResult:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Subtraction
     ; System.Decimal.op_Subtraction (inline)
     ; System.Decimal op_Subtraction inline (simplified)
     LEA -16(A6),D0  ; Allocate result space
@@ -2632,6 +2621,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Subtraction_NegativeResult:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -2692,7 +2682,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2730,7 +2719,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2756,9 +2744,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_PositiveNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Multiply
     ; System.Decimal.op_Multiply (inline)
-    ; TODO: System.Decimal op_Multiply
+    ; TODO: D0 * D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -2801,6 +2788,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_PositiveNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -2861,7 +2849,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_ByZero:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2899,7 +2886,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_ByZero:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 0018: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -2925,9 +2911,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_ByZero:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 001F: call
-    ; Resolved: System.Decimal::op_Multiply
     ; System.Decimal.op_Multiply (inline)
-    ; TODO: System.Decimal op_Multiply
+    ; TODO: D0 * D1
 
     ; Offset 0024: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -2970,6 +2955,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_ByZero:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0030: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -3030,7 +3016,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3068,7 +3053,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3094,9 +3078,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_NegativeNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Multiply
     ; System.Decimal.op_Multiply (inline)
-    ; TODO: System.Decimal op_Multiply
+    ; TODO: D0 * D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -3139,6 +3122,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Multiplication_NegativeNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -3199,7 +3183,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3237,7 +3220,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3263,9 +3245,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_PositiveNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Division
     ; System.Decimal.op_Division (inline)
-    ; TODO: System.Decimal op_Division
+    ; TODO: D0 / D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -3308,6 +3289,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_PositiveNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -3368,7 +3350,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_WithPrecision:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3406,7 +3387,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_WithPrecision:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3432,9 +3412,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_WithPrecision:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Division
     ; System.Decimal.op_Division (inline)
-    ; TODO: System.Decimal op_Division
+    ; TODO: D0 / D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -3477,6 +3456,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_WithPrecision:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0041: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -3537,7 +3517,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3575,7 +3554,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3601,9 +3579,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_NegativeNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Division
     ; System.Decimal.op_Division (inline)
-    ; TODO: System.Decimal op_Division
+    ; TODO: D0 / D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -3646,6 +3623,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_NegativeNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -3706,7 +3684,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_MixedSigns:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3744,7 +3721,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_MixedSigns:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3770,9 +3746,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_MixedSigns:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Division
     ; System.Decimal.op_Division (inline)
-    ; TODO: System.Decimal op_Division
+    ; TODO: D0 / D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -3815,6 +3790,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Division_MixedSigns:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0038: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -3875,7 +3851,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3913,7 +3888,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_PositiveNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -3939,9 +3913,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_PositiveNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Modulus
     ; System.Decimal.op_Modulus (inline)
-    ; TODO: System.Decimal op_Modulus
+    ; TODO: D0 % D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -3984,6 +3957,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_PositiveNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0035: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -4044,7 +4018,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4082,7 +4055,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_NegativeNumbers:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4108,9 +4080,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_NegativeNumbers:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Modulus
     ; System.Decimal.op_Modulus (inline)
-    ; TODO: System.Decimal op_Modulus
+    ; TODO: D0 % D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -4153,6 +4124,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_Remainder_NegativeNumbers:
     MOVE.L -12(A6),D1  ; Load local 2
 
     ; Offset 0035: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -4213,7 +4185,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_UnaryMinus:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4236,9 +4207,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_UnaryMinus:
     MOVE.L -4(A6),D0   ; Load local 0
 
     ; Offset 0012: call
-    ; Resolved: System.Decimal::op_UnaryNegation
     ; System.Decimal.op_UnaryNegation (inline)
-    ; TODO: System.Decimal op_UnaryNegation
+    ; TODO: negate D0
 
     ; Offset 0017: stloc.1
     MOVE.L D0,-8(A6)  ; Store to local 1
@@ -4281,6 +4251,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_UnaryMinus:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0027: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -4341,7 +4312,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_UnaryPlus:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4404,6 +4374,7 @@ JumpCS.TestMath.Tests.DecimalMathTests_UnaryPlus:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0022: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
     MOVE.L #1,D0     ; Assume equal
     MOVE.L (D0),D0    ; Load left flags
@@ -4464,7 +4435,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_LessThan:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4502,7 +4472,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_LessThan:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4528,14 +4497,14 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_LessThan:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_LessThan
     ; System.Decimal.op_LessThan (inline)
-    ; TODO: System.Decimal.op_LessThan
+    ; TODO: D0 < D1
 
     ; Offset 0028: stloc.2
-    MOVE.L D1,-12(A6)  ; Store to local 2
+    MOVE.L D0,-12(A6)  ; Store to local 2
 
     ; Offset 0029: ret
+    CLR.L D0            ; Clear return value (void)
 
 
     ; Method epilogue
@@ -4572,7 +4541,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_GreaterThan:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4610,7 +4578,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_GreaterThan:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4636,14 +4603,14 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_GreaterThan:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_GreaterThan
     ; System.Decimal.op_GreaterThan (inline)
-    ; TODO: System.Decimal.op_GreaterThan
+    ; TODO: D0 > D1
 
     ; Offset 0028: stloc.2
-    MOVE.L D1,-12(A6)  ; Store to local 2
+    MOVE.L D0,-12(A6)  ; Store to local 2
 
     ; Offset 0029: ret
+    CLR.L D0            ; Clear return value (void)
 
 
     ; Method epilogue
@@ -4680,7 +4647,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_Equal:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4718,7 +4684,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_Equal:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4744,9 +4709,8 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_Equal:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Equality
     ; System.Decimal.op_Equality (inline)
-    ; TODO: System.Decimal.op_Equality
+    ; TODO: D0 == D1
 
     ; Offset 0028: stloc.2
     MOVE.L D0,-12(A6)  ; Store to local 2
@@ -4789,7 +4753,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_NotEqual:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4827,7 +4790,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_NotEqual:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 001C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4853,14 +4815,14 @@ JumpCS.TestMath.Tests.DecimalMathTests_Comparison_NotEqual:
     MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0023: call
-    ; Resolved: System.Decimal::op_Inequality
     ; System.Decimal.op_Inequality (inline)
-    ; TODO: System.Decimal.op_Inequality
+    ; TODO: D0 != D1
 
     ; Offset 0028: stloc.2
-    MOVE.L D1,-12(A6)  ; Store to local 2
+    MOVE.L D0,-12(A6)  ; Store to local 2
 
     ; Offset 0029: ret
+    CLR.L D0            ; Clear return value (void)
 
 
     ; Method epilogue
@@ -4897,7 +4859,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Abs:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -4920,74 +4881,75 @@ JumpCS.TestMath.Tests.DecimalMathTests_Abs:
     MOVE.L -4(A6),D0   ; Load local 0
 
     ; Offset 0012: call
-    ; Call System.Math.Abs(LSystem/Decimal;)LSystem/Decimal;
-    JSR System.Math_Abs
-    ; Return value pushed (non-void method)
+    ; System.Math.Abs - 1 parameters (stub)
+    MOVE.L #0,D0     ; TODO: Abs result
 
     ; Offset 0017: stloc.1
     MOVE.L D0,-8(A6)  ; Store to local 1
 
     ; Offset 0018: ldc.i4
-    MOVE.L #4250,D1  ; Load constant
+    MOVE.L #4250,D0  ; Load constant
 
     ; Offset 001D: ldc.i4.0
-    CLR.L D2             ; Load 0
+    CLR.L D1             ; Load 0
 
     ; Offset 001E: ldc.i4.0
-    CLR.L D3             ; Load 0
+    CLR.L D2             ; Load 0
 
     ; Offset 001F: ldc.i4.0
-    CLR.L D4             ; Load 0
+    CLR.L D3             ; Load 0
 
     ; Offset 0020: ldc.i4.2
-    MOVE.L #2,D5         ; Load 2
+    MOVE.L #2,D4         ; Load 2
 
     ; Offset 0021: newobj
     ; System.Decimal newobj - create new instance (5 parameters)
-    LEA -32(A6),D1  ; Allocate new Decimal instance
+    LEA -32(A6),D0  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    ; result @ D0, lo=D0, mid=D1, hi=D2, sign=D3, scale=D4
     CLR.L D2                  ; Clear flags
-    AND.L #0xFF,D5      ; Ensure scale is 0-255
-    LSL.L #16,D5        ; Shift scale to bits 16-23
-    OR.L D5,D2           ; Set scale in flags
-    TST.L D4        ; Check if negative
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D2           ; Set scale in flags
+    TST.L D3        ; Check if negative
     BEQ .SkipNegative_L_87
     OR.L #0x80000000,D2      ; Set sign bit if negative
 .SkipNegative_L_87:
-    MOVE.L D2,(D1)    ; Store flags at offset 0
-    MOVE.L D3,4(D1) ; Store high at offset 4
-    MOVE.L D1,8(D1) ; Store low at offset 8
-    MOVE.L D2,12(D1) ; Store mid at offset 12
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D2,4(D0) ; Store high at offset 4
+    MOVE.L D0,8(D0) ; Store low at offset 8
+    MOVE.L D1,12(D0) ; Store mid at offset 12
     ; newobj complete - push result address
 
     ; Offset 0026: ldloc.1
-    MOVE.L -8(A6),D2   ; Load local 1
+    MOVE.L -8(A6),D1   ; Load local 1
 
     ; Offset 0027: call
+    ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
-    MOVE.L #1,D1     ; Assume equal
-    MOVE.L (D1),D0    ; Load left flags
-    CMP.L (D2),D0    ; Compare flags
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
     BNE .NotEqual_L_88
-    MOVE.L 4(D1),D0   ; Load left high
-    CMP.L 4(D2),D0   ; Compare high
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
     BNE .NotEqual_L_88
-    MOVE.L 8(D1),D0   ; Load left low
-    CMP.L 8(D2),D0   ; Compare low
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
     BNE .NotEqual_L_88
-    MOVE.L 12(D1),D0  ; Load left mid
-    CMP.L 12(D2),D0  ; Compare mid
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
     BNE .NotEqual_L_88
     BRA .EqualsDone_L_89
 .NotEqual_L_88:
-    CLR.L D1         ; Not equal = false
+    CLR.L D0         ; Not equal = false
 .EqualsDone_L_89:
 
     ; Offset 002C: stloc.2
-    MOVE.L D1,-12(A6)  ; Store to local 2
+    MOVE.L D0,-12(A6)  ; Store to local 2
 
     ; Offset 002D: ret
+    CLR.L D0            ; Clear return value (void)
 
 
     ; Method epilogue
@@ -5024,7 +4986,6 @@ JumpCS.TestMath.Tests.DecimalMathTests_Round_ToNearestEven:
     MOVE.L #2,D5         ; Load 2
 
     ; Offset 000C: call
-    ; Resolved: System.Decimal::.ctor
     ; System.Decimal..ctor (inline)
     ; System.Decimal instance constructor (void) - 5 parameters
     ; System.Decimal constructor inline
@@ -5050,24 +5011,1366 @@ JumpCS.TestMath.Tests.DecimalMathTests_Round_ToNearestEven:
     MOVE.L #1,D1         ; Load 1
 
     ; Offset 0013: call
-    ; Call System.Math.Round(LSystem/Decimal;I)LSystem/Decimal;
-    JSR System.Math_Round
-    ; Return value pushed (non-void method)
+    ; System.Math.Round - 2 parameters (stub)
+    MOVE.L #0,D0     ; TODO: Round result
 
     ; Offset 0018: stloc.1
     MOVE.L D0,-8(A6)  ; Store to local 1
 
     ; Offset 0019: ldc.i4
-    MOVE.L #426,D2  ; Load constant
+    MOVE.L #426,D0  ; Load constant
 
     ; Offset 001E: ldc.i4.0
-    CLR.L D3             ; Load 0
+    CLR.L D1             ; Load 0
 
     ; Offset 001F: ldc.i4.0
-    CLR.L D4             ; Load 0
+    CLR.L D2             ; Load 0
 
     ; Offset 0020: ldc.i4.0
-    CLR.L D5             ; Load 0
+    CLR.L D3             ; Load 0
 
     ; Offset 0021: ldc.i4.1
-    MOVE.L #1,D6         ; Load 1
+    MOVE.L #1,D4         ; Load 1
+
+    ; Offset 0022: newobj
+    ; System.Decimal newobj - create new instance (5 parameters)
+    LEA -32(A6),D0  ; Allocate new Decimal instance
+    ; System.Decimal newobj inline
+    ; result @ D0, lo=D0, mid=D1, hi=D2, sign=D3, scale=D4
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D2           ; Set scale in flags
+    TST.L D3        ; Check if negative
+    BEQ .SkipNegative_L_91
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_91:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D2,4(D0) ; Store high at offset 4
+    MOVE.L D0,8(D0) ; Store low at offset 8
+    MOVE.L D1,12(D0) ; Store mid at offset 12
+    ; newobj complete - push result address
+
+    ; Offset 0027: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0028: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_92
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_92
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_92
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_92
+    BRA .EqualsDone_L_93
+.NotEqual_L_92:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_93:
+
+    ; Offset 002D: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 002E: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_Round_AwayFromZero:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #12,A7 ; Allocate locals
+
+    ; MSIL Code (48 bytes, 6 max stack, 3 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #4255,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_94
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_94:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0012: ldc.i4.1
+    MOVE.L #1,D1         ; Load 1
+
+    ; Offset 0013: ldc.i4.1
+    MOVE.L #1,D2         ; Load 1
+
+    ; Offset 0014: call
+    ; System.Math.Round - 3 parameters (stub)
+    MOVE.L #0,D0     ; TODO: Round result
+
+    ; Offset 0019: stloc.1
+    MOVE.L D0,-8(A6)  ; Store to local 1
+
+    ; Offset 001A: ldc.i4
+    MOVE.L #426,D0  ; Load constant
+
+    ; Offset 001F: ldc.i4.0
+    CLR.L D1             ; Load 0
+
+    ; Offset 0020: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0021: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 0022: ldc.i4.1
+    MOVE.L #1,D4         ; Load 1
+
+    ; Offset 0023: newobj
+    ; System.Decimal newobj - create new instance (5 parameters)
+    LEA -32(A6),D0  ; Allocate new Decimal instance
+    ; System.Decimal newobj inline
+    ; result @ D0, lo=D0, mid=D1, hi=D2, sign=D3, scale=D4
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D2           ; Set scale in flags
+    TST.L D3        ; Check if negative
+    BEQ .SkipNegative_L_95
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_95:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D2,4(D0) ; Store high at offset 4
+    MOVE.L D0,8(D0) ; Store low at offset 8
+    MOVE.L D1,12(D0) ; Store mid at offset 12
+    ; newobj complete - push result address
+
+    ; Offset 0028: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0029: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_96
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_96
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_96
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_96
+    BRA .EqualsDone_L_97
+.NotEqual_L_96:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_97:
+
+    ; Offset 002E: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 002F: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_Truncate:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #12,A7 ; Allocate locals
+
+    ; MSIL Code (39 bytes, 6 max stack, 3 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #4297,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_98
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_98:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0012: call
+    ; System.Math.Truncate - 1 parameters (stub)
+    MOVE.L #0,D0     ; TODO: Truncate result
+
+    ; Offset 0017: stloc.1
+    MOVE.L D0,-8(A6)  ; Store to local 1
+
+    ; Offset 0018: ldc.i4.s
+    MOVE.L #42,D0  ; Load short constant
+
+    ; Offset 001A: newobj
+    ; System.Decimal newobj - create new instance (1 parameters)
+    ; TODO: Decimal newobj with 1 parameters (expected 5)
+
+    ; Offset 001F: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0020: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_99
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_99
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_99
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_99
+    BRA .EqualsDone_L_100
+.NotEqual_L_99:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_100:
+
+    ; Offset 0025: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 0026: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_Floor:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #12,A7 ; Allocate locals
+
+    ; MSIL Code (39 bytes, 6 max stack, 3 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #4297,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_101
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_101:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0012: call
+    ; System.Math.Floor - 1 parameters (stub)
+    MOVE.L #0,D0     ; TODO: Floor result
+
+    ; Offset 0017: stloc.1
+    MOVE.L D0,-8(A6)  ; Store to local 1
+
+    ; Offset 0018: ldc.i4.s
+    MOVE.L #42,D0  ; Load short constant
+
+    ; Offset 001A: newobj
+    ; System.Decimal newobj - create new instance (1 parameters)
+    ; TODO: Decimal newobj with 1 parameters (expected 5)
+
+    ; Offset 001F: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0020: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_102
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_102
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_102
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_102
+    BRA .EqualsDone_L_103
+.NotEqual_L_102:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_103:
+
+    ; Offset 0025: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 0026: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_Ceiling:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #12,A7 ; Allocate locals
+
+    ; MSIL Code (39 bytes, 6 max stack, 3 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #4201,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_104
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_104:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0012: call
+    ; System.Math.Ceiling - 1 parameters (stub)
+    MOVE.L #0,D0     ; TODO: Ceiling result
+
+    ; Offset 0017: stloc.1
+    MOVE.L D0,-8(A6)  ; Store to local 1
+
+    ; Offset 0018: ldc.i4.s
+    MOVE.L #43,D0  ; Load short constant
+
+    ; Offset 001A: newobj
+    ; System.Decimal newobj - create new instance (1 parameters)
+    ; TODO: Decimal newobj with 1 parameters (expected 5)
+
+    ; Offset 001F: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0020: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_105
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_105
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_105
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_105
+    BRA .EqualsDone_L_106
+.NotEqual_L_105:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_106:
+
+    ; Offset 0025: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 0026: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_DivideByZeroThrows:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #16,A7 ; Allocate locals
+
+    ; MSIL Code (51 bytes, 6 max stack, 4 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #4250,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_107
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_107:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloca.s
+    LEA -8(A6),D0  ; Load address of local 1
+
+    ; Offset 0013: ldc.i4.0
+    CLR.L D1             ; Load 0
+
+    ; Offset 0014: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0015: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 0016: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 0017: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 0018: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_108
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_108:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 001D: ldc.i4.1
+    MOVE.L #1,D0         ; Load 1
+
+    ; Offset 001E: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 001F: nop
+    ; TODO: nop
+
+    ; Offset 0020: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0021: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0022: call
+    ; System.Decimal.op_Division (inline)
+    ; TODO: D0 / D1
+
+    ; Offset 0027: stloc.3
+    MOVE.L D0,-16(A6)  ; Store to local 3
+
+    ; Offset 0028: nop
+    ; TODO: nop
+
+    ; Offset 0029: leave.s
+    BRA L_0032  ; leave - exit exception handler
+
+    ; Offset 002B: pop
+    ; WARNING: Pop on empty stack
+
+    ; Offset 002C: nop
+    ; TODO: nop
+
+    ; Offset 002D: ldc.i4.0
+    CLR.L D0             ; Load 0
+
+    ; Offset 002E: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 002F: nop
+    ; TODO: nop
+
+    ; Offset 0030: leave.s
+    BRA L_0032  ; leave - exit exception handler
+
+    ; Offset 0032: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_ChainedOperations:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #20,A7 ; Allocate locals
+
+    ; MSIL Code (105 bytes, 6 max stack, 5 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #1050,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_109
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_109:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloca.s
+    LEA -8(A6),D0  ; Load address of local 1
+
+    ; Offset 0013: ldc.i4
+    MOVE.L #2030,D1  ; Load constant
+
+    ; Offset 0018: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0019: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 001A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 001B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 001C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_110
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_110:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0021: ldloca.s
+    LEA -12(A6),D0  ; Load address of local 2
+
+    ; Offset 0023: ldc.i4
+    MOVE.L #300,D1  ; Load constant
+
+    ; Offset 0028: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0029: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 002A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 002B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 002C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_111
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_111:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0031: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0032: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0033: call
+    ; System.Decimal.op_Addition (inline)
+    ; System.Decimal op_Addition inline (simplified)
+    LEA -16(A6),D0  ; Allocate result space
+    MOVE.L 8(D0),D0   ; Load left low
+    MOVE.L 8(D1),D1  ; Load right low
+    ADD.L D1,D0               ; Add low parts
+    MOVE.L D0,8(D0) ; Store result low
+    ; TODO: Complete decimal addition with carry
+
+    ; Offset 0038: ldloc.2
+    MOVE.L -12(A6),D1  ; Load local 2
+
+    ; Offset 0039: call
+    ; System.Decimal.op_Multiply (inline)
+    ; TODO: D0 * D1
+
+    ; Offset 003E: ldc.i4
+    MOVE.L #520,D1  ; Load constant
+
+    ; Offset 0043: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0044: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 0045: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 0046: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 0047: newobj
+    ; System.Decimal newobj - create new instance (5 parameters)
+    LEA -32(A6),D1  ; Allocate new Decimal instance
+    ; System.Decimal newobj inline
+    ; result @ D1, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_112
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_112:
+    MOVE.L D2,(D1)    ; Store flags at offset 0
+    MOVE.L D3,4(D1) ; Store high at offset 4
+    MOVE.L D1,8(D1) ; Store low at offset 8
+    MOVE.L D2,12(D1) ; Store mid at offset 12
+    ; newobj complete - push result address
+
+    ; Offset 004C: call
+    ; System.Decimal.op_Subtraction (inline)
+    ; System.Decimal op_Subtraction inline (simplified)
+    LEA -16(A6),D0  ; Allocate result space
+    MOVE.L 8(D0),D0   ; Load left low
+    MOVE.L 8(D1),D1  ; Load right low
+    SUB.L D1,D0               ; Subtract low parts
+    MOVE.L D0,8(D0) ; Store result low
+    ; TODO: Complete decimal subtraction with borrow
+
+    ; Offset 0051: stloc.3
+    MOVE.L D0,-16(A6)  ; Store to local 3
+
+    ; Offset 0052: ldc.i4
+    MOVE.L #8720,D0  ; Load constant
+
+    ; Offset 0057: ldc.i4.0
+    CLR.L D1             ; Load 0
+
+    ; Offset 0058: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0059: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 005A: ldc.i4.2
+    MOVE.L #2,D4         ; Load 2
+
+    ; Offset 005B: newobj
+    ; System.Decimal newobj - create new instance (5 parameters)
+    LEA -32(A6),D0  ; Allocate new Decimal instance
+    ; System.Decimal newobj inline
+    ; result @ D0, lo=D0, mid=D1, hi=D2, sign=D3, scale=D4
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D2           ; Set scale in flags
+    TST.L D3        ; Check if negative
+    BEQ .SkipNegative_L_113
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_113:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D2,4(D0) ; Store high at offset 4
+    MOVE.L D0,8(D0) ; Store low at offset 8
+    MOVE.L D1,12(D0) ; Store mid at offset 12
+    ; newobj complete - push result address
+
+    ; Offset 0060: ldloc.3
+    MOVE.L -16(A6),D1  ; Load local 3
+
+    ; Offset 0061: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_114
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_114
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_114
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_114
+    BRA .EqualsDone_L_115
+.NotEqual_L_114:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_115:
+
+    ; Offset 0066: stloc.s
+    MOVE.L D0,-20(A6)  ; Store to local 4
+
+    ; Offset 0068: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_FinancialCalculation_CompoundInterest:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #20,A7 ; Allocate locals
+
+    ; MSIL Code (92 bytes, 6 max stack, 5 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #100000,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_116
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_116:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloca.s
+    LEA -8(A6),D0  ; Load address of local 1
+
+    ; Offset 0013: ldc.i4.5
+    MOVE.L #5,D1         ; Load 5
+
+    ; Offset 0014: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0015: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 0016: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 0017: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 0018: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_117
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_117:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 001D: ldloca.s
+    LEA -12(A6),D0  ; Load address of local 2
+
+    ; Offset 001F: ldc.i4
+    MOVE.L #200,D1  ; Load constant
+
+    ; Offset 0024: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0025: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 0026: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 0027: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 0028: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_118
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_118:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 002D: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 002E: ldsfld
+    ; TODO: ldsfld token 0A00001F
+    CLR.L D1  ; TODO: Load static field
+
+    ; Offset 0033: ldloc.1
+    MOVE.L -8(A6),D2   ; Load local 1
+
+    ; Offset 0034: ldloc.2
+    MOVE.L -12(A6),D3  ; Load local 2
+
+    ; Offset 0035: call
+    ; System.Decimal.op_Multiply (inline)
+    ; TODO: D2 * D3
+
+    ; Offset 003A: call
+    ; System.Decimal.op_Addition (inline)
+    ; System.Decimal op_Addition inline (simplified)
+    LEA -16(A6),D1  ; Allocate result space
+    MOVE.L 8(D1),D0   ; Load left low
+    MOVE.L 8(D2),D1  ; Load right low
+    ADD.L D1,D0               ; Add low parts
+    MOVE.L D0,8(D1) ; Store result low
+    ; TODO: Complete decimal addition with carry
+
+    ; Offset 003F: call
+    ; System.Decimal.op_Multiply (inline)
+    ; TODO: D0 * D1
+
+    ; Offset 0044: stloc.3
+    MOVE.L D0,-16(A6)  ; Store to local 3
+
+    ; Offset 0045: ldc.i4
+    MOVE.L #110000,D0  ; Load constant
+
+    ; Offset 004A: ldc.i4.0
+    CLR.L D1             ; Load 0
+
+    ; Offset 004B: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 004C: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 004D: ldc.i4.2
+    MOVE.L #2,D4         ; Load 2
+
+    ; Offset 004E: newobj
+    ; System.Decimal newobj - create new instance (5 parameters)
+    LEA -32(A6),D0  ; Allocate new Decimal instance
+    ; System.Decimal newobj inline
+    ; result @ D0, lo=D0, mid=D1, hi=D2, sign=D3, scale=D4
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D2           ; Set scale in flags
+    TST.L D3        ; Check if negative
+    BEQ .SkipNegative_L_119
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_119:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D2,4(D0) ; Store high at offset 4
+    MOVE.L D0,8(D0) ; Store low at offset 8
+    MOVE.L D1,12(D0) ; Store mid at offset 12
+    ; newobj complete - push result address
+
+    ; Offset 0053: ldloc.3
+    MOVE.L -16(A6),D1  ; Load local 3
+
+    ; Offset 0054: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_120
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_120
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_120
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_120
+    BRA .EqualsDone_L_121
+.NotEqual_L_120:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_121:
+
+    ; Offset 0059: stloc.s
+    MOVE.L D0,-20(A6)  ; Store to local 4
+
+    ; Offset 005B: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_FinancialCalculation_PercentageIncrease:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #20,A7 ; Allocate locals
+
+    ; MSIL Code (84 bytes, 6 max stack, 5 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldloca.s
+    LEA -4(A6),D0  ; Load address of local 0
+
+    ; Offset 0003: ldc.i4
+    MOVE.L #20000,D1  ; Load constant
+
+    ; Offset 0008: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0009: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 000A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 000B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 000C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_122
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_122:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0011: ldloca.s
+    LEA -8(A6),D0  ; Load address of local 1
+
+    ; Offset 0013: ldc.i4
+    MOVE.L #1500,D1  ; Load constant
+
+    ; Offset 0018: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0019: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 001A: ldc.i4.0
+    CLR.L D4             ; Load 0
+
+    ; Offset 001B: ldc.i4.2
+    MOVE.L #2,D5         ; Load 2
+
+    ; Offset 001C: call
+    ; System.Decimal..ctor (inline)
+    ; System.Decimal instance constructor (void) - 5 parameters
+    ; System.Decimal constructor inline
+    ; this @ D0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D5      ; Ensure scale is 0-255
+    LSL.L #16,D5        ; Shift scale to bits 16-23
+    OR.L D5,D2           ; Set scale in flags
+    TST.L D4        ; Check if negative
+    BEQ .SkipNegative_L_123
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_123:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D3,4(D0) ; Store high at offset 4
+    MOVE.L D1,8(D0) ; Store low at offset 8
+    MOVE.L D2,12(D0) ; Store mid at offset 12
+    ; Decimal constructor complete (void - nothing pushed)
+
+    ; Offset 0021: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0022: ldloc.1
+    MOVE.L -8(A6),D1   ; Load local 1
+
+    ; Offset 0023: ldc.i4.s
+    MOVE.L #100,D2  ; Load short constant
+
+    ; Offset 0025: newobj
+    ; System.Decimal newobj - create new instance (1 parameters)
+    ; TODO: Decimal newobj with 1 parameters (expected 5)
+
+    ; Offset 002A: call
+    ; System.Decimal.op_Division (inline)
+    ; TODO: D1 / D0
+
+    ; Offset 002F: call
+    ; System.Decimal.op_Multiply (inline)
+    ; TODO: D0 * D1
+
+    ; Offset 0034: stloc.2
+    MOVE.L D0,-12(A6)  ; Store to local 2
+
+    ; Offset 0035: ldloc.0
+    MOVE.L -4(A6),D0   ; Load local 0
+
+    ; Offset 0036: ldloc.2
+    MOVE.L -12(A6),D1  ; Load local 2
+
+    ; Offset 0037: call
+    ; System.Decimal.op_Addition (inline)
+    ; System.Decimal op_Addition inline (simplified)
+    LEA -16(A6),D0  ; Allocate result space
+    MOVE.L 8(D0),D0   ; Load left low
+    MOVE.L 8(D1),D1  ; Load right low
+    ADD.L D1,D0               ; Add low parts
+    MOVE.L D0,8(D0) ; Store result low
+    ; TODO: Complete decimal addition with carry
+
+    ; Offset 003C: stloc.3
+    MOVE.L D0,-16(A6)  ; Store to local 3
+
+    ; Offset 003D: ldc.i4
+    MOVE.L #23000,D0  ; Load constant
+
+    ; Offset 0042: ldc.i4.0
+    CLR.L D1             ; Load 0
+
+    ; Offset 0043: ldc.i4.0
+    CLR.L D2             ; Load 0
+
+    ; Offset 0044: ldc.i4.0
+    CLR.L D3             ; Load 0
+
+    ; Offset 0045: ldc.i4.2
+    MOVE.L #2,D4         ; Load 2
+
+    ; Offset 0046: newobj
+    ; System.Decimal newobj - create new instance (5 parameters)
+    LEA -32(A6),D0  ; Allocate new Decimal instance
+    ; System.Decimal newobj inline
+    ; result @ D0, lo=D0, mid=D1, hi=D2, sign=D3, scale=D4
+    CLR.L D2                  ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D2           ; Set scale in flags
+    TST.L D3        ; Check if negative
+    BEQ .SkipNegative_L_124
+    OR.L #0x80000000,D2      ; Set sign bit if negative
+.SkipNegative_L_124:
+    MOVE.L D2,(D0)    ; Store flags at offset 0
+    MOVE.L D2,4(D0) ; Store high at offset 4
+    MOVE.L D0,8(D0) ; Store low at offset 8
+    MOVE.L D1,12(D0) ; Store mid at offset 12
+    ; newobj complete - push result address
+
+    ; Offset 004B: ldloc.3
+    MOVE.L -16(A6),D1  ; Load local 3
+
+    ; Offset 004C: call
+    ; System.Decimal.Equals (inline)
+    ; System.Decimal Equals inline
+    MOVE.L #1,D0     ; Assume equal
+    MOVE.L (D0),D0    ; Load left flags
+    CMP.L (D1),D0    ; Compare flags
+    BNE .NotEqual_L_125
+    MOVE.L 4(D0),D0   ; Load left high
+    CMP.L 4(D1),D0   ; Compare high
+    BNE .NotEqual_L_125
+    MOVE.L 8(D0),D0   ; Load left low
+    CMP.L 8(D1),D0   ; Compare low
+    BNE .NotEqual_L_125
+    MOVE.L 12(D0),D0  ; Load left mid
+    CMP.L 12(D1),D0  ; Compare mid
+    BNE .NotEqual_L_125
+    BRA .EqualsDone_L_126
+.NotEqual_L_125:
+    CLR.L D0         ; Not equal = false
+.EqualsDone_L_126:
+
+    ; Offset 0051: stloc.s
+    MOVE.L D0,-20(A6)  ; Store to local 4
+
+    ; Offset 0053: ret
+    CLR.L D0            ; Clear return value (void)
+
+
+    ; Method epilogue
+    MOVEM.L (A7)+,A6     ; Restore frame
+    RTS
+
+JumpCS.TestMath.Tests.DecimalMathTests_ConversionFromFloat:
+    ; Method prologue
+    MOVEM.L A6,-(A7)     ; Save return address
+    MOVE.L A7,A6         ; Set up frame pointer
+    SUBI.L #12,A7 ; Allocate locals
+
+    ; MSIL Code (56 bytes, 6 max stack, 3 locals)
+
+    ; Offset 0000: nop
+    ; TODO: nop
+
+    ; Offset 0001: ldc.r4
+    ; TODO: ldc.r4
+
+    ; Offset 0002: nop
+    ; TODO: nop
+
+    ; Offset 0003: nop
+    ; TODO: nop
+
+    ; Offset 0004: ret
+    CLR.L D0            ; Clear return value (void)
+
+    ; Offset 0005: bgt.un
+    ; TODO: bgt.un
+
+    ; Offset 000A: nop
+    ; TODO: nop
+
+    ; Offset 000B: nop
+    ; TODO: nop
+
+    ; Offset 000C: stloc.0

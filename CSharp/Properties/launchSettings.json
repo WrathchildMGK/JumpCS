@@ -2,7 +2,7 @@
   "profiles": {
     "CSharp": {
       "commandName": "Project",
-      "commandLineArgs": "-V TestMath\\bin\\Debug\\net10.0\\TestMath",
+      "commandLineArgs": "-V TestMath\\bin\\Debug\\net10.0\\TestMath > err.txt",
       "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
     }
   }

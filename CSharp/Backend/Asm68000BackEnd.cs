@@ -277,13 +277,13 @@ namespace JumpCS.Backend
             }
         }
         /// <summary>Get JVM method signature from reflection</summary>
-        private string GetMethodSignature(System.Reflection.MethodBase method)
+        private string GetMethodSignature(MethodBase method)
         {
             var paramTypes = method.GetParameters()
                 .Select(p => GetTypeSignature(p.ParameterType))
                 .ToList();
 
-            string returnType = method is System.Reflection.MethodInfo mi ? 
+            string returnType = method is MethodInfo mi ? 
                 GetTypeSignature(mi.ReturnType) : "V";
             
             var paramList = string.Concat(paramTypes);
@@ -560,91 +560,46 @@ namespace JumpCS.Backend
                     stack.Push(D1);
                 }
             }
-            // Load local variables
-            else if (opcode == OpCodes.Ldloc)
+            // Load single (float) constant
+            else if (opcode == OpCodes.Ldc_R4)
             {
-                if (operand is int localIndex)
+                if (operand is float fVal)
                 {
-                    int offset = -4 - (localIndex * 4);
-                    string targetReg = stack.GetNextRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L {offset}(A6),{targetReg} ; Load local {localIndex}");
+                    string targetReg = GetAvailableRegister(stack);
+                    _asmWriter?.WriteLine($"    LEA FLOAT_CONST_{iterator.CurrentIndex:X4}(PC),A0");
+                    _asmWriter?.WriteLine($"    MOVE.L (A0),{targetReg}");
                     stack.Push(targetReg);
                 }
             }
-            else if (opcode == OpCodes.Ldloc_0)
+            // Branch if greater than (unsigned)
+            else if (opcode == OpCodes.Bgt_Un || opcode == OpCodes.Bgt_Un_S)
             {
-                string targetReg = stack.GetNextRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -4(A6),{targetReg}   ; Load local 0");
-                stack.Push(targetReg);
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
+                _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
+                _asmWriter?.WriteLine($"    BHI {label}  ; Branch if greater than (unsigned)");
             }
-            else if (opcode == OpCodes.Ldloc_1)
+            // Load static field
+            else if (opcode == OpCodes.Ldsfld)
             {
-                string targetReg = stack.GetNextRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -8(A6),{targetReg}   ; Load local 1");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldloc_2)
-            {
-                string targetReg = stack.GetNextRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -12(A6),{targetReg}  ; Load local 2");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldloc_3)
-            {
-                string targetReg = stack.GetNextRegister();
-                _asmWriter?.WriteLine($"    MOVE.L -16(A6),{targetReg}  ; Load local 3");
-                stack.Push(targetReg);
-            }
-            // Load local variable address (for passing by reference)
-            else if (opcode == OpCodes.Ldloca_S)
-            {
-                if (operand is int localAddr)
+                if (operand is int fieldToken)
                 {
-                    int offset = -4 - (localAddr * 4);
-                    string targetReg = stack.GetNextRegister();
-                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of local {localAddr}");
+                    _asmWriter?.WriteLine($"    ; TODO: ldsfld token {fieldToken:X8}");
+                    string targetReg = GetAvailableRegister(stack);
+                    _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Load static field {fieldToken:X8}");
                     stack.Push(targetReg);
                 }
             }
-            else if (opcode == OpCodes.Ldloca)
+            // Store local variable (short form)
+            else if (opcode == OpCodes.Stloc_S)
             {
-                if (operand is int localAddrIdx)
+                if (operand is int localIdx)
                 {
-                    int offset = -4 - (localAddrIdx * 4);
-                    string targetReg = stack.GetNextRegister();
-                    _asmWriter?.WriteLine($"    LEA {offset}(A6),{targetReg}  ; Load address of local {localAddrIdx}");
-                    stack.Push(targetReg);
-                }
-            }
-            // Store local variables
-            else if (opcode == OpCodes.Stloc)
-            {
-                if (operand is int storeIdx)
-                {
-                    int offset = -4 - (storeIdx * 4);
+                    int offset = -4 - (localIdx * 4);
                     string src = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {src},{offset}(A6) ; Store to local {storeIdx}");
+                    _asmWriter?.WriteLine($"    MOVE.L {src},{offset}(A6)  ; Store to local {localIdx}");
                 }
-            }
-            else if (opcode == OpCodes.Stloc_0)
-            {   
-                string src = stack.Pop();
-                _asmWriter?.WriteLine($"    MOVE.L {src},-4(A6)  ; Store to local 0");
-            }
-            else if (opcode == OpCodes.Stloc_1)
-            {
-                string src = stack.Pop();
-                _asmWriter?.WriteLine($"    MOVE.L {src},-8(A6)  ; Store to local 1");
-            }
-            else if (opcode == OpCodes.Stloc_2)
-            {
-                string src = stack.Pop();
-                _asmWriter?.WriteLine($"    MOVE.L {src},-12(A6)  ; Store to local 2");
-            }
-            else if (opcode == OpCodes.Stloc_3)
-            {
-                string src = stack.Pop();
-                _asmWriter?.WriteLine($"    MOVE.L {src},-16(A6)  ; Store to local 3");
             }
             // Arithmetic operations
             else if (opcode == OpCodes.Add)
@@ -720,8 +675,39 @@ namespace JumpCS.Backend
 
                     if (targetMethod != null)
                     {
-                        // Check for System.Decimal special handling
-                        if (IsSystemDecimalMethod(targetMethod))
+                        // Check if this is a System.* framework method that shouldn't be compiled
+                        if (targetMethod.OwningClass.FullName.StartsWith("System."))
+                        {
+                            // Handle framework methods via reflection instead
+                            var reflectionMethod = TryResolveFrameworkMethod(method.OwningClass, methodToken);
+                            if (reflectionMethod != null)
+                            {
+                                if (reflectionMethod.DeclaringType?.FullName == "System.Decimal")
+                                {
+                                    HandleSystemDecimalMethodByReflection(reflectionMethod, stack);
+                                }
+                                else if (IsSystemMathMethod(reflectionMethod))
+                                {
+                                    HandleSystemMathCall(reflectionMethod, stack);
+                                }
+                                else
+                                {
+                                    _asmWriter?.WriteLine($"    ; TODO: {reflectionMethod.DeclaringType?.FullName}::{reflectionMethod.Name}");
+                                    var paramCount = reflectionMethod is MethodInfo mi ? mi.GetParameters().Length : 0;
+                                    for (int i = 0; i < paramCount; i++)
+                                    {
+                                        try { stack.Pop(); } catch { }
+                                    }
+                                    if (reflectionMethod is MethodInfo methodInfo && methodInfo.ReturnType != typeof(void))
+                                    {
+                                        string resultReg = GetAvailableRegister(stack);
+                                        stack.Push(resultReg);
+                                    }
+                                }
+                            }
+                        }
+                        // Check for System.Decimal special handling from compiled metadata
+                        else if (IsSystemDecimalMethod(targetMethod))
                         {
                             HandleSystemDecimalCall(targetMethod, stack);
                         }
@@ -749,8 +735,6 @@ namespace JumpCS.Backend
                         
                         if (reflectionMethod != null)
                         {
-                            _asmWriter?.WriteLine($"    ; Resolved: {reflectionMethod.DeclaringType?.FullName}::{reflectionMethod.Name}");
-                            
                             if (reflectionMethod.DeclaringType?.FullName == "System.Decimal")
                             {
                                 HandleSystemDecimalMethodByReflection(reflectionMethod, stack);     
@@ -763,15 +747,13 @@ namespace JumpCS.Backend
                             {
                                 _asmWriter?.WriteLine($"    ; Framework method: {reflectionMethod.DeclaringType?.FullName}::{reflectionMethod.Name}");
                                 _asmWriter?.WriteLine($"    ; TODO: Implement framework call");
-                                // Pop all arguments to avoid stack overflow
-                                var paramCount = reflectionMethod is System.Reflection.MethodInfo mi ? 
+                                var paramCount = reflectionMethod is MethodInfo mi ? 
                                     mi.GetParameters().Length : 0;
                                 for (int i = 0; i < paramCount; i++)
                                 {
-                                    try { stack.Pop(); } catch { /* ignore if stack underflow */ }
+                                    try { stack.Pop(); } catch { }
                                 }
-                                // Push return value if non-void
-                                if (reflectionMethod is System.Reflection.MethodInfo methodInfo &&
+                                if (reflectionMethod is MethodInfo methodInfo &&
                                     methodInfo.ReturnType != typeof(void))
                                 {
                                     string resultReg = GetAvailableRegister(stack);
@@ -781,13 +763,8 @@ namespace JumpCS.Backend
                         }
                         else
                         {
-                            // CRITICAL: Even if resolution fails, we need to try to manage the stack
-                            // This is a fallback that pops a reasonable number of arguments
                             _asmWriter?.WriteLine($"    ; WARNING: Unresolved method token {methodToken:X8}");
-                            
-                            // Try to infer from the IL signature if available
-                            // For now, be conservative and output an error
-                            _asmWriter?.WriteLine($"    ; JSR UNKNOWN_METHOD_{methodToken:X8}  ; UNRESOLVED - may cause stack corruption!");
+                            _asmWriter?.WriteLine($"    ; JSR UNKNOWN_METHOD_{methodToken:X8}  ; UNRESOLVED");
                         }
                     }
                 }
@@ -828,14 +805,33 @@ namespace JumpCS.Backend
             // Stack operations
             else if (opcode == OpCodes.Pop)
             {
-                stack.Pop();
-                _asmWriter?.WriteLine("    ; Pop");
+                if (stack.StackDepth > 0)
+                {
+                    stack.Pop();
+                    _asmWriter?.WriteLine("    ; Pop");
+                }
+                else
+                {
+                    _asmWriter?.WriteLine("    ; WARNING: Pop on empty stack");
+                }
             }
             else if (opcode == OpCodes.Dup)
             {
                 string val = stack.Peek();
                 _asmWriter?.WriteLine($"    ; Duplicate {val}");
                 stack.Push(val);
+            }
+            // Exception handling
+            else if (opcode == OpCodes.Leave || opcode == OpCodes.Leave_S)
+            {
+                // leave exits an exception handler
+                // For now, treat it like a branch to the target
+                int targetOffset = iterator.NextIndex + (int)(operand ?? 0);
+                string label = labels.GetOrCreateLabel(targetOffset);
+                _asmWriter?.WriteLine($"    BRA {label}  ; leave - exit exception handler");
+                
+                // leave clears the stack
+                stack.Clear();
             }
             else
             {
@@ -973,71 +969,64 @@ namespace JumpCS.Backend
             {
                 HandleDecimalSubtraction(stack);
             }
-            else if (method.Name == "Equals")
-            {
-                HandleDecimalEquals(stack);
-            }
             else if (method.Name == "op_Multiply")
             {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
                 _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Multiply");
-                stack.Pop();
-                stack.Pop();
+                _asmWriter?.WriteLine($"    ; {val1} * {val2}");
                 string resultReg = GetAvailableRegister(stack);
                 stack.Push(resultReg);
             }
             else if (method.Name == "op_Division")
             {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
                 _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Division");
-                stack.Pop();
-                stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (method.Name == "op_UnaryNegation")
-            {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_UnaryNegation");
-                stack.Pop();
+                _asmWriter?.WriteLine($"    ; {val1} / {val2}");
                 string resultReg = GetAvailableRegister(stack);
                 stack.Push(resultReg);
             }
             else if (method.Name == "op_Modulus")
             {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
                 _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Modulus");
-                stack.Pop();
-                stack.Pop();
                 string resultReg = GetAvailableRegister(stack);
                 stack.Push(resultReg);
             }
-            else if (method.Name.StartsWith("op_"))
+            else if (method.Name == "op_UnaryNegation")
             {
-                // Handle other operators generically
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{method.Name}");
-                // Most binary operators need 2 pops
-                if (method.Name.Contains("Equality") || method.Name.Contains("Comparison"))
+                string val = stack.Pop();
+                string resultReg = GetAvailableRegister(stack);
+                _asmWriter?.WriteLine($"    NEG.L {val}     ; Negate");
+                if (resultReg != val)
                 {
-                    stack.Pop();
-                    stack.Pop();
-                    string resultReg = GetAvailableRegister(stack);
-                    stack.Push(resultReg);
+                    _asmWriter?.WriteLine($"    MOVE.L {val},{resultReg}");
                 }
+                stack.Push(resultReg);
+            }
+            else if (method.Name == "Equals")
+            {
+                HandleDecimalEquals(stack);
             }
             else
             {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{method.Name} not yet implemented");
+                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{method.Name}");
             }
         }
 
-        /// <summary>Check if a method is a System.Math method</summary>
-        private bool IsSystemMathMethod(System.Reflection.MethodBase method)
+        /// <summary>Check if a method is System.Math method</summary>
+        private bool IsSystemMathMethod(MethodBase method)
         {
             return method.DeclaringType?.FullName == "System.Math";
         }
 
         /// <summary>Handle System.Math method calls</summary>
-        private void HandleSystemMathCall(System.Reflection.MethodBase methodInfo, StackSimulator stack)
+        private void HandleSystemMathCall(MethodBase methodInfo, StackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            var parameters = ((System.Reflection.MethodInfo)methodInfo).GetParameters();
+            var parameters = ((MethodInfo)methodInfo).GetParameters();
             int paramCount = parameters.Length;
             
             _asmWriter?.WriteLine($"    ; System.Math.{methodName} - {paramCount} parameters (stub)");
@@ -1056,7 +1045,7 @@ namespace JumpCS.Backend
             }
 
             // Push return value if non-void
-            if (((System.Reflection.MethodInfo)methodInfo).ReturnType != typeof(void))
+            if (((MethodInfo)methodInfo).ReturnType != typeof(void))
             {
                 string resultReg = GetAvailableRegister(stack);
                 _asmWriter?.WriteLine($"    MOVE.L #0,{resultReg}     ; TODO: {methodName} result");
@@ -1073,7 +1062,6 @@ namespace JumpCS.Backend
 
             if (methodName == ".ctor")
             {
-                // Instance constructor call - VOID method, don't push result
                 HandleSystemDecimalInstanceConstructor(methodInfo, stack);
             }
             else if (methodName == "op_Addition")
@@ -1084,62 +1072,124 @@ namespace JumpCS.Backend
             {
                 HandleDecimalSubtraction(stack);
             }
-            else if (methodName == "Equals")
-            {
-                HandleDecimalEquals(stack);
-            }
             else if (methodName == "op_Multiply")
             {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Multiply");
-                stack.Pop();
-                stack.Pop();
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} * {val2}");
                 string resultReg = GetAvailableRegister(stack);
                 stack.Push(resultReg);
             }
             else if (methodName == "op_Division")
             {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Division");
-                stack.Pop();
-                stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-            }
-            else if (methodName == "op_UnaryNegation")
-            {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_UnaryNegation");
-                stack.Pop();
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} / {val2}");
                 string resultReg = GetAvailableRegister(stack);
                 stack.Push(resultReg);
             }
             else if (methodName == "op_Modulus")
             {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal op_Modulus");
-                stack.Pop();
-                stack.Pop();
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} % {val2}");
                 string resultReg = GetAvailableRegister(stack);
                 stack.Push(resultReg);
             }
-            else if (methodName.StartsWith("op_"))
+            else if (methodName == "op_UnaryNegation")
             {
-                // Handle other operators generically
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{methodName}");
-                // Most binary operators need 2 pops
-                if (methodName.Contains("Equality") || methodName.Contains("Comparison"))
+                string val = stack.Pop();
+                string resultReg = GetAvailableRegister(stack);
+                _asmWriter?.WriteLine($"    NEG.L {val}     ; Negate");
+                if (resultReg != val)
                 {
-                    stack.Pop();
-                    stack.Pop();
-                    string resultReg = GetAvailableRegister(stack);
-                    stack.Push(resultReg);
+                    _asmWriter?.WriteLine($"    MOVE.L {val},{resultReg}");
                 }
+                stack.Push(resultReg);
+            }
+            else if (methodName == "op_LessThan")
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} < {val2}");
+                string resultReg = GetAvailableRegister(stack);
+                stack.Push(resultReg);
+            }
+            else if (methodName == "op_GreaterThan")
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} > {val2}");
+                string resultReg = GetAvailableRegister(stack);
+                stack.Push(resultReg);
+            }
+            else if (methodName == "op_LessThanOrEqual")
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} <= {val2}");
+                string resultReg = GetAvailableRegister(stack);
+                stack.Push(resultReg);
+            }
+            else if (methodName == "op_GreaterThanOrEqual")
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} >= {val2}");
+                string resultReg = GetAvailableRegister(stack);
+                stack.Push(resultReg);
+            }
+            else if (methodName == "op_Equality")
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} == {val2}");
+                string resultReg = GetAvailableRegister(stack);
+                stack.Push(resultReg);
+            }
+            else if (methodName == "op_Inequality")
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1} != {val2}");
+                string resultReg = GetAvailableRegister(stack);
+                stack.Push(resultReg);
+            }
+            else if (methodName == "Equals")
+            {
+                HandleDecimalEquals(stack);
+            }
+            else if (methodName == "CompareTo")
+            {
+                string val2 = stack.Pop();
+                string val1 = stack.Pop();
+                _asmWriter?.WriteLine($"    ; TODO: {val1}.CompareTo({val2})");
+                string resultReg = GetAvailableRegister(stack);
+                stack.Push(resultReg);
             }
             else
             {
-                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{methodName} not yet implemented");
+                _asmWriter?.WriteLine($"    ; TODO: System.Decimal.{methodName}");
+                // Generic fallback: pop parameters if it's a MethodInfo
+                if (methodInfo is System.Reflection.MethodInfo mi)
+                {
+                    var paramCount = mi.GetParameters().Length;
+                    for (int i = 0; i < paramCount; i++)
+                    {
+                        try { stack.Pop(); } catch { }
+                    }
+                    // Push return value if non-void
+                    if (mi.ReturnType != typeof(void))
+                    {
+                        string resultReg = GetAvailableRegister(stack);
+                        stack.Push(resultReg);
+                    }
+                }
             }
         }
 
         /// <summary>Handle System.Decimal newobj (create new instance)</summary>
-        private void HandleSystemDecimalNewObj(System.Reflection.MethodBase methodInfo, StackSimulator stack)
+        private void HandleSystemDecimalNewObj(MethodBase methodInfo, StackSimulator stack)
         {
             var parameters = methodInfo.GetParameters();
             
@@ -1206,7 +1256,7 @@ namespace JumpCS.Backend
         }
 
         /// <summary>Handle System.Decimal instance constructor (call .ctor)</summary>
-        private void HandleSystemDecimalInstanceConstructor(System.Reflection.MethodBase methodInfo, StackSimulator stack)
+        private void HandleSystemDecimalInstanceConstructor(MethodBase methodInfo, StackSimulator stack)
         {
             var parameters = methodInfo.GetParameters();
             
@@ -1282,7 +1332,7 @@ namespace JumpCS.Backend
         }
 
         /// <summary>Try to resolve a framework method using reflection</summary>
-        private System.Reflection.MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken)
+        private MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken)
         {
             try
             {
@@ -1303,7 +1353,7 @@ namespace JumpCS.Backend
         }
 
         /// <summary>Fallback: identify common System.* methods</summary>
-        private System.Reflection.MethodBase? TryIdentifySystemMethod(int methodToken)
+        private MethodBase? TryIdentifySystemMethod(int methodToken)
         {
             try
             {
