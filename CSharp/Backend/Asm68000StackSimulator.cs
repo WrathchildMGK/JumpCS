@@ -48,8 +48,22 @@ namespace JumpCS.Backend
         {
             if (_availableDataRegisters.Count == 0)
             {
-                // Wrap around - reuse registers (they're for temporary data anyway)
-                return _dataRegisters[0];
+                // All registers exhausted - find unused ones and add back to pool
+                // This handles the case where we have more values on stack than registers
+                foreach (var reg in _dataRegisters)
+                {
+                    // Only add back registers that aren't currently on the evaluation stack
+                    if (!_stack.Contains(reg))
+                    {
+                        _availableDataRegisters.Enqueue(reg);
+                    }
+                }
+                
+                // If still no registers (all 8 are in use on stack), we have a real problem
+                if (_availableDataRegisters.Count == 0)
+                {
+                    throw new InvalidOperationException($"Evaluation stack overflow: all {_dataRegisters.Length} data registers in use");
+                }
             }
 
             return _availableDataRegisters.Dequeue();
@@ -87,7 +101,7 @@ namespace JumpCS.Backend
         /// <summary>Push a register onto the evaluation stack</summary>
         public void Push(string register)
         {
-            if (_stack.Count >= _maxStack)
+            if (_stack.Count > _maxStack)
                 throw new InvalidOperationException("Evaluation stack overflow");
             _stack.Add(register);
         }
@@ -99,6 +113,12 @@ namespace JumpCS.Backend
                 throw new InvalidOperationException("Evaluation stack underflow");
             string register = _stack[^1];
             _stack.RemoveAt(_stack.Count - 1);
+            
+            // NOTE: DO NOT release registers here!
+            // Registers should only be released at method boundaries or
+            // when explicitly cleared. Releasing immediately causes issues
+            // when multiple values are on the stack simultaneously.
+            
             return register;
         }
 

@@ -8,7 +8,7 @@ namespace JumpCS.TestMath
     /// </summary>
     public static class Program
     {
-        public static void Main()
+        private static void AllIntegerMathTests()
         {
             // Integer Math Tests
             IntegerMathTests.Addition_PositiveNumbers();
@@ -37,7 +37,10 @@ namespace JumpCS.TestMath
             IntegerMathTests.ChainedOperations();
             IntegerMathTests.DivideByZeroThrows();
             IntegerMathTests.ModuloByZeroThrows();
+        }
 
+        private static void AllFloatMathTests()
+        {
             // Float Math Tests
             FloatMathTests.Addition_PositiveNumbers();
             FloatMathTests.Addition_NegativeNumbers();
@@ -62,7 +65,10 @@ namespace JumpCS.TestMath
             FloatMathTests.Sqrt();
             FloatMathTests.Abs();
             FloatMathTests.ChainedOperations();
+        }
 
+        private static void AllDoubleMathTests()
+        {
             // Double Math Tests
             DoubleMathTests.Addition_PositiveNumbers();
             DoubleMathTests.Addition_NegativeNumbers();
@@ -91,7 +97,10 @@ namespace JumpCS.TestMath
             DoubleMathTests.Trigonometric_Sin();
             DoubleMathTests.Trigonometric_Cos();
             DoubleMathTests.ChainedOperations();
+        }
 
+        private static void AllDecimalMathTests()
+        {
             // Decimal Math Tests
             DecimalMathTests.Addition_PositiveNumbers();
             DecimalMathTests.Addition_NegativeNumbers();
@@ -125,7 +134,10 @@ namespace JumpCS.TestMath
             DecimalMathTests.FinancialCalculation_PercentageIncrease();
             DecimalMathTests.ConversionFromFloat();
             DecimalMathTests.ConversionToFloat();
+        }
 
+        private static void AllTypeConversionTests()
+        {
             // Type Conversion Tests
             TypeConversionTests.IntToFloat();
             TypeConversionTests.IntToDouble();
@@ -146,6 +158,15 @@ namespace JumpCS.TestMath
             TypeConversionTests.IntToLong();
             TypeConversionTests.NegativeIntToUnsigned();
             TypeConversionTests.ChainedConversions();
+        }
+
+        public static void Main()
+        {
+//            AllIntegerMathTests();
+            AllFloatMathTests();
+//          AllDoubleMathTests();
+//          AllDecimalMathTests();
+//          AllTypeConversionTests();
         }
     }
 }
