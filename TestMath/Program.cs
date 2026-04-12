@@ -162,11 +162,11 @@ namespace JumpCS.TestMath
 
         public static void Main()
         {
-//            AllIntegerMathTests();
-//            AllFloatMathTests();
-//            AllDoubleMathTests();
-//          AllDecimalMathTests();
-          AllTypeConversionTests();
+            AllIntegerMathTests();
+            AllFloatMathTests();
+            AllDoubleMathTests();
+            AllDecimalMathTests();
+            AllTypeConversionTests();
         }
     }
 }

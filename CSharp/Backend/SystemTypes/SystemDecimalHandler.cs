@@ -112,6 +112,14 @@ namespace JumpCS.Backend.SystemTypes
             {
                 HandleCompareTo(stack);
             }
+            else if (methodName == "op_Implicit")
+            {
+                HandleOpImplicit(methodInfo, stack);
+            }
+            else if (methodName == "op_Explicit")
+            {
+                HandleOpExplicit(methodInfo, stack);
+            }
             else
             {
                 AsmWriter?.WriteLine($"    ; TODO: System.Decimal.{methodName}");
@@ -818,6 +826,40 @@ namespace JumpCS.Backend.SystemTypes
             stack.ReleaseDataRegister(dataReg);
 
             stack.Push(resultReg);
+        }
+
+        private void HandleOpImplicit(MethodBase methodInfo, Asm68000StackSimulator stack)
+        {
+            AsmWriter?.WriteLine($"    ; Decimal.op_Implicit (inline)");
+            if (stack.StackDepth > 0)
+            {
+                string val = stack.Pop();
+                AsmWriter?.WriteLine($"    MOVE.L {val},D0       ; Decimal.op_Implicit: convert to decimal (simplified)");
+                stack.ReleaseDataRegister(val);
+            }
+            stack.Push("D0");
+        }
+
+        private void HandleOpExplicit(MethodBase methodInfo, Asm68000StackSimulator stack)
+        {
+            AsmWriter?.WriteLine($"    ; Decimal.op_Explicit (inline)");
+            if (stack.StackDepth > 0)
+            {
+                string val = stack.Pop();
+                AsmWriter?.WriteLine($"    MOVE.L {val},D0       ; Decimal.op_Explicit: convert from decimal (simplified)");
+                stack.ReleaseDataRegister(val);
+            }
+
+            if (methodInfo is MethodInfo mi && (mi.ReturnType == typeof(double) || mi.ReturnType == typeof(long)))
+            {
+                AsmWriter?.WriteLine($"    CLR.L D1              ; Decimal.op_Explicit: low word (simplified 64-bit)");
+                stack.Push("D0", isDoubleWord: true);
+                stack.Push("D1", isDoubleWord: true);
+            }
+            else
+            {
+                stack.Push("D0");
+            }
         }
     }
 }

@@ -90,6 +90,22 @@ namespace JumpCS.Backend.SystemTypes
             {
                 HandleEquals(stack);
             }
+            else if (methodName == "IsNaN")
+            {
+                HandleIsNaN(stack);
+            }
+            else if (methodName == "IsInfinity")
+            {
+                HandleIsInfinity(stack);
+            }
+            else if (methodName == "IsPositiveInfinity")
+            {
+                HandleIsPositiveInfinity(stack);
+            }
+            else if (methodName == "IsNegativeInfinity")
+            {
+                HandleIsNegativeInfinity(stack);
+            }
             else
             {
                 // Stub for unimplemented methods
@@ -406,6 +422,91 @@ namespace JumpCS.Backend.SystemTypes
             stack.ReleaseDataRegister(other_lo);
 
             stack.Push("D0", isDoubleWord: true);
+        }
+
+        private void HandleIsNaN(Asm68000StackSimulator stack)
+        {
+            string val_lo = stack.Pop();
+            string val_hi = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    ANDI.L #$7FF00000,D0  ; Isolate exponent");
+            AsmWriter?.WriteLine($"    CMPI.L #$7FF00000,D0");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    ANDI.L #$000FFFFF,D0  ; Isolate mantissa high");
+            AsmWriter?.WriteLine($"    TST.L D0");
+            AsmWriter?.WriteLine($"    BNE {label}_true");
+            AsmWriter?.WriteLine($"    TST.L {val_lo}");
+            AsmWriter?.WriteLine($"    BNE {label}_true");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_true:");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val_hi);
+            stack.ReleaseDataRegister(val_lo);
+            stack.Push("D0");
+        }
+
+        private void HandleIsInfinity(Asm68000StackSimulator stack)
+        {
+            string val_lo = stack.Pop();
+            string val_hi = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    ANDI.L #$7FFFFFFF,D0  ; Clear sign bit");
+            AsmWriter?.WriteLine($"    CMPI.L #$7FF00000,D0");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    TST.L {val_lo}");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val_hi);
+            stack.ReleaseDataRegister(val_lo);
+            stack.Push("D0");
+        }
+
+        private void HandleIsPositiveInfinity(Asm68000StackSimulator stack)
+        {
+            string val_lo = stack.Pop();
+            string val_hi = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    CMPI.L #$7FF00000,{val_hi}");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    TST.L {val_lo}");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val_hi);
+            stack.ReleaseDataRegister(val_lo);
+            stack.Push("D0");
+        }
+
+        private void HandleIsNegativeInfinity(Asm68000StackSimulator stack)
+        {
+            string val_lo = stack.Pop();
+            string val_hi = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    CMPI.L #$FFF00000,{val_hi}");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    TST.L {val_lo}");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val_hi);
+            stack.ReleaseDataRegister(val_lo);
+            stack.Push("D0");
         }
     }
 }

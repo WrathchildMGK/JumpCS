@@ -89,6 +89,22 @@ namespace JumpCS.Backend.SystemTypes
             {
                 HandleEquals(stack);
             }
+            else if (methodName == "IsNaN")
+            {
+                HandleIsNaN(stack);
+            }
+            else if (methodName == "IsInfinity")
+            {
+                HandleIsInfinity(stack);
+            }
+            else if (methodName == "IsPositiveInfinity")
+            {
+                HandleIsPositiveInfinity(stack);
+            }
+            else if (methodName == "IsNegativeInfinity")
+            {
+                HandleIsNegativeInfinity(stack);
+            }
             else
             {
                 AsmWriter?.WriteLine($"    ; TODO: System.Single.{methodName}");
@@ -301,6 +317,74 @@ namespace JumpCS.Backend.SystemTypes
             stack.ReleaseDataRegister(self);
             stack.ReleaseDataRegister(other);
             
+            stack.Push("D0");
+        }
+
+        private void HandleIsNaN(Asm68000StackSimulator stack)
+        {
+            string val = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    MOVE.L {val},D0");
+            AsmWriter?.WriteLine($"    ANDI.L #$7F800000,D0  ; Isolate exponent");
+            AsmWriter?.WriteLine($"    CMPI.L #$7F800000,D0");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L {val},D0");
+            AsmWriter?.WriteLine($"    ANDI.L #$007FFFFF,D0  ; Isolate mantissa");
+            AsmWriter?.WriteLine($"    TST.L D0");
+            AsmWriter?.WriteLine($"    BEQ {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val);
+            stack.Push("D0");
+        }
+
+        private void HandleIsInfinity(Asm68000StackSimulator stack)
+        {
+            string val = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    MOVE.L {val},D0");
+            AsmWriter?.WriteLine($"    ANDI.L #$7FFFFFFF,D0  ; Clear sign bit");
+            AsmWriter?.WriteLine($"    CMPI.L #$7F800000,D0");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val);
+            stack.Push("D0");
+        }
+
+        private void HandleIsPositiveInfinity(Asm68000StackSimulator stack)
+        {
+            string val = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    CMPI.L #$7F800000,{val}");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val);
+            stack.Push("D0");
+        }
+
+        private void HandleIsNegativeInfinity(Asm68000StackSimulator stack)
+        {
+            string val = stack.Pop();
+            string label = GetUniqueLabel();
+            AsmWriter?.WriteLine($"    CMPI.L #$FF800000,{val}");
+            AsmWriter?.WriteLine($"    BNE {label}_false");
+            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
+            AsmWriter?.WriteLine($"    BRA {label}_end");
+            AsmWriter?.WriteLine($"{label}_false:");
+            AsmWriter?.WriteLine($"    CLR.L D0");
+            AsmWriter?.WriteLine($"{label}_end:");
+            stack.ReleaseDataRegister(val);
             stack.Push("D0");
         }
     }

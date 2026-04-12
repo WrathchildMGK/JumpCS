@@ -1447,10 +1447,47 @@ namespace JumpCS.Backend
                     _asmWriter?.WriteLine($"    ; WARNING: Conv_R8 with empty stack");
                 }
             }
+            else if (opcode == OpCodes.Conv_I8)
+            {
+                if (stack.StackDepth > 0)
+                {
+                    string value = stack.Pop();
+                    string resultHi = GetAvailableRegister(stack);
+                    string resultLo = GetAvailableRegister(stack);
+                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultLo}  ; Conv_I8: low word = original value");
+                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultHi}  ; Conv_I8: copy for sign extension");
+                    _asmWriter?.WriteLine($"    ASR.L #8,{resultHi}");
+                    _asmWriter?.WriteLine($"    ASR.L #8,{resultHi}");
+                    _asmWriter?.WriteLine($"    ASR.L #8,{resultHi}");
+                    _asmWriter?.WriteLine($"    ASR.L #7,{resultHi}       ; Sign-extend to 32 bits (high word)");
+                    stack.ReleaseDataRegister(value);
+                    stack.Push(resultHi);
+                    stack.Push(resultLo);
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Conv_I8 with empty stack");
+                }
+            }
+            else if (opcode == OpCodes.Conv_U1)
+            {
+                if (stack.StackDepth > 0)
+                {
+                    string value = stack.Pop();
+                    string resultReg = GetAvailableRegister(stack);
+                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
+                    _asmWriter?.WriteLine($"    ANDI.L #$FF,{resultReg}   ; Conv_U1: mask to unsigned byte");
+                    stack.ReleaseDataRegister(value);
+                    stack.Push(resultReg);
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; WARNING: Conv_U1 with empty stack");
+                }
+            }
             else if (opcode == OpCodes.Ldloc_0 || opcode == OpCodes.Ldloc_1 ||
                      opcode == OpCodes.Ldloc_2 || opcode == OpCodes.Ldloc_3)
             {
-                // Load local variable onto evaluation stack
                 int localIndex = 0;
                 if (opcode == OpCodes.Ldloc_1) localIndex = 1;
                 else if (opcode == OpCodes.Ldloc_2) localIndex = 2;
@@ -1460,7 +1497,6 @@ namespace JumpCS.Backend
 
                 if (_doubleLocals.Contains(localIndex))
                 {
-                    // Load 2 registers (double)
                     string targetReg1 = stack.AllocateDataRegister();
                     string targetReg2 = stack.AllocateDataRegister();
                     _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg1}      ; Load local.{localIndex} (high)");
@@ -1470,7 +1506,6 @@ namespace JumpCS.Backend
                 }
                 else
                 {
-                    // Load 1 register (single or int)
                     string targetReg = stack.AllocateDataRegister();
                     _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIndex}");
                     stack.Push(targetReg);
@@ -1478,14 +1513,12 @@ namespace JumpCS.Backend
             }
             else if (opcode == OpCodes.Ldloc_S)
             {
-                // Load short local variable - operand is Int32 (MsilIterator casts byte to int)
                 if (operand is int localIdx)
                 {
                     int frameOffset = -(localIdx + 1) * 4 - 4;
 
                     if (_doubleLocals.Contains(localIdx))
                     {
-                        // Load 2 registers (double)
                         string targetReg1 = stack.AllocateDataRegister();
                         string targetReg2 = stack.AllocateDataRegister();
                         _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg1}      ; Load local.{localIdx} (high)");
@@ -1495,7 +1528,6 @@ namespace JumpCS.Backend
                     }
                     else
                     {
-                        // Load 1 register (single or int)
                         string targetReg = stack.AllocateDataRegister();
                         _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIdx}");
                         stack.Push(targetReg);
@@ -1508,14 +1540,12 @@ namespace JumpCS.Backend
             }
             else if (opcode == OpCodes.Ldloc)
             {
-                // Load local variable by index
                 if (operand is ushort localIdx2)
                 {
                     int frameOffset = -(localIdx2 + 1) * 4 - 4;
 
                     if (_doubleLocals.Contains(localIdx2))
                     {
-                        // Load 2 registers (double)
                         string targetReg1 = stack.AllocateDataRegister();
                         string targetReg2 = stack.AllocateDataRegister();
                         _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg1}      ; Load local.{localIdx2} (high)");
@@ -1525,11 +1555,52 @@ namespace JumpCS.Backend
                     }
                     else
                     {
-                        // Load 1 register (single or int)
                         string targetReg = stack.AllocateDataRegister();
                         _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIdx2}");
                         stack.Push(targetReg);
                     }
+                }
+            }
+            else if (opcode == OpCodes.Ldloca_S)
+            {
+                if (operand is int localIdx)
+                {
+                    int frameOffset = -(localIdx + 1) * 4 - 4;
+                    string addrReg = stack.AllocateAddressRegister();
+                    _asmWriter?.WriteLine($"    LEA {frameOffset}(A6),{addrReg}  ; Load address of local.{localIdx}");
+                    string dataReg = GetAvailableRegister(stack);
+                    _asmWriter?.WriteLine($"    MOVE.L {addrReg},{dataReg}");
+                    stack.ReleaseAddressRegister(addrReg);
+                    stack.Push(dataReg);
+                }
+                else
+                {
+                    _asmWriter?.WriteLine($"    ; ERROR: ldloca.s with invalid operand type: {operand?.GetType().Name}");
+                }
+            }
+            else if (opcode == OpCodes.Ldsfld)
+            {
+                if (operand is int fieldToken)
+                {
+                    string targetReg = GetAvailableRegister(stack);
+                    try
+                    {
+                        var fieldInfo = method.OwningClass.ReflectionType?.Module?.ResolveField(fieldToken);
+                        if (fieldInfo != null)
+                        {
+                            string fieldLabel = $"STATIC_{fieldInfo.DeclaringType?.Name}_{fieldInfo.Name}";
+                            _asmWriter?.WriteLine($"    MOVE.L {fieldLabel},{targetReg}  ; Load static field {fieldInfo.DeclaringType?.Name}.{fieldInfo.Name}");
+                        }
+                        else
+                        {
+                            _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Unresolved static field token {fieldToken:X8}");
+                        }
+                    }
+                    catch
+                    {
+                        _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Could not resolve static field token {fieldToken:X8}");
+                    }
+                    stack.Push(targetReg);
                 }
             }
             else if (opcode == OpCodes.Stloc_0)
