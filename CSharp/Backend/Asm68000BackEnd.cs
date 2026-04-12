@@ -1,18 +1,17 @@
-using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using JumpCS.Core;
 using JumpCS.Backend.SystemTypes;
+using CSharp.Backend;
 
 namespace JumpCS.Backend
 {
     /// <summary>68000 assembly code backend</summary>
     public class Asm68000BackEnd : BackEnd
     {
-        private StreamWriter? _asmWriter;
-        private int _labelCounter = 0;
+        private StreamWriter _asmWriter;
+        private LabelMapper _labels;
         private Dictionary<string, int> _methodOffsets = new();
-        private Dictionary<int, MethodMetadata?> _methodCache = new ();
         private int _currentOffset = 0;
 
         // Constant tracking for ldc.r4 and ldc.r8
@@ -22,43 +21,9 @@ namespace JumpCS.Backend
         // After line 57, ADD:
         private HashSet<int> _doubleLocals = new();
 
-        // 68000 Register allocation
-        private const string D0 = "D0";    // Temporary/return value
-        private const string D1 = "D1";    // Temporary
-        private const string A0 = "A0";    // Address register
-        private const string A1 = "A1";    // Address register
-        private const string A6 = "A6";    // Frame pointer
-        private const string A7 = "A7";    // Stack pointer
-
-        /// <summary>Label mapping for control flow targets</summary>
-        private class LabelMapper
-        {
-            private Dictionary<int, string> _offsetToLabel = new();
-
-            public string GetOrCreateLabel(int msilOffset)
-            {
-                if (!_offsetToLabel.TryGetValue(msilOffset, out var label))
-                {
-                    label = $"L_{msilOffset:X4}";
-                    _offsetToLabel[msilOffset] = label;
-                }
-                return label;
-            }
-
-            public void Clear()
-            {
-                _offsetToLabel.Clear();
-            }
-        }
-
-        private SystemDecimalHandler _decimalHandler;
-        private SystemMathHandler _mathHandler;
-        private SystemDoubleHandler _doubleHandler;
-        private SystemFloatHandler _floatHandler;
-        private SystemIntegerHandler _integerHandler;
-
         public Asm68000BackEnd(string outputBaseName) : base(outputBaseName)
         {
+            _labels = new LabelMapper();
         }
 
         /// <summary>Update dependencies and calculate code sizes</summary>
@@ -80,174 +45,6 @@ namespace JumpCS.Backend
             }
         }
 
-        /// <summary>Analyze MSIL bytecode to discover method call dependencies</summary>
-        private void AnalyzeMsilDependencies()
-        {
-            var classesToAnalyze = ClassMetadata.AllClasses.Where(c => c.IsNeeded).ToList();
-            
-            foreach (var cls in classesToAnalyze)
-            {
-                var methodsToAnalyze = cls.Methods
-                    .Where(m => m.IsNeeded && m.Code != null && m.Code.Length > 0)
-                    .ToList();
-                
-                foreach (var method in methodsToAnalyze)
-                {
-                    try
-                    {
-                        var iterator = new MsilIterator(method.Code, method);
-                        while (iterator.MoveNext())
-                        {
-                            var opcode = iterator.CurrentOpcode;
-                            var operand = iterator.CurrentOperand;
-
-                            if ((opcode == OpCodes.Call || opcode == OpCodes.Callvirt) && 
-                                operand is int methodToken)
-                            {
-                                var targetMethod = ResolveMethodToken(method.OwningClass, methodToken);
-                                if (targetMethod != null && !targetMethod.IsNeeded)
-                                {
-                                    targetMethod.MarkNeeded($"Called from {method.OwningClass.FullName}.{method.Name}");
-                                    Program.SetNeedsNewIteration();
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)    
-                    {
-                        if (Program.CodeOptions?.Verbosity >= 1)
-                            Console.WriteLine($"Warning: Failed to analyze MSIL for {method}: {ex.Message}");
-                    }
-                }
-            }
-        }
-
-        private MethodBase? MyGetMethodInfo(ClassMetadata callingClass, int methodToken)
-        {
-            try
-            {
-                var module = callingClass.ReflectionType?.Module;
-                
-                if (module == null)
-                    return null;
-
-                MethodBase? resolveMethod = null;
-                try
-                {
-                    resolveMethod = module.ResolveMethod(methodToken);
-                }
-                catch
-                {
-                }
-                
-                if (resolveMethod == null)
-                    return null;
-
-                RuntimeMethodHandle methodHandle = resolveMethod.MethodHandle;
-                return MethodBase.GetMethodFromHandle(methodHandle);
-            }
-            catch (Exception ex)
-            {
-                if (Program.CodeOptions?.Verbosity >= 1)
-                    Console.WriteLine($"Warning: Could not resolve method token {methodToken:X8}: {ex.Message}");
-                return null;
-            }
-        }
-
-        /// <summary>Resolve a method token to actual method metadata</summary>
-        private MethodMetadata? ResolveMethodToken(ClassMetadata callingClass, int methodToken)
-        {
-            if (_methodCache.ContainsKey(methodToken))
-                return _methodCache[methodToken];
-
-            if (callingClass.ReflectionType?.Module is null)
-            {
-                if (Program.CodeOptions?.Verbosity > 1)
-                    Console.WriteLine($"  Token {methodToken:X8}: No module in calling class {callingClass.FullName}");
-                return null;
-            }
-
-            try
-            {
-                var methodInfo = MyGetMethodInfo(callingClass, methodToken);
-
-                // Framework methods should not be compiled - route through handlers instead
-                if (methodInfo?.DeclaringType?.Namespace?.StartsWith("System") == true)
-                {
-                    _methodCache.Add(methodToken, null);
-                    return null;
-                }
-
-                if (methodInfo?.DeclaringType is null)
-                {
-                    if (Program.CodeOptions?.Verbosity > 1)
-                        Console.WriteLine($"  Token {methodToken:X8}: MethodBase has no declaring type");
-                    _methodCache.Add(methodToken, null);
-                    return null;
-                }
-
-                var targetClass = ClassMetadata.ForName(methodInfo.DeclaringType.FullName ?? "");
-                if (targetClass is null)
-                {
-                    if (Program.CodeOptions?.Verbosity > 1)
-                        Console.WriteLine($"  Token {methodToken:X8}: Target class not found: {methodInfo.DeclaringType.FullName}");
-                    _methodCache.Add(methodToken, null);
-                    return null;
-                }
-
-                var signature = GetMethodSignature(methodInfo);
-                var resolvedMethod = targetClass.FindMethod(methodInfo.Name, signature);
-
-                if (resolvedMethod != null && Program.CodeOptions?.Verbosity > 1)
-                {
-                    Console.WriteLine($"  Token {methodToken:X8} → {targetClass.FullName}.{methodInfo.Name}{signature}");
-                }
-                else if (Program.CodeOptions?.Verbosity > 1)
-                {
-                    Console.WriteLine($"  Token {methodToken:X8}: Method not found in class: {methodInfo.Name}{signature}");
-                }
-
-                _methodCache.Add(methodToken, resolvedMethod);
-                return resolvedMethod;
-            }
-            catch (Exception ex)
-            {
-                if (Program.CodeOptions?.Verbosity >= 1)
-                    Console.WriteLine($"Warning: Could not resolve method token {methodToken:X8}: {ex.Message}");
-                return null;
-            }
-        }
-
-        private string GetMethodSignature(MethodBase method)
-        {
-            var paramTypes = method.GetParameters()
-                .Select(p => GetTypeSignature(p.ParameterType))
-                .ToList();
-
-            string returnType = method is MethodInfo mi ? 
-                GetTypeSignature(mi.ReturnType) : "V";
-            
-            var paramList = string.Concat(paramTypes);
-            return $"({paramList}){returnType}";
-        }
-
-        private string GetTypeSignature(Type type)
-        {
-            return type.Name switch
-            {
-                "Void" => "V",
-                "Boolean" => "Z",
-                "Byte" => "B",
-                "Char" => "C",
-                "Short" => "S",
-                "Int32" => "I",
-                "Int64" => "J",
-                "Single" => "F",
-                "Double" => "D",
-                _ => $"L{type.FullName?.Replace(".", "/")};",
-            };
-        }
-
         /// <summary>Generate 68000 assembly output</summary>
         public override void Generate()
         {
@@ -256,35 +53,6 @@ namespace JumpCS.Backend
 
             using (_asmWriter = new StreamWriter(outputPath, false, Encoding.ASCII))
             {
-                _decimalHandler = new SystemDecimalHandler(
-                    _asmWriter,
-                    (stack) => GetAvailableRegister(stack),
-                    () => GetUniqueLabel()
-                );
-
-                _mathHandler = new SystemMathHandler(
-                    _asmWriter,
-                    (stack) => GetAvailableRegister(stack)
-                );
-
-                _doubleHandler = new SystemDoubleHandler(
-                    _asmWriter,
-                    (stack) => GetAvailableRegister(stack),
-                    () => GetUniqueLabel()
-                );
-
-                _floatHandler = new SystemFloatHandler(
-                    _asmWriter,
-                    (stack) => GetAvailableRegister(stack),
-                    () => GetUniqueLabel()
-                );
-
-                _integerHandler = new SystemIntegerHandler(
-                    _asmWriter,
-                    (stack) => GetAvailableRegister(stack),
-                    () => GetUniqueLabel()
-                );
-
                 // Clear constants for fresh generation
                 _floatConstants.Clear();
                 _doubleConstants.Clear();
@@ -303,43 +71,43 @@ namespace JumpCS.Backend
 
         private void WriteHeader()
         {
-            _asmWriter?.WriteLine("; Generated 68000 Assembly Code");
-            _asmWriter?.WriteLine("; Converted from C# MSIL");
-            _asmWriter?.WriteLine($"; Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-            _asmWriter?.WriteLine();
-            _asmWriter?.WriteLine("    ; --- Code Section ---");
-            _asmWriter?.WriteLine("    SECTION CODE");
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine("; Generated 68000 Assembly Code");
+            _asmWriter.WriteLine("; Converted from C# MSIL");
+            _asmWriter.WriteLine($"; Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            _asmWriter.WriteLine();
+            _asmWriter.WriteLine("    ; --- Code Section ---");
+            _asmWriter.WriteLine("    SECTION CODE");
+            _asmWriter.WriteLine();
         }
 
         private void WriteClassDefinitions()
         {
-            _asmWriter?.WriteLine("    ; --- Class Definitions ---");
+            _asmWriter.WriteLine("    ; --- Class Definitions ---");
             foreach (var cls in ClassMetadata.AllClasses.Where(c => c.IsNeeded))
             {
-                _asmWriter?.WriteLine($"; Class: {cls.FullName}");
-                _asmWriter?.WriteLine($"    CLASS_{cls.ClassIndex} EQU {cls.ClassIndex}");
-                _asmWriter?.WriteLine($"    CLASS_SIZE_{cls.ClassIndex} EQU {cls.DataSize}");
+                _asmWriter.WriteLine($"; Class: {cls.FullName}");
+                _asmWriter.WriteLine($"    CLASS_{cls.ClassIndex} EQU {cls.ClassIndex}");
+                _asmWriter.WriteLine($"    CLASS_SIZE_{cls.ClassIndex} EQU {cls.DataSize}");
             }
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine();
         }
 
         private void WriteClassTable()
         {
-            _asmWriter?.WriteLine("    ; --- Class Table ---");
-            _asmWriter?.WriteLine("CLASS_TABLE:");
+            _asmWriter.WriteLine("    ; --- Class Table ---");
+            _asmWriter.WriteLine("CLASS_TABLE:");
 
             foreach (var cls in ClassMetadata.AllClasses.Where(c => c.ClassIndex >= 0))
             {
-                _asmWriter?.WriteLine($"    DC.L {cls.FullName}_vtable     ; Class {cls.FullName}");
-                _asmWriter?.WriteLine($"    DC.L {cls.DataSize}             ; Instance size");
+                _asmWriter.WriteLine($"    DC.L {cls.FullName}_vtable     ; Class {cls.FullName}");
+                _asmWriter.WriteLine($"    DC.L {cls.DataSize}             ; Instance size");
             }
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine();
         }
 
         private void WriteMethodImplementations()
         {
-            _asmWriter?.WriteLine("    ; --- Method Implementations ---");
+            _asmWriter.WriteLine("    ; --- Method Implementations ---");
 
             foreach (var cls in ClassMetadata.AllClasses.Where(c => c.IsNeeded))
             {
@@ -349,19 +117,19 @@ namespace JumpCS.Backend
 
         private void WriteClassMethods(ClassMetadata cls)
         {
-            _asmWriter?.WriteLine($"; Methods of {cls.FullName}");
+            _asmWriter.WriteLine($"; Methods of {cls.FullName}");
 
             foreach (var method in cls.Methods.Where(m => m.IsNeeded))
             {
                 WriteMethod(cls, method);
             }
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine();
         }
 
         private void WriteMethod(ClassMetadata cls, MethodMetadata method)
         {
-            string methodLabel = GetMethodLabel(cls, method);
-            _asmWriter?.WriteLine($"{methodLabel}:");
+            string methodLabel = cls.GetMethodLabel(method);
+            _asmWriter.WriteLine($"{methodLabel}:");
             
             if (method.IsConstructor)
             {
@@ -377,1426 +145,74 @@ namespace JumpCS.Backend
             }
             else
             {
-                _asmWriter?.WriteLine($"    ; TODO: Implement {method.Name}{method.Signature}");
+                _asmWriter.WriteLine($"    ; TODO: Implement {method.Name}{method.Signature}");
             }
 
-            _asmWriter?.WriteLine("    RTS");
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine("    RTS");
+            _asmWriter.WriteLine();
         }
 
         private void WriteConstructorCode(ClassMetadata cls, MethodMetadata method)
         {
-            _asmWriter?.WriteLine("    ; Constructor prologue");
-            _asmWriter?.WriteLine("    MOVEM.L A6,-(A7)     ; Save return address");
-            _asmWriter?.WriteLine("    MOVE.L A7,A6         ; Set up frame pointer");
-            _asmWriter?.WriteLine("    SUBI.L #" + cls.DataSize + ",A7");
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine("    ; Constructor prologue");
+            _asmWriter.WriteLine("    MOVEM.L A6,-(A7)     ; Save return address");
+            _asmWriter.WriteLine("    MOVE.L A7,A6         ; Set up frame pointer");
+            _asmWriter.WriteLine("    SUBI.L #" + cls.DataSize + ",A7");
+            _asmWriter.WriteLine();
 
             if (method.Code != null && method.Code.Length > 0)
             {
                 WriteMsilToAsm(method);
             }
 
-            _asmWriter?.WriteLine("    ; Constructor epilogue");
-            _asmWriter?.WriteLine("    MOVEM.L (A7)+,A6     ; Restore frame");
+            _asmWriter.WriteLine("    ; Constructor epilogue");
+            _asmWriter.WriteLine("    MOVEM.L (A7)+,A6     ; Restore frame");
         }
 
         private void WriteStaticConstructorCode(ClassMetadata cls, MethodMetadata method)
         {
-            _asmWriter?.WriteLine("    ; Static constructor prologue");
-            _asmWriter?.WriteLine("    MOVEM.L A6,-(A7)     ; Save frame");
-            _asmWriter?.WriteLine("    MOVE.L A7,A6         ; Set up frame pointer");
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine("    ; Static constructor prologue");
+            _asmWriter.WriteLine("    MOVEM.L A6,-(A7)     ; Save frame");
+            _asmWriter.WriteLine("    MOVE.L A7,A6         ; Set up frame pointer");
+            _asmWriter.WriteLine();
 
             if (method.Code != null && method.Code.Length > 0)
             {
                 WriteMsilToAsm(method);
             }
 
-            _asmWriter?.WriteLine("    ; Static constructor epilogue");
-            _asmWriter?.WriteLine("    MOVEM.L (A7)+,A6     ; Restore frame");
+            _asmWriter.WriteLine("    ; Static constructor epilogue");
+            _asmWriter.WriteLine("    MOVEM.L (A7)+,A6     ; Restore frame");
         }
 
         private void WriteMsilToAsm(MethodMetadata method)
         {
-            _asmWriter?.WriteLine("    ; Method prologue");
-            _asmWriter?.WriteLine("    MOVEM.L A6,-(A7)     ; Save frame");
-            _asmWriter?.WriteLine("    MOVE.L A7,A6         ; Set up frame pointer");
+            _asmWriter.WriteLine("    ; Method prologue");
+            _asmWriter.WriteLine("    MOVEM.L A6,-(A7)     ; Save frame");
+            _asmWriter.WriteLine("    MOVE.L A7,A6         ; Set up frame pointer");
             if (method.MaxLocals > 0)
             {
-                _asmWriter?.WriteLine($"    SUBI.L #{method.MaxLocals * 4},A7");
+                _asmWriter.WriteLine($"    SUBI.L #{method.MaxLocals * 4},A7");
             }
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine();
 
             var iterator = new MsilIterator(method.Code, method);
             // Increase maxStack to account for 64-bit values being split into two 32-bit registers
             // MSIL MaxStack counts 64-bit as 1 slot, but we use 2 registers per 64-bit value
             int adjustedMaxStack = method.MaxStack * 2;
             var stack = new Asm68000StackSimulator(method.MaxLocals, adjustedMaxStack);
-            var labels = new LabelMapper();
+            var translator = new Asm68000OpcodeTranslator(iterator, method, stack, _labels, _asmWriter);
 
             _doubleLocals.Clear();
 
             while (iterator.MoveNext())
             {
-                TranslateOpcode(iterator, method, stack, labels);
+                translator.TranslateCurrentOpcode();
             }
 
-            _asmWriter?.WriteLine();
-            _asmWriter?.WriteLine("    ; Method epilogue");
-            _asmWriter?.WriteLine("    MOVEM.L (A7)+,A6     ; Restore frame");
-        }
-
-        /// <summary>Translate a single MSIL opcode to 68000 assembly</summary>
-        private void TranslateOpcode(MsilIterator iterator, MethodMetadata method, Asm68000StackSimulator stack, LabelMapper labels)
-        {
-            OpCode opcode = iterator.CurrentOpcode;
-            object? operand = iterator.CurrentOperand;
-
-            // Add diagnostic output for problematic instructions
-            if (Program.CodeOptions?.Verbosity >= 2)
-            {
-                string opInfo = $"{opcode.Name}";
-                if (operand != null)
-                    opInfo += $" ({operand})";
-                
-                Console.WriteLine($"[OPCODE] {iterator.CurrentIndex:X4}: {opInfo}");
-            }
-
-            _asmWriter?.WriteLine($"    ; Offset {iterator.CurrentIndex:X4}: {opcode.Name}");
-
-            if (opcode == OpCodes.Ldc_I4_0)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    CLR.L {targetReg}             ; Load 0");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_1)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #1,{targetReg}         ; Load 1");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_2)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #2,{targetReg}         ; Load 2");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_3)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #3,{targetReg}         ; Load 3");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_4)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #4,{targetReg}         ; Load 4");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_5)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #5,{targetReg}         ; Load 5");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_6)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #6,{targetReg}         ; Load 6");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_7)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #7,{targetReg}         ; Load 7");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_8)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #8,{targetReg}         ; Load 8");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4_M1)
-            {
-                string targetReg = stack.AllocateDataRegister();
-                _asmWriter?.WriteLine($"    MOVE.L #-1,{targetReg}        ; Load -1");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Ldc_I4)
-            {
-                if (operand is int intVal)
-                {
-                    string targetReg = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L #{intVal},{targetReg}  ; Load constant");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldc_I4_S)
-            {
-                if (operand is int shortIntVal)
-                {
-                    string targetReg = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L #{shortIntVal},{targetReg}  ; Load short constant");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldc_I8)
-            {
-                if (operand is long longVal)
-                {
-                    string targetReg1 = stack.AllocateDataRegister();
-                    string targetReg2 = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L #{(int)(longVal >> 32)},{targetReg1}     ; Load high word");
-                    _asmWriter?.WriteLine($"    MOVE.L #{(int)(longVal & 0xFFFFFFFF)},{targetReg2}    ; Load low word");
-                    stack.Push(targetReg1);
-                    stack.Push(targetReg2);
-                }
-            }
-            else if (opcode == OpCodes.Ldc_R8)
-            {
-                if (operand is double dVal)
-                {
-                    int constantIndex = iterator.CurrentIndex;
-                    _doubleConstants[constantIndex] = dVal;
-                    string addrReg = stack.AllocateAddressRegister();
-                    string targetReg1 = GetAvailableRegister(stack);
-                    string targetReg2 = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    LEA DOUBLE_CONST_{constantIndex:X4}(PC),{addrReg}");
-                    _asmWriter?.WriteLine($"    MOVE.L ({addrReg}),{targetReg1}     ; Double high word");
-                    _asmWriter?.WriteLine($"    MOVE.L 4({addrReg}),{targetReg2}    ; Double low word");
-                    stack.ReleaseAddressRegister(addrReg);
-                    stack.Push(targetReg1, isDoubleWord: true);
-                    stack.Push(targetReg2, isDoubleWord: true);
-                }
-            }
-            else if (opcode == OpCodes.Ldc_R4)
-            {
-                float fVal = 0f;
-                bool handled = false;
-
-                // ldc.r4 operand is a 32-bit float
-                if (operand is float f)
-                {
-                    fVal = f;
-                    handled = true;
-                }
-                else if (operand is double d)
-                {
-                    // Fallback: if somehow we get a double, convert it
-                    fVal = (float)d;
-                    handled = true;
-                }
-                else if (operand is int intBits)
-                {
-                    // Raw int bits interpretation
-                    fVal = BitConverter.Int32BitsToSingle(intBits);
-                    handled = true;
-                }
-
-                if (handled)
-                {
-                    int constantIndex = iterator.CurrentIndex;
-                    _floatConstants[constantIndex] = fVal;
-                    string targetReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    LEA FLOAT_CONST_{constantIndex:X4}(PC),A0");
-                    _asmWriter?.WriteLine($"    MOVE.L (A0),{targetReg}");
-                    stack.Push(targetReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: ldc.r4 operand type: {operand?.GetType().Name ?? "null"} value: {operand}");
-                    string targetReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Load float constant");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Add)
-            {
-                if (stack.StackDepth >= 4)
-                {
-                    // Double addition - delegate to handler for IEEE 754 library call
-                    _doubleHandler?.HandleAddition(stack);
-                }
-                else
-                {
-                    // Integer addition
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-                    _asmWriter?.WriteLine($"    ADD.L {right},{resultReg}");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.Sub)
-            {
-                if (stack.StackDepth >= 4)
-                {
-                    // Double subtraction - delegate to handler for IEEE 754 library call
-                    _doubleHandler?.HandleSubtraction(stack);
-                }
-                else
-                {
-                    // Integer subtraction
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-                    _asmWriter?.WriteLine($"    SUB.L {right},{resultReg}");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.Mul)
-            {
-                if (stack.StackDepth >= 4)
-                {
-                    // Double multiplication - delegate to handler for IEEE 754 library call
-                    _doubleHandler?.HandleMultiply(stack);
-                }
-                else
-                {
-                    // Integer multiplication
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-                    _asmWriter?.WriteLine($"    MULS.L {right},{resultReg}");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.Div)
-            {
-                if (stack.StackDepth >= 4)
-                {
-                    // Double division - delegate to handler for IEEE 754 library call
-                    _doubleHandler?.HandleDivision(stack);
-                }
-                else
-                {
-                    // Integer division
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-                    _asmWriter?.WriteLine($"    DIVS.L {right},{resultReg}");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.Rem)
-            {
-                if (stack.StackDepth >= 4)
-                {
-                    // Double remainder - delegate to handler for IEEE 754 library call
-                    _doubleHandler?.HandleRemainder(stack);
-                }
-                else
-                {
-                    // Integer remainder
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-                    
-                    _asmWriter?.WriteLine($"    MOVE.L {left},D0");
-                    _asmWriter?.WriteLine($"    DIVS.L {right},D0");
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L D1,{resultReg}  ; Remainder from division");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.Box)
-            {
-                if (operand is int typeToken)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    ; Box type token {typeToken:X8}");
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},D0     ; Boxed value");
-                    stack.ReleaseDataRegister(valueReg);
-                    stack.Push(D0);
-                }
-            }
-            else if (opcode == OpCodes.Unbox)
-            {
-                string objRef = stack.Pop();
-                _asmWriter?.WriteLine($"    ; Unbox");
-                _asmWriter?.WriteLine($"    MOVE.L {objRef},D0     ; Unboxed value");
-                stack.ReleaseDataRegister(objRef);
-                stack.Push(D0);
-            }
-            else if (opcode == OpCodes.Unbox_Any)
-            {
-                if (operand is int typeToken)
-                {
-                    string objRef = stack.Pop();
-                    _asmWriter?.WriteLine($"    ; Unbox.Any type token {typeToken:X8}");
-                    _asmWriter?.WriteLine($"    MOVE.L {objRef},D0     ; Unboxed value");
-                    stack.ReleaseDataRegister(objRef);
-                    stack.Push(D0);
-                }
-            }
-            else if (opcode == OpCodes.Ceq)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string right_lo = stack.Pop();
-                    string right_hi = stack.Pop();
-                    string left_lo = stack.Pop();
-                    string left_hi = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {left_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {left_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {right_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {right_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __eqdf2           ; IEEE 754 double equality");
-                    stack.ReleaseDataRegister(left_hi);
-                    stack.ReleaseDataRegister(left_lo);
-                    stack.ReleaseDataRegister(right_hi);
-                    stack.ReleaseDataRegister(right_lo);
-                    stack.Push("D0");
-                }
-                else
-                {
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-
-                    string resultReg = GetAvailableRegister(stack);
-                    string label = GetUniqueLabel();
-                    _asmWriter?.WriteLine($"    CMP.L {right},{left}");
-                    _asmWriter?.WriteLine($"    BEQ {label}_eq");
-                    _asmWriter?.WriteLine($"    CLR.L {resultReg}");
-                    _asmWriter?.WriteLine($"    BRA {label}_end");
-                    _asmWriter?.WriteLine($"{label}_eq:");
-                    _asmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-                    _asmWriter?.WriteLine($"{label}_end:");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.Clt || opcode == OpCodes.Clt_Un)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string right_lo = stack.Pop();
-                    string right_hi = stack.Pop();
-                    string left_lo = stack.Pop();
-                    string left_hi = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {left_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {left_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {right_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {right_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __ltdf2           ; IEEE 754 double less-than");
-                    stack.ReleaseDataRegister(left_hi);
-                    stack.ReleaseDataRegister(left_lo);
-                    stack.ReleaseDataRegister(right_hi);
-                    stack.ReleaseDataRegister(right_lo);
-                    stack.Push("D0");
-                }
-                else
-                {
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-
-                    string resultReg = GetAvailableRegister(stack);
-                    string label = GetUniqueLabel();
-                    _asmWriter?.WriteLine($"    CMP.L {right},{left}");
-                    _asmWriter?.WriteLine($"    BLT {label}_lt");
-                    _asmWriter?.WriteLine($"    CLR.L {resultReg}");
-                    _asmWriter?.WriteLine($"    BRA {label}_end");
-                    _asmWriter?.WriteLine($"{label}_lt:");
-                    _asmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-                    _asmWriter?.WriteLine($"{label}_end:");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.Cgt || opcode == OpCodes.Cgt_Un)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string right_lo = stack.Pop();
-                    string right_hi = stack.Pop();
-                    string left_lo = stack.Pop();
-                    string left_hi = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {left_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {left_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {right_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {right_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __gtdf2           ; IEEE 754 double greater-than");
-                    stack.ReleaseDataRegister(left_hi);
-                    stack.ReleaseDataRegister(left_lo);
-                    stack.ReleaseDataRegister(right_hi);
-                    stack.ReleaseDataRegister(right_lo);
-                    stack.Push("D0");
-                }
-                else
-                {
-                    string right = stack.Pop();
-                    string left = stack.Pop();
-
-                    string resultReg = GetAvailableRegister(stack);
-                    string label = GetUniqueLabel();
-                    _asmWriter?.WriteLine($"    CMP.L {right},{left}");
-                    _asmWriter?.WriteLine($"    BGT {label}_gt");
-                    _asmWriter?.WriteLine($"    CLR.L {resultReg}");
-                    _asmWriter?.WriteLine($"    BRA {label}_end");
-                    _asmWriter?.WriteLine($"{label}_gt:");
-                    _asmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-                    _asmWriter?.WriteLine($"{label}_end:");
-                    stack.ReleaseDataRegister(left);
-                    stack.ReleaseDataRegister(right);
-                    stack.Push(resultReg);
-                }
-            }
-            else if (opcode == OpCodes.And)
-            {
-                string right = stack.Pop();
-                string left = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-                _asmWriter?.WriteLine($"    AND.L {right},{resultReg}");
-                stack.ReleaseDataRegister(left);
-                stack.ReleaseDataRegister(right);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Or)
-            {
-                string right = stack.Pop();
-                string left = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-                _asmWriter?.WriteLine($"    OR.L {right},{resultReg}");
-                stack.ReleaseDataRegister(left);
-                stack.ReleaseDataRegister(right);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Xor)
-            {
-                string right = stack.Pop();
-                string left = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-                _asmWriter?.WriteLine($"    EOR.L {right},{resultReg}");
-                stack.ReleaseDataRegister(left);
-                stack.ReleaseDataRegister(right);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Shl)
-            {
-                string shiftAmount = stack.Pop();
-                string value = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-                _asmWriter?.WriteLine($"    MOVE.L {shiftAmount},D0");
-                _asmWriter?.WriteLine($"    ASL.L D0,{resultReg}  ; Shift left");
-                stack.ReleaseDataRegister(value);
-                stack.ReleaseDataRegister(shiftAmount);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Shr)
-            {
-                string shiftAmount = stack.Pop();
-                string value = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-                _asmWriter?.WriteLine($"    MOVE.L {shiftAmount},D0");
-                _asmWriter?.WriteLine($"    ASR.L D0,{resultReg}  ; Shift right (arithmetic)");
-                stack.ReleaseDataRegister(value);
-                stack.ReleaseDataRegister(shiftAmount);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Shr_Un)
-            {
-                string shiftAmount = stack.Pop();
-                string value = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-                _asmWriter?.WriteLine($"    MOVE.L {shiftAmount},D0");
-                _asmWriter?.WriteLine($"    LSR.L D0,{resultReg}  ; Shift right (logical/unsigned)");
-                stack.ReleaseDataRegister(value);
-                stack.ReleaseDataRegister(shiftAmount);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Neg)
-            {
-                string value = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    CLR.L {resultReg}");
-                _asmWriter?.WriteLine($"    SUB.L {value},{resultReg}");
-                stack.ReleaseDataRegister(value);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Not)
-            {
-                string value = stack.Pop();
-
-                string resultReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-                _asmWriter?.WriteLine($"    NOT.L {resultReg}");
-                stack.ReleaseDataRegister(value);
-                stack.Push(resultReg);
-            }
-            else if (opcode == OpCodes.Bne_Un || opcode == OpCodes.Bne_Un_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __eqdf2           ; IEEE 754 double equality");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BEQ {label}  ; Branch if not equal (double)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if not equal (unsigned)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Bne_Un with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Blt || opcode == OpCodes.Blt_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __ltdf2           ; IEEE 754 double less-than");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if < (double, signed)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BLT {label}  ; Branch if < (signed)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Blt with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Blt_Un || opcode == OpCodes.Blt_Un_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __ltdf2           ; IEEE 754 double less-than");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if < (double, unsigned/unordered)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BCS {label}  ; Branch if < (unsigned - Carry Set)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Blt_Un with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Br || opcode == OpCodes.Br_S)
-            {
-                // Unconditional branch - simple jump to target
-                string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                _asmWriter?.WriteLine($"    BRA {label}  ; Unconditional branch");
-                stack.Clear();  // Clear stack after unconditional branch
-            }
-            else if (opcode == OpCodes.Beq || opcode == OpCodes.Beq_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __eqdf2           ; IEEE 754 double equality");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if equal (double)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BEQ {label}  ; Branch if equal (signed)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Beq with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Bge || opcode == OpCodes.Bge_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __gedf2           ; IEEE 754 double greater-or-equal");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if >= (double)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BGE {label}  ; Branch if >= (signed)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Bge with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Bge_Un || opcode == OpCodes.Bge_Un_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __gedf2           ; IEEE 754 double greater-or-equal");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if >= (double, unsigned/unordered)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BCC {label}  ; Branch if >= (unsigned)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Bge_Un with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Ble || opcode == OpCodes.Ble_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __ledf2           ; IEEE 754 double less-or-equal");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if <= (double)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BLE {label}  ; Branch if <= (signed)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Ble with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Ble_Un || opcode == OpCodes.Ble_Un_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __ledf2           ; IEEE 754 double less-or-equal");
-                    _asmWriter?.WriteLine($"    TST.L D0");
-                    _asmWriter?.WriteLine($"    BNE {label}  ; Branch if <= (double, unsigned/unordered)");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BLS {label}  ; Branch if <= (unsigned)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Ble_Un with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Bgt_Un || opcode == OpCodes.Bgt_Un_S)
-            {
-                if (stack.StackDepth >= 4 && stack.IsTopDoubleWord)
-                {
-                    string val2_lo = stack.Pop();
-                    string val2_hi = stack.Pop();
-                    string val1_lo = stack.Pop();
-                    string val1_hi = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_hi},D0");
-                    _asmWriter?.WriteLine($"    MOVE.L {val1_lo},D1");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_hi},D2");
-                    _asmWriter?.WriteLine($"    MOVE.L {val2_lo},D3");
-                    _asmWriter?.WriteLine($"    JSR __gtdf2           ; IEEE 754 double greater-than");
-                    stack.ReleaseDataRegister(val1_hi);
-                    stack.ReleaseDataRegister(val1_lo);
-                    stack.ReleaseDataRegister(val2_hi);
-                    stack.ReleaseDataRegister(val2_lo);
-                }
-                else if (stack.StackDepth >= 2)
-                {
-                    string val2 = stack.Pop();
-                    string val1 = stack.Pop();
-                    string label = labels.GetOrCreateLabel(iterator.NextIndex + (int)(operand ?? 0));
-                    _asmWriter?.WriteLine($"    CMP.L {val2},{val1}");
-                    _asmWriter?.WriteLine($"    BHI {label}  ; Branch if > (unsigned)");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Bgt_Un with insufficient stack depth ({stack.StackDepth})");
-                }
-            }
-            else if (opcode == OpCodes.Call || opcode == OpCodes.Callvirt)
-            {
-                if (operand is int methodToken)
-                {
-                    var targetMethod = ResolveMethodToken(method.OwningClass, methodToken);
-
-                    if (targetMethod != null)
-                    {
-                        if (_decimalHandler.TryHandleMethod(targetMethod, stack))
-                        {
-                        }
-                        else
-                        {
-                            string methodLabel = GetMethodLabel(targetMethod.OwningClass, targetMethod);
-                            _asmWriter?.WriteLine($"    ; Call {targetMethod.OwningClass.FullName}.{targetMethod.Name}{targetMethod.Signature}");
-                            _asmWriter?.WriteLine($"    JSR {methodLabel}");
-
-                            if (targetMethod.Signature != "()V" && !targetMethod.Signature.EndsWith(")V"))
-                            {
-                                stack.Push(D0);
-                                if (Program.CodeOptions?.Verbosity > 1)
-                                {
-                                    _asmWriter?.WriteLine($"    ; Return value pushed (non-void method)");
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var reflectionMethod = TryResolveFrameworkMethod(method.OwningClass, methodToken);
-
-                        if (reflectionMethod != null)
-                        {
-                            if (_decimalHandler.TryHandleReflectionMethod(reflectionMethod, stack))
-                            {
-                            }
-                            else if (_mathHandler.TryHandleReflectionMethod(reflectionMethod, stack))
-                            {
-                            }
-                            else if (_doubleHandler.TryHandleReflectionMethod(reflectionMethod, stack))
-                            {
-                            }
-                            else if (_floatHandler.TryHandleReflectionMethod(reflectionMethod, stack))
-                            {
-                            }
-                            else if (_integerHandler.TryHandleReflectionMethod(reflectionMethod, stack))
-                            {
-                            }
-                            else
-                            {
-                                _asmWriter?.WriteLine($"    ; Framework method: {reflectionMethod.DeclaringType?.FullName}::{reflectionMethod.Name}");
-                                _asmWriter?.WriteLine($"    ; TODO: Implement framework call");
-                                var paramCount = reflectionMethod is MethodInfo mi ?
-                                    mi.GetParameters().Length : 0;
-                                for (int i = 0; i < paramCount; i++)
-                                {
-                                    try { stack.Pop(); } catch { }
-                                }
-                                if (reflectionMethod is MethodInfo methodInfo &&
-                                    methodInfo.ReturnType != typeof(void))
-                                {
-                                    string resultReg = GetAvailableRegister(stack);
-                                    stack.Push(resultReg);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            _asmWriter?.WriteLine($"    ; WARNING: Unresolved method token {methodToken:X8}");
-                            _asmWriter?.WriteLine($"    ; JSR UNKNOWN_METHOD_{methodToken:X8}  ; UNRESOLVED");
-                        }
-                    }
-                }
-            }
-            else if (opcode == OpCodes.Ldarg_0)
-            {
-                // Load 'this' pointer or first argument
-                string targetReg = GetAvailableRegister(stack);
-                _asmWriter?.WriteLine($"    MOVE.L 8(A6),{targetReg}  ; Load arg.0 (this/first param)");
-                stack.Push(targetReg);
-            }
-            else if (opcode == OpCodes.Newobj)
-            {
-                if (operand is int methodToken)
-                {
-                    var reflectionMethod = TryResolveFrameworkMethod(method.OwningClass, methodToken);
-
-                    if (!_decimalHandler.TryHandleNewObj(reflectionMethod, stack))
-                    {
-                        _asmWriter?.WriteLine($"    ; TODO: newobj {methodToken:X8}");
-                    }
-                }
-            }
-            else if (opcode == OpCodes.Ret)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string retVal = stack.Pop();
-                    if (retVal != D0)
-                    {
-                        _asmWriter?.WriteLine($"    MOVE.L {retVal},D0  ; Move return value to D0");
-                    }
-                }
-                else
-                {
-                    _asmWriter?.WriteLine("    CLR.L D0            ; Clear return value (void)");
-                }
-            }
-            else if (opcode == OpCodes.Pop)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    stack.Pop();
-                    _asmWriter?.WriteLine("    ; Pop");
-                }
-                else
-                {
-                    _asmWriter?.WriteLine("    ; WARNING: Pop on empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Dup)
-            {
-                string val = stack.Peek();
-                _asmWriter?.WriteLine($"    ; Duplicate {val}");
-                stack.Push(val);
-            }
-            else if (opcode == OpCodes.Leave || opcode == OpCodes.Leave_S)
-            {
-                int targetOffset = iterator.NextIndex + (int)(operand ?? 0);
-                string label = labels.GetOrCreateLabel(targetOffset);
-                _asmWriter?.WriteLine($"    BRA {label}  ; leave - exit exception handler");
-                stack.Clear();
-            }
-            else if (opcode == OpCodes.Nop)
-            {
-                _asmWriter?.WriteLine("    ; NOP");
-            }
-            else if (opcode == OpCodes.Conv_I4)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string value = stack.Pop();
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}  ; Convert to I4");
-                    stack.ReleaseDataRegister(value);
-                    stack.Push(resultReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Conv_I4 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Conv_R4)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string value = stack.Pop();
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}  ; Convert to R4");
-                    stack.ReleaseDataRegister(value);
-                    stack.Push(resultReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Conv_R4 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Conv_R8)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string value = stack.Pop();
-                    string resultReg1 = GetAvailableRegister(stack);
-                    string resultReg2 = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg1}  ; Convert to R8 (high word)");
-                    _asmWriter?.WriteLine($"    CLR.L {resultReg2}          ; Convert to R8 (low word)");
-                    stack.ReleaseDataRegister(value);
-                    stack.Push(resultReg1, isDoubleWord: true);
-                    stack.Push(resultReg2, isDoubleWord: true);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Conv_R8 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Conv_I8)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string value = stack.Pop();
-                    string resultHi = GetAvailableRegister(stack);
-                    string resultLo = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultLo}  ; Conv_I8: low word = original value");
-                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultHi}  ; Conv_I8: copy for sign extension");
-                    _asmWriter?.WriteLine($"    ASR.L #8,{resultHi}");
-                    _asmWriter?.WriteLine($"    ASR.L #8,{resultHi}");
-                    _asmWriter?.WriteLine($"    ASR.L #8,{resultHi}");
-                    _asmWriter?.WriteLine($"    ASR.L #7,{resultHi}       ; Sign-extend to 32 bits (high word)");
-                    stack.ReleaseDataRegister(value);
-                    stack.Push(resultHi);
-                    stack.Push(resultLo);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Conv_I8 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Conv_U1)
-            {
-                if (stack.StackDepth > 0)
-                {
-                    string value = stack.Pop();
-                    string resultReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-                    _asmWriter?.WriteLine($"    ANDI.L #$FF,{resultReg}   ; Conv_U1: mask to unsigned byte");
-                    stack.ReleaseDataRegister(value);
-                    stack.Push(resultReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Conv_U1 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Ldloc_0 || opcode == OpCodes.Ldloc_1 ||
-                     opcode == OpCodes.Ldloc_2 || opcode == OpCodes.Ldloc_3)
-            {
-                int localIndex = 0;
-                if (opcode == OpCodes.Ldloc_1) localIndex = 1;
-                else if (opcode == OpCodes.Ldloc_2) localIndex = 2;
-                else if (opcode == OpCodes.Ldloc_3) localIndex = 3;
-
-                int frameOffset = -(localIndex + 1) * 4 - 4;
-
-                if (_doubleLocals.Contains(localIndex))
-                {
-                    string targetReg1 = stack.AllocateDataRegister();
-                    string targetReg2 = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg1}      ; Load local.{localIndex} (high)");
-                    _asmWriter?.WriteLine($"    MOVE.L {frameOffset + 4}(A6),{targetReg2}  ; Load local.{localIndex} (low)");
-                    stack.Push(targetReg1, isDoubleWord: true);
-                    stack.Push(targetReg2, isDoubleWord: true);
-                }
-                else
-                {
-                    string targetReg = stack.AllocateDataRegister();
-                    _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIndex}");
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Ldloc_S)
-            {
-                if (operand is int localIdx)
-                {
-                    int frameOffset = -(localIdx + 1) * 4 - 4;
-
-                    if (_doubleLocals.Contains(localIdx))
-                    {
-                        string targetReg1 = stack.AllocateDataRegister();
-                        string targetReg2 = stack.AllocateDataRegister();
-                        _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg1}      ; Load local.{localIdx} (high)");
-                        _asmWriter?.WriteLine($"    MOVE.L {frameOffset + 4}(A6),{targetReg2}  ; Load local.{localIdx} (low)");
-                        stack.Push(targetReg1, isDoubleWord: true);
-                        stack.Push(targetReg2, isDoubleWord: true);
-                    }
-                    else
-                    {
-                        string targetReg = stack.AllocateDataRegister();
-                        _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIdx}");
-                        stack.Push(targetReg);
-                    }
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; ERROR: ldloc.s with invalid operand type: {operand?.GetType().Name}");
-                }
-            }
-            else if (opcode == OpCodes.Ldloc)
-            {
-                if (operand is ushort localIdx2)
-                {
-                    int frameOffset = -(localIdx2 + 1) * 4 - 4;
-
-                    if (_doubleLocals.Contains(localIdx2))
-                    {
-                        string targetReg1 = stack.AllocateDataRegister();
-                        string targetReg2 = stack.AllocateDataRegister();
-                        _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg1}      ; Load local.{localIdx2} (high)");
-                        _asmWriter?.WriteLine($"    MOVE.L {frameOffset + 4}(A6),{targetReg2}  ; Load local.{localIdx2} (low)");
-                        stack.Push(targetReg1, isDoubleWord: true);
-                        stack.Push(targetReg2, isDoubleWord: true);
-                    }
-                    else
-                    {
-                        string targetReg = stack.AllocateDataRegister();
-                        _asmWriter?.WriteLine($"    MOVE.L {frameOffset}(A6),{targetReg}  ; Load local.{localIdx2}");
-                        stack.Push(targetReg);
-                    }
-                }
-            }
-            else if (opcode == OpCodes.Ldloca_S)
-            {
-                if (operand is int localIdx)
-                {
-                    int frameOffset = -(localIdx + 1) * 4 - 4;
-                    string addrReg = stack.AllocateAddressRegister();
-                    _asmWriter?.WriteLine($"    LEA {frameOffset}(A6),{addrReg}  ; Load address of local.{localIdx}");
-                    string dataReg = GetAvailableRegister(stack);
-                    _asmWriter?.WriteLine($"    MOVE.L {addrReg},{dataReg}");
-                    stack.ReleaseAddressRegister(addrReg);
-                    stack.Push(dataReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; ERROR: ldloca.s with invalid operand type: {operand?.GetType().Name}");
-                }
-            }
-            else if (opcode == OpCodes.Ldsfld)
-            {
-                if (operand is int fieldToken)
-                {
-                    string targetReg = GetAvailableRegister(stack);
-                    try
-                    {
-                        var fieldInfo = method.OwningClass.ReflectionType?.Module?.ResolveField(fieldToken);
-                        if (fieldInfo != null)
-                        {
-                            string fieldLabel = $"STATIC_{fieldInfo.DeclaringType?.Name}_{fieldInfo.Name}";
-                            _asmWriter?.WriteLine($"    MOVE.L {fieldLabel},{targetReg}  ; Load static field {fieldInfo.DeclaringType?.Name}.{fieldInfo.Name}");
-                        }
-                        else
-                        {
-                            _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Unresolved static field token {fieldToken:X8}");
-                        }
-                    }
-                    catch
-                    {
-                        _asmWriter?.WriteLine($"    CLR.L {targetReg}  ; TODO: Could not resolve static field token {fieldToken:X8}");
-                    }
-                    stack.Push(targetReg);
-                }
-            }
-            else if (opcode == OpCodes.Stloc_0)
-            {
-                if (stack.StackDepth >= 2 && stack.IsTopDoubleWord)
-                {
-                    string loReg = stack.Pop();
-                    string hiReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {hiReg},-4(A6)    ; Store to local 0 (high)");
-                    _asmWriter?.WriteLine($"    MOVE.L {loReg},-8(A6)    ; Store to local 0 (low)");
-                    stack.ReleaseDataRegister(hiReg);
-                    stack.ReleaseDataRegister(loReg);
-                    _doubleLocals.Add(0);
-                }
-                else if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-4(A6)   ; Store to local 0");
-                    stack.ReleaseDataRegister(valueReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_0 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Stloc_1)
-            {
-                if (stack.StackDepth >= 2 && stack.IsTopDoubleWord)
-                {
-                    string loReg = stack.Pop();
-                    string hiReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {hiReg},-8(A6)    ; Store to local 1 (high)");
-                    _asmWriter?.WriteLine($"    MOVE.L {loReg},-12(A6)   ; Store to local 1 (low)");
-                    stack.ReleaseDataRegister(hiReg);
-                    stack.ReleaseDataRegister(loReg);
-                    _doubleLocals.Add(1);
-                }
-                else if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-8(A6)   ; Store to local 1");
-                    stack.ReleaseDataRegister(valueReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_1 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Stloc_2)
-            {
-                if (stack.StackDepth >= 2 && stack.IsTopDoubleWord)
-                {
-                    string loReg = stack.Pop();
-                    string hiReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {hiReg},-12(A6)   ; Store to local 2 (high)");
-                    _asmWriter?.WriteLine($"    MOVE.L {loReg},-16(A6)   ; Store to local 2 (low)");
-                    stack.ReleaseDataRegister(hiReg);
-                    stack.ReleaseDataRegister(loReg);
-                    _doubleLocals.Add(2);
-                }
-                else if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-12(A6)  ; Store to local 2");
-                    stack.ReleaseDataRegister(valueReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_2 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Stloc_3)
-            {
-                if (stack.StackDepth >= 2 && stack.IsTopDoubleWord)
-                {
-                    string loReg = stack.Pop();
-                    string hiReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {hiReg},-16(A6)   ; Store to local 3 (high)");
-                    _asmWriter?.WriteLine($"    MOVE.L {loReg},-20(A6)   ; Store to local 3 (low)");
-                    stack.ReleaseDataRegister(hiReg);
-                    stack.ReleaseDataRegister(loReg);
-                    _doubleLocals.Add(3);
-                }
-                else if (stack.StackDepth > 0)
-                {
-                    string valueReg = stack.Pop();
-                    _asmWriter?.WriteLine($"    MOVE.L {valueReg},-16(A6)  ; Store to local 3");
-                    stack.ReleaseDataRegister(valueReg);
-                }
-                else
-                {
-                    _asmWriter?.WriteLine($"    ; WARNING: Stloc_3 with empty stack");
-                }
-            }
-            else if (opcode == OpCodes.Stloc_S)
-            {
-                if (operand is int localIdx)
-                {
-                    int offset = -4 - (localIdx * 4);
-                    if (stack.StackDepth >= 2 && stack.IsTopDoubleWord)
-                    {
-                        string loReg = stack.Pop();
-                        string hiReg = stack.Pop();
-                        _asmWriter?.WriteLine($"    MOVE.L {hiReg},{offset}(A6)      ; Store to local {localIdx} (high)");
-                        _asmWriter?.WriteLine($"    MOVE.L {loReg},{offset - 4}(A6)  ; Store to local {localIdx} (low)");
-                        stack.ReleaseDataRegister(hiReg);
-                        stack.ReleaseDataRegister(loReg);
-                        _doubleLocals.Add(localIdx);
-                    }
-                    else if (stack.StackDepth > 0)
-                    {
-                        string src = stack.Pop();
-                        _asmWriter?.WriteLine($"    MOVE.L {src},{offset}(A6)  ; Store to local {localIdx}");
-                        stack.ReleaseDataRegister(src);
-                    }
-                    else
-                    {
-                        _asmWriter?.WriteLine($"    ; WARNING: Stloc_S with empty stack");
-                    }
-                }
-            }
-            else
-            {
-                _asmWriter?.WriteLine($"    ; TODO: Unimplemented opcode {opcode.Name}");
-
-                // Attempt to infer stack effects for common opcode patterns
-                // This helps maintain stack balance when opcodes are not yet implemented
-                string opName = opcode.Name.ToLower();
-
-                // Load opcodes typically push a value
-                if (opName.StartsWith("ld") && !opName.Contains("st"))
-                {
-                    try
-                    {
-                        string reg = stack.AllocateDataRegister();
-                        _asmWriter?.WriteLine($"    CLR.L {reg}  ; TODO: Placeholder value");
-                        stack.Push(reg);
-                    }
-                    catch { }
-                }
-                // Store opcodes typically pop a value
-                else if (opName.StartsWith("st"))
-                {
-                    if (stack.StackDepth > 0)
-                    {
-                        stack.Pop();
-                    }
-                }
-                // Call-like opcodes pop parameters and may push a return value
-                else if (opName.Contains("call") || opName.Contains("new"))
-                {
-                    // Pop parameters (conservative estimate)
-                    while (stack.StackDepth > 0)
-                    {
-                        try { stack.Pop(); }
-                        catch { break; }
-                    }
-                    // May push return value (conservative)
-                    try
-                    {
-                        string reg = stack.AllocateDataRegister();
-                        stack.Push(reg);
-                    }
-                    catch { }
-                }
-            }
-
-            _asmWriter?.WriteLine();
-        }
-
-        private bool IsFrameworkMethod(int methodToken, ClassMetadata callingClass)
-        {
-            try
-            {
-                if (callingClass.ReflectionType?.Module is null)
-                    return false;
-
-                var methodInfo = MyGetMethodInfo(callingClass, methodToken);
-                if (methodInfo?.DeclaringType is null)
-                    return false;
-
-                string? fullName = methodInfo.DeclaringType.FullName;
-                return fullName?.StartsWith("System.") == true ||
-                       fullName?.Contains("System.Runtime") == true;
-            }
-            catch
-            {
-                return false;
-            }
+            _asmWriter.WriteLine();
+            _asmWriter.WriteLine("    ; Method epilogue");
+            _asmWriter.WriteLine("    MOVEM.L (A7)+,A6     ; Restore frame");
         }
 
         /// <summary>Write constants (float and double) data section</summary>
@@ -1805,32 +221,32 @@ namespace JumpCS.Backend
             if (_floatConstants.Count == 0 && _doubleConstants.Count == 0)
                 return;
 
-            _asmWriter?.WriteLine();
-            _asmWriter?.WriteLine("    ; --- Constants Section ---");
+            _asmWriter.WriteLine();
+            _asmWriter.WriteLine("    ; --- Constants Section ---");
             
             foreach (var kvp in _doubleConstants.OrderBy(x => x.Key))
             {
                 byte[] doubleBytes = BitConverter.GetBytes(kvp.Value);
-                _asmWriter?.WriteLine($"DOUBLE_CONST_{kvp.Key:X4}:");
-                _asmWriter?.WriteLine($"    DC.L ${BitConverter.ToInt32(doubleBytes, 0):X8}");
-                _asmWriter?.WriteLine($"    DC.L ${BitConverter.ToInt32(doubleBytes, 4):X8}");
+                _asmWriter.WriteLine($"DOUBLE_CONST_{kvp.Key:X4}:");
+                _asmWriter.WriteLine($"    DC.L ${BitConverter.ToInt32(doubleBytes, 0):X8}");
+                _asmWriter.WriteLine($"    DC.L ${BitConverter.ToInt32(doubleBytes, 4):X8}");
             }
             
             foreach (var kvp in _floatConstants.OrderBy(x => x.Key))
             {
                 byte[] floatBytes = BitConverter.GetBytes(kvp.Value);
-                _asmWriter?.WriteLine($"FLOAT_CONST_{kvp.Key:X4}:");
-                _asmWriter?.WriteLine($"    DC.L ${BitConverter.ToInt32(floatBytes, 0):X8}");
+                _asmWriter.WriteLine($"FLOAT_CONST_{kvp.Key:X4}:");
+                _asmWriter.WriteLine($"    DC.L ${BitConverter.ToInt32(floatBytes, 0):X8}");
             }
             
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine();
         }
 
         private void WriteDataSection()
         {
-            _asmWriter?.WriteLine("    ; --- Data Section ---");
-            _asmWriter?.WriteLine("    SECTION DATA");
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine("    ; --- Data Section ---");
+            _asmWriter.WriteLine("    SECTION DATA");
+            _asmWriter.WriteLine();
 
             foreach (var cls in ClassMetadata.AllClasses.Where(c => c.ClassIndex >= 0))
             {
@@ -1840,220 +256,19 @@ namespace JumpCS.Backend
 
         private void WriteVtable(ClassMetadata cls)
         {
-            _asmWriter?.WriteLine($"{cls.FullName}_vtable:");
-            _asmWriter?.WriteLine($"    DC.L {cls.FullName}         ; Class pointer");
+            _asmWriter.WriteLine($"{cls.FullName}_vtable:");
+            _asmWriter.WriteLine($"    DC.L {cls.FullName}         ; Class pointer");
 
             foreach (var method in cls.Vtable)
             {
-                _asmWriter?.WriteLine($"    DC.L {GetMethodLabel(cls, method)}");
+                _asmWriter.WriteLine($"    DC.L {cls.GetMethodLabel(method)}");
             }
-            _asmWriter?.WriteLine();
+            _asmWriter.WriteLine();
         }
 
         private void WriteFooter()
         {
-            _asmWriter?.WriteLine("    END");
-        }
-
-        private MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken)
-        {
-            try
-            {
-                if (callingClass.ReflectionType?.Module is null)
-                    return null;
-
-                var resolved = MyGetMethodInfo(callingClass, methodToken);
-                if (resolved != null)
-                    return resolved;
-
-                return TryIdentifySystemMethod(methodToken);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private MethodBase? TryIdentifySystemMethod(int methodToken)
-        {
-            try
-            {
-                var mathType = Type.GetType("System.Math");
-                if (mathType != null)
-                {
-                    var methods = mathType.GetMethods(
-                        System.Reflection.BindingFlags.Public | 
-                        System.Reflection.BindingFlags.Static);
-                    
-                    var match = methods.FirstOrDefault(m => 
-                        new[] { "Abs", "Round", "Truncate", "Floor", "Ceiling", "Min", "Max" }.Contains(m.Name));
-                    if (match != null) return match;
-                }
-
-                var decimalType = Type.GetType("System.Decimal");
-                if (decimalType != null)
-                {
-                    var methods = decimalType.GetMethods(
-                        System.Reflection.BindingFlags.Public | 
-                        System.Reflection.BindingFlags.Static |
-                        System.Reflection.BindingFlags.Instance);
-                    
-                    var commonDecimalNames = new[] { 
-                        ".ctor", 
-                        "op_Addition", 
-                        "op_Subtraction", 
-                        "op_Multiply", 
-                        "op_Division",
-                        "op_Modulus",
-                        "op_UnaryNegation", 
-                        "op_Negation",
-                        "op_LessThan",
-                        "op_GreaterThan", 
-                        "op_LessThanOrEqual",
-                        "op_GreaterThanOrEqual",
-                        "op_Equality", 
-                        "op_Inequality",
-                        "Equals", 
-                        "CompareTo"
-                    };
-                    
-                    var match = methods.FirstOrDefault(m => commonDecimalNames.Contains(m.Name));
-                    if (match != null) return match;
-                }
-
-                var int32Type = Type.GetType("System.Int32");
-                if (int32Type != null)
-                {
-                    var methods = int32Type.GetMethods(
-                        System.Reflection.BindingFlags.Public | 
-                        System.Reflection.BindingFlags.Static |
-                        System.Reflection.BindingFlags.Instance);
-                    
-                    var commonInt32Names = new[] { 
-                        ".ctor", 
-                        "op_Addition", 
-                        "op_Subtraction", 
-                        "op_Multiply", 
-                        "op_Division",
-                        "op_Modulus",
-                        "op_BitwiseAnd",
-                        "op_BitwiseOr",
-                        "op_ExclusiveOr",
-                        "op_LeftShift",
-                        "op_RightShift",
-                        "op_UnaryNegation",
-                        "op_OnesComplement",
-                        "op_Equality", 
-                        "op_Inequality",
-                        "op_LessThan",
-                        "op_GreaterThan",
-                        "op_LessThanOrEqual",
-                        "op_GreaterThanOrEqual",
-                        "Equals", 
-                        "CompareTo"
-                    };
-                    
-                    var match = methods.FirstOrDefault(m => commonInt32Names.Contains(m.Name));
-                    if (match != null) return match;
-                }
-
-                var singleType = Type.GetType("System.Single");
-                if (singleType != null)
-                {
-                    var methods = singleType.GetMethods(
-                        System.Reflection.BindingFlags.Public | 
-                        System.Reflection.BindingFlags.Static |
-                        System.Reflection.BindingFlags.Instance);
-                    
-                    var commonSingleNames = new[] { 
-                        ".ctor", 
-                        "op_Addition", 
-                        "op_Subtraction", 
-                        "op_Multiply", 
-                        "op_Division",
-                        "op_UnaryNegation",
-                        "op_Equality", 
-                        "op_Inequality",
-                        "op_LessThan",
-                        "op_GreaterThan",
-                        "op_LessThanOrEqual",
-                        "op_GreaterThanOrEqual",
-                        "Equals", 
-                        "CompareTo"
-                    };
-                    
-                    var match = methods.FirstOrDefault(m => commonSingleNames.Contains(m.Name));
-                    if (match != null) return match;
-                }
-
-                var doubleType = Type.GetType("System.Double");
-                if (doubleType != null)
-                {
-                    var methods = doubleType.GetMethods(
-                        System.Reflection.BindingFlags.Public | 
-                        System.Reflection.BindingFlags.Static |
-                        System.Reflection.BindingFlags.Instance);
-                    
-                    var commonDoubleNames = new[] { 
-                        ".ctor", 
-                        "op_Addition", 
-                        "op_Subtraction", 
-                        "op_Multiply", 
-                        "op_Division",
-                        "op_UnaryNegation",
-                        "op_Equality", 
-                        "op_Inequality",
-                        "op_LessThan",
-                        "op_GreaterThan",
-                        "op_LessThanOrEqual",
-                        "op_GreaterThanOrEqual",
-                        "Equals", 
-                        "CompareTo"
-                    };
-                    
-                    var match = methods.FirstOrDefault(m => commonDoubleNames.Contains(m.Name));
-                    if (match != null) return match;
-                }
-
-                // Add Object support
-                var objectType = Type.GetType("System.Object");
-                if (objectType != null)
-                {
-                    var methods = objectType.GetMethods(
-                        System.Reflection.BindingFlags.Public | 
-                        System.Reflection.BindingFlags.Static |
-                        System.Reflection.BindingFlags.Instance);
-                    
-                    var commonObjectNames = new[] { 
-                        "Equals",
-                        "GetHashCode",
-                        "GetType",
-                        "ToString",
-                        "ReferenceEquals"
-                    };
-                    
-                    var match = methods.FirstOrDefault(m => commonObjectNames.Contains(m.Name));
-                    if (match != null) return match;
-                }
-            }
-            catch { }
-
-            return null;
-        }
-
-        private string GetMethodLabel(ClassMetadata cls, MethodMetadata method)
-        {
-            return $"{cls.FullName}_{method.Name}";
-        }
-
-        private string GetUniqueLabel()
-        {
-            return $"L_{_labelCounter++}";
-        }
-
-        private string GetAvailableRegister(Asm68000StackSimulator stack)
-        {
-            return stack.AllocateDataRegister();
+            _asmWriter.WriteLine("    END");
         }
     }
 }

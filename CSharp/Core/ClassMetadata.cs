@@ -421,6 +421,11 @@ namespace JumpCS.Core
             Console.WriteLine($"  Fields: {Fields.Count}, Methods: {Methods.Count}");
         }
 
+        public string GetMethodLabel(MethodMetadata method)
+        {
+            return $"{this.FullName}_{method.Name}";
+        }
+
         /// <summary>Update dependencies when this class is marked as needed</summary>
         public override void UpdateDependencies()
         {
