@@ -1,6 +1,6 @@
 namespace JumpCS.Backend
 {
-    public class LabelMapper
+    public class Asm68000LabelMapper
     {
         /// <summary>Label mapping for control flow targets</summary>
         private Dictionary<int, string> _offsetToLabel = new();

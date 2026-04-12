@@ -1,7 +1,5 @@
-using System.Reflection.Emit;
 using System.Text;
 using JumpCS.Core;
-using JumpCS.Backend.SystemTypes;
 using CSharp.Backend;
 
 namespace JumpCS.Backend
@@ -9,21 +7,19 @@ namespace JumpCS.Backend
     /// <summary>68000 assembly code backend</summary>
     public class Asm68000BackEnd : BackEnd
     {
-        private StreamWriter _asmWriter;
-        private LabelMapper _labels;
-        private Dictionary<string, int> _methodOffsets = new();
-        private int _currentOffset = 0;
-
         // Constant tracking for ldc.r4 and ldc.r8
         private Dictionary<int, float> _floatConstants = new();
         private Dictionary<int, double> _doubleConstants = new();
 
-        // After line 57, ADD:
-        private HashSet<int> _doubleLocals = new();
+        private StreamWriter _asmWriter;
+        private Asm68000LabelMapper _labels;
+        private Asm68000Support _support;
+        private Dictionary<string, int> _methodOffsets = new();
+        private int _currentOffset = 0;
 
         public Asm68000BackEnd(string outputBaseName) : base(outputBaseName)
         {
-            _labels = new LabelMapper();
+            _labels = new Asm68000LabelMapper();
         }
 
         /// <summary>Update dependencies and calculate code sizes</summary>
@@ -53,7 +49,6 @@ namespace JumpCS.Backend
 
             using (_asmWriter = new StreamWriter(outputPath, false, Encoding.ASCII))
             {
-                // Clear constants for fresh generation
                 _floatConstants.Clear();
                 _doubleConstants.Clear();
 
@@ -201,9 +196,9 @@ namespace JumpCS.Backend
             // MSIL MaxStack counts 64-bit as 1 slot, but we use 2 registers per 64-bit value
             int adjustedMaxStack = method.MaxStack * 2;
             var stack = new Asm68000StackSimulator(method.MaxLocals, adjustedMaxStack);
-            var translator = new Asm68000OpcodeTranslator(iterator, method, stack, _labels, _asmWriter);
-
-            _doubleLocals.Clear();
+            _support = new Asm68000Support(iterator, method, stack, _labels, _asmWriter, 
+                _floatConstants, _doubleConstants, ResolveMethodToken, TryResolveFrameworkMethod);
+            var translator = new Asm68000OpcodeTranslator(_support);
 
             while (iterator.MoveNext())
             {
