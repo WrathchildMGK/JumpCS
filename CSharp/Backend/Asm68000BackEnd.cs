@@ -1343,6 +1343,13 @@ namespace JumpCS.Backend
                     }
                 }
             }
+            else if (opcode == OpCodes.Ldarg_0)
+            {
+                // Load 'this' pointer or first argument
+                string targetReg = GetAvailableRegister(stack);
+                _asmWriter?.WriteLine($"    MOVE.L 8(A6),{targetReg}  ; Load arg.0 (this/first param)");
+                stack.Push(targetReg);
+            }
             else if (opcode == OpCodes.Newobj)
             {
                 if (operand is int methodToken)

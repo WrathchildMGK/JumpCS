@@ -23,7 +23,9 @@ namespace JumpCS.Backend.SystemTypes
                     method.Name == "op_Equality" || method.Name == "op_Inequality" ||
                     method.Name == "op_LessThan" || method.Name == "op_GreaterThan" ||
                     method.Name == "op_LessThanOrEqual" || method.Name == "op_GreaterThanOrEqual" ||
-                    method.Name == "op_UnaryNegation" || method.Name == "Equals");
+                    method.Name == "op_UnaryNegation" || method.Name == "Equals" ||
+                    method.Name == "IsNaN" || method.Name == "IsInfinity" ||
+                    method.Name == "IsPositiveInfinity" || method.Name == "IsNegativeInfinity");
         }
 
         public override bool IsReflectionMethod(MethodBase method)

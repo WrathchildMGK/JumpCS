@@ -3493,37 +3493,37 @@ Generating 68000 assembly: TestMath_generated.asm
 [OPCODE] 0017: stloc.1
 [POP] D1 | Stack depth: 0 ()
 [OPCODE] 0018: ldc.i4 (4250)
-[ALLOC] Allocated D1 | Stack depth: 0 | Available: 6
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 7
 [PUSH] D1 | Stack depth: 1 (D1)
 [OPCODE] 001D: ldc.i4.0
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[PUSH] D2 | Stack depth: 2 (D1, D2)
+[ALLOC] Allocated D0 | Stack depth: 1 | Available: 6
+[PUSH] D0 | Stack depth: 2 (D1, D0)
 [OPCODE] 001E: ldc.i4.0
-[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
-[PUSH] D3 | Stack depth: 3 (D1, D2, D3)
+[ALLOC] Allocated D2 | Stack depth: 2 | Available: 5
+[PUSH] D2 | Stack depth: 3 (D1, D0, D2)
 [OPCODE] 001F: ldc.i4.0
-[ALLOC] Allocated D4 | Stack depth: 3 | Available: 3
-[PUSH] D4 | Stack depth: 4 (D1, D2, D3, D4)
+[ALLOC] Allocated D3 | Stack depth: 3 | Available: 4
+[PUSH] D3 | Stack depth: 4 (D1, D0, D2, D3)
 [OPCODE] 0020: ldc.i4.2
-[ALLOC] Allocated D5 | Stack depth: 4 | Available: 2
-[PUSH] D5 | Stack depth: 5 (D1, D2, D3, D4, D5)
+[ALLOC] Allocated D4 | Stack depth: 4 | Available: 3
+[PUSH] D4 | Stack depth: 5 (D1, D0, D2, D3, D4)
 [OPCODE] 0021: newobj (167772172)
-[POP] D5 | Stack depth: 4 (D1, D2, D3, D4)
-[POP] D4 | Stack depth: 3 (D1, D2, D3)
-[POP] D3 | Stack depth: 2 (D1, D2)
-[POP] D2 | Stack depth: 1 (D1)
+[POP] D4 | Stack depth: 4 (D1, D0, D2, D3)
+[POP] D3 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[POP] D0 | Stack depth: 1 (D1)
 [POP] D1 | Stack depth: 0 ()
+[ALLOC] Allocated D5 | Stack depth: 0 | Available: 2
 [ALLOC] Allocated D6 | Stack depth: 0 | Available: 1
-[ALLOC] Allocated D7 | Stack depth: 0 | Available: 0
-[PUSH] D7 | Stack depth: 1 (D7)
+[PUSH] D6 | Stack depth: 1 (D6)
 [OPCODE] 0026: ldloc.1
-[ALLOC] Allocated D6 | Stack depth: 1 | Available: 0
-[PUSH] D6 | Stack depth: 2 (D7, D6)
+[ALLOC] Allocated D5 | Stack depth: 1 | Available: 1
+[PUSH] D5 | Stack depth: 2 (D6, D5)
 [OPCODE] 0027: call (167772174)
-[POP] D6 | Stack depth: 1 (D7)
-[POP] D7 | Stack depth: 0 ()
+[POP] D5 | Stack depth: 1 (D6)
+[POP] D6 | Stack depth: 0 ()
+[ALLOC] Allocated D7 | Stack depth: 0 | Available: 0
 [ALLOC] Allocated D7 | Stack depth: 0 | Available: 7
-[ALLOC] Allocated D6 | Stack depth: 0 | Available: 6
 [PUSH] D7 | Stack depth: 1 (D7)
 [OPCODE] 002C: stloc.2
 [POP] D7 | Stack depth: 0 ()
@@ -4432,37 +4432,37 @@ Generating 68000 assembly: TestMath_generated.asm
 [ALLOC] Allocated D7 | Stack depth: 0 | Available: 8
 [PUSH] D7 | Stack depth: 1 (D7)
 [OPCODE] 0027: ldc.i4.1
-[ALLOC] Allocated D5 | Stack depth: 1 | Available: 7
-[PUSH] D5 | Stack depth: 2 (D7, D5)
+[ALLOC] Allocated D0 (fallback, queue had D7 which was on stack) | Stack depth: 1
+[PUSH] D0 | Stack depth: 2 (D7, D0)
 [OPCODE] 0028: ldc.i4.0
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 6
-[PUSH] D6 | Stack depth: 3 (D7, D5, D6)
+[ALLOC] Allocated D5 | Stack depth: 2 | Available: 7
+[PUSH] D5 | Stack depth: 3 (D7, D0, D5)
 [OPCODE] 0029: ldc.i4.0
-[ALLOC] Allocated D0 (fallback, queue had D5 which was on stack) | Stack depth: 3
-[PUSH] D0 | Stack depth: 4 (D7, D5, D6, D0)
+[ALLOC] Allocated D6 | Stack depth: 3 | Available: 6
+[PUSH] D6 | Stack depth: 4 (D7, D0, D5, D6)
 [OPCODE] 002A: ldc.i4.0
-[ALLOC] Allocated D4 | Stack depth: 4 | Available: 4
-[PUSH] D4 | Stack depth: 5 (D7, D5, D6, D0, D4)
+[ALLOC] Allocated D1 (fallback, queue had D5 which was on stack) | Stack depth: 4
+[PUSH] D1 | Stack depth: 5 (D7, D0, D5, D6, D1)
 [OPCODE] 002B: ldc.i4.2
-[ALLOC] Allocated D3 | Stack depth: 5 | Available: 3
-[PUSH] D3 | Stack depth: 6 (D7, D5, D6, D0, D4, D3)
+[ALLOC] Allocated D4 | Stack depth: 5 | Available: 4
+[PUSH] D4 | Stack depth: 6 (D7, D0, D5, D6, D1, D4)
 [OPCODE] 002C: newobj (167772172)
-[POP] D3 | Stack depth: 5 (D7, D5, D6, D0, D4)
-[POP] D4 | Stack depth: 4 (D7, D5, D6, D0)
-[POP] D0 | Stack depth: 3 (D7, D5, D6)
-[POP] D6 | Stack depth: 2 (D7, D5)
-[POP] D5 | Stack depth: 1 (D7)
+[POP] D4 | Stack depth: 5 (D7, D0, D5, D6, D1)
+[POP] D1 | Stack depth: 4 (D7, D0, D5, D6)
+[POP] D6 | Stack depth: 3 (D7, D0, D5)
+[POP] D5 | Stack depth: 2 (D7, D0)
+[POP] D0 | Stack depth: 1 (D7)
+[ALLOC] Allocated D3 | Stack depth: 1 | Available: 3
 [ALLOC] Allocated D2 | Stack depth: 1 | Available: 2
-[ALLOC] Allocated D1 | Stack depth: 1 | Available: 1
-[PUSH] D1 | Stack depth: 2 (D7, D1)
+[PUSH] D2 | Stack depth: 2 (D7, D2)
 [OPCODE] 0031: call (167772180)
-[POP] D1 | Stack depth: 1 (D7)
+[POP] D2 | Stack depth: 1 (D7)
 [POP] D7 | Stack depth: 0 ()
-[ALLOC] Allocated D2 | Stack depth: 0 | Available: 1
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 0
-[PUSH] D2 | Stack depth: 1 (D2)
+[ALLOC] Allocated D3 | Stack depth: 0 | Available: 2
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 1
+[PUSH] D3 | Stack depth: 1 (D3)
 [OPCODE] 0036: stloc.2
-[POP] D2 | Stack depth: 0 ()
+[POP] D3 | Stack depth: 0 ()
 [OPCODE] 0037: ret
 [OPCODE] 0000: nop
 [OPCODE] 0001: ldloca.s (0)
@@ -5937,38 +5937,42 @@ Generating 68000 assembly: TestMath_generated.asm
 [PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 000C: call (167772200)
 [POP] D0 | Stack depth: 1 (D1)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[PUSH] D2 | Stack depth: 2 (D1, D2)
+[POP] D1 | Stack depth: 0 ()
+[PUSH] D0 (dbl) | Stack depth: 1 (D0)
+[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 0011: stloc.1
-[POP] D2 | Stack depth: 1 (D1)
+[POP] D1 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 0 ()
 [DEBUG] ldc.r8 at offset 0012:
   OperandType: InlineR
   Result type: Double
   Result value: 12
   Hex bytes: 00 00 00 00 00 00 28 40
 [OPCODE] 0012: ldc.r8 (12)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 4
-[PUSH] D2 (dbl) | Stack depth: 2 (D1, D2)
-[PUSH] D3 (dbl) | Stack depth: 3 (D1, D2, D3)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 9
+[ALLOC] Allocated D0 | Stack depth: 0 | Available: 8
+[PUSH] D1 (dbl) | Stack depth: 1 (D1)
+[PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 001B: box (16777235)
-[POP] D3 | Stack depth: 2 (D1, D2)
-[PUSH] D0 | Stack depth: 3 (D1, D2, D0)
+[POP] D0 | Stack depth: 1 (D1)
+[PUSH] D0 | Stack depth: 2 (D1, D0)
 [OPCODE] 0020: ldloc.1
-[ALLOC] Allocated D3 | Stack depth: 3 | Available: 4
-[PUSH] D3 | Stack depth: 4 (D1, D2, D0, D3)
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[PUSH] D2 (dbl) | Stack depth: 3 (D1, D0, D2)
+[PUSH] D2 (dbl) | Stack depth: 4 (D1, D0, D2, D2)
 [OPCODE] 0021: box (16777235)
-[POP] D3 | Stack depth: 3 (D1, D2, D0)
-[PUSH] D0 | Stack depth: 4 (D1, D2, D0, D0)
+[POP] D2 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D0 | Stack depth: 4 (D1, D0, D2, D0)
 [OPCODE] 0026: call (167772195)
-[POP] D0 | Stack depth: 3 (D1, D2, D0)
-[POP] D0 | Stack depth: 2 (D1, D2)
-[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
-[PUSH] D3 | Stack depth: 3 (D1, D2, D3)
+[POP] D0 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D2 | Stack depth: 2 | Available: 7
+[PUSH] D2 | Stack depth: 3 (D1, D0, D2)
 [OPCODE] 002B: stloc.2
-[POP] D3 | Stack depth: 2 (D1, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
 [OPCODE] 002C: ret
-[POP] D2 | Stack depth: 1 (D1)
+[POP] D0 | Stack depth: 1 (D1)
 [OPCODE] 0000: nop
 [DEBUG] ldc.r8 at offset 0001:
   OperandType: InlineR
@@ -5991,40 +5995,41 @@ Generating 68000 assembly: TestMath_generated.asm
 [OPCODE] 000C: call (167772201)
 [POP] D0 | Stack depth: 1 (D1)
 [POP] D1 | Stack depth: 0 ()
-[ALLOC] Allocated D2 | Stack depth: 0 | Available: 5
-[ALLOC] Allocated D3 | Stack depth: 0 | Available: 4
-[PUSH] D2 | Stack depth: 1 (D2)
-[PUSH] D3 | Stack depth: 2 (D2, D3)
+[PUSH] D0 (dbl) | Stack depth: 1 (D0)
+[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 0011: stloc.1
-[POP] D3 | Stack depth: 1 (D2)
+[POP] D1 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 0 ()
 [DEBUG] ldc.r8 at offset 0012:
   OperandType: InlineR
   Result type: Double
   Result value: 42.5
   Hex bytes: 00 00 00 00 00 40 45 40
 [OPCODE] 0012: ldc.r8 (42.5)
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 4
-[ALLOC] Allocated D4 | Stack depth: 1 | Available: 3
-[PUSH] D3 (dbl) | Stack depth: 2 (D2, D3)
-[PUSH] D4 (dbl) | Stack depth: 3 (D2, D3, D4)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 9
+[ALLOC] Allocated D0 | Stack depth: 0 | Available: 8
+[PUSH] D1 (dbl) | Stack depth: 1 (D1)
+[PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 001B: box (16777235)
-[POP] D4 | Stack depth: 2 (D2, D3)
-[PUSH] D0 | Stack depth: 3 (D2, D3, D0)
+[POP] D0 | Stack depth: 1 (D1)
+[PUSH] D0 | Stack depth: 2 (D1, D0)
 [OPCODE] 0020: ldloc.1
-[ALLOC] Allocated D4 | Stack depth: 3 | Available: 3
-[PUSH] D4 | Stack depth: 4 (D2, D3, D0, D4)
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[PUSH] D2 (dbl) | Stack depth: 3 (D1, D0, D2)
+[PUSH] D2 (dbl) | Stack depth: 4 (D1, D0, D2, D2)
 [OPCODE] 0021: box (16777235)
-[POP] D4 | Stack depth: 3 (D2, D3, D0)
-[PUSH] D0 | Stack depth: 4 (D2, D3, D0, D0)
+[POP] D2 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D0 | Stack depth: 4 (D1, D0, D2, D0)
 [OPCODE] 0026: call (167772195)
-[POP] D0 | Stack depth: 3 (D2, D3, D0)
-[POP] D0 | Stack depth: 2 (D2, D3)
-[ALLOC] Allocated D4 | Stack depth: 2 | Available: 3
-[PUSH] D4 | Stack depth: 3 (D2, D3, D4)
+[POP] D0 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D2 | Stack depth: 2 | Available: 7
+[PUSH] D2 | Stack depth: 3 (D1, D0, D2)
 [OPCODE] 002B: stloc.2
-[POP] D4 | Stack depth: 2 (D2, D3)
+[POP] D2 | Stack depth: 2 (D1, D0)
 [OPCODE] 002C: ret
-[POP] D3 | Stack depth: 1 (D2)
+[POP] D0 | Stack depth: 1 (D1)
 [OPCODE] 0000: nop
 [DEBUG] ldc.r8 at offset 0001:
   OperandType: InlineR
@@ -6065,38 +6070,43 @@ Generating 68000 assembly: TestMath_generated.asm
 [OPCODE] 0017: call (167772202)
 [POP] D3 | Stack depth: 3 (D0, D1, D2)
 [POP] D2 | Stack depth: 2 (D0, D1)
-[ALLOC] Allocated D4 | Stack depth: 2 | Available: 3
-[PUSH] D4 | Stack depth: 3 (D0, D1, D4)
+[POP] D1 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 0 ()
+[PUSH] D0 (dbl) | Stack depth: 1 (D0)
+[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 001C: stloc.2
-[POP] D4 | Stack depth: 2 (D0, D1)
+[POP] D1 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 0 ()
 [DEBUG] ldc.r8 at offset 001D:
   OperandType: InlineR
   Result type: Double
   Result value: 256
   Hex bytes: 00 00 00 00 00 00 70 40
 [OPCODE] 001D: ldc.r8 (256)
-[ALLOC] Allocated D4 | Stack depth: 2 | Available: 3
-[ALLOC] Allocated D5 | Stack depth: 2 | Available: 2
-[PUSH] D4 (dbl) | Stack depth: 3 (D0, D1, D4)
-[PUSH] D5 (dbl) | Stack depth: 4 (D0, D1, D4, D5)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 9
+[ALLOC] Allocated D0 | Stack depth: 0 | Available: 8
+[PUSH] D1 (dbl) | Stack depth: 1 (D1)
+[PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 0026: box (16777235)
-[POP] D5 | Stack depth: 3 (D0, D1, D4)
-[PUSH] D0 | Stack depth: 4 (D0, D1, D4, D0)
+[POP] D0 | Stack depth: 1 (D1)
+[PUSH] D0 | Stack depth: 2 (D1, D0)
 [OPCODE] 002B: ldloc.2
-[ALLOC] Allocated D5 | Stack depth: 4 | Available: 2
-[PUSH] D5 | Stack depth: 5 (D0, D1, D4, D0, D5)
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 7
+[PUSH] D2 (dbl) | Stack depth: 3 (D1, D0, D2)
+[PUSH] D3 (dbl) | Stack depth: 4 (D1, D0, D2, D3)
 [OPCODE] 002C: box (16777235)
-[POP] D5 | Stack depth: 4 (D0, D1, D4, D0)
-[PUSH] D0 | Stack depth: 5 (D0, D1, D4, D0, D0)
+[POP] D3 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D0 | Stack depth: 4 (D1, D0, D2, D0)
 [OPCODE] 0031: call (167772195)
-[POP] D0 | Stack depth: 4 (D0, D1, D4, D0)
-[POP] D0 | Stack depth: 3 (D0, D1, D4)
-[ALLOC] Allocated D5 | Stack depth: 3 | Available: 2
-[PUSH] D5 | Stack depth: 4 (D0, D1, D4, D5)
+[POP] D0 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 7
+[PUSH] D3 | Stack depth: 3 (D1, D0, D3)
 [OPCODE] 0036: stloc.3
-[POP] D5 | Stack depth: 3 (D0, D1, D4)
+[POP] D3 | Stack depth: 2 (D1, D0)
 [OPCODE] 0037: ret
-[POP] D4 | Stack depth: 2 (D0, D1)
+[POP] D0 | Stack depth: 1 (D1)
 [OPCODE] 0000: nop
 [DEBUG] ldc.r8 at offset 0001:
   OperandType: InlineR
@@ -6118,49 +6128,53 @@ Generating 68000 assembly: TestMath_generated.asm
 [PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 000C: call (167772203)
 [POP] D0 | Stack depth: 1 (D1)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[PUSH] D2 | Stack depth: 2 (D1, D2)
+[POP] D1 | Stack depth: 0 ()
+[PUSH] D0 (dbl) | Stack depth: 1 (D0)
+[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 0011: stloc.1
-[POP] D2 | Stack depth: 1 (D1)
+[POP] D1 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 0 ()
 [DEBUG] ldc.r8 at offset 0012:
   OperandType: InlineR
   Result type: Double
   Result value: 1
   Hex bytes: 00 00 00 00 00 00 F0 3F
 [OPCODE] 0012: ldc.r8 (1)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 4
-[PUSH] D2 (dbl) | Stack depth: 2 (D1, D2)
-[PUSH] D3 (dbl) | Stack depth: 3 (D1, D2, D3)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 9
+[ALLOC] Allocated D0 | Stack depth: 0 | Available: 8
+[PUSH] D1 (dbl) | Stack depth: 1 (D1)
+[PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 001B: box (16777235)
-[POP] D3 | Stack depth: 2 (D1, D2)
-[PUSH] D0 | Stack depth: 3 (D1, D2, D0)
+[POP] D0 | Stack depth: 1 (D1)
+[PUSH] D0 | Stack depth: 2 (D1, D0)
 [OPCODE] 0020: ldloc.1
-[ALLOC] Allocated D3 | Stack depth: 3 | Available: 4
-[PUSH] D3 | Stack depth: 4 (D1, D2, D0, D3)
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[PUSH] D2 (dbl) | Stack depth: 3 (D1, D0, D2)
+[PUSH] D2 (dbl) | Stack depth: 4 (D1, D0, D2, D2)
 [OPCODE] 0021: ldc.i4.s (10)
-[ALLOC] Allocated D4 | Stack depth: 4 | Available: 3
-[PUSH] D4 | Stack depth: 5 (D1, D2, D0, D3, D4)
+[ALLOC] Allocated D3 (fallback, queue had D1 which was on stack) | Stack depth: 4
+[PUSH] D3 | Stack depth: 5 (D1, D0, D2, D2, D3)
 [OPCODE] 0023: call (167772194)
-[POP] D4 | Stack depth: 4 (D1, D2, D0, D3)
-[POP] D3 | Stack depth: 3 (D1, D2, D0)
-[POP] D0 | Stack depth: 2 (D1, D2)
-[ALLOC] Allocated D5 | Stack depth: 2 | Available: 2
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 1
-[PUSH] D5 | Stack depth: 3 (D1, D2, D5)
-[PUSH] D6 | Stack depth: 4 (D1, D2, D5, D6)
+[POP] D3 | Stack depth: 4 (D1, D0, D2, D2)
+[POP] D2 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D2 | Stack depth: 2 | Available: 5
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
+[PUSH] D2 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D3 | Stack depth: 4 (D1, D0, D2, D3)
 [OPCODE] 0028: box (16777235)
-[POP] D6 | Stack depth: 3 (D1, D2, D5)
-[PUSH] D0 | Stack depth: 4 (D1, D2, D5, D0)
+[POP] D3 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D0 | Stack depth: 4 (D1, D0, D2, D0)
 [OPCODE] 002D: call (167772195)
-[POP] D0 | Stack depth: 3 (D1, D2, D5)
-[POP] D5 | Stack depth: 2 (D1, D2)
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 1
-[PUSH] D6 | Stack depth: 3 (D1, D2, D6)
+[POP] D0 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
+[PUSH] D3 | Stack depth: 3 (D1, D0, D3)
 [OPCODE] 0032: stloc.2
-[POP] D6 | Stack depth: 2 (D1, D2)
+[POP] D3 | Stack depth: 2 (D1, D0)
 [OPCODE] 0033: ret
-[POP] D2 | Stack depth: 1 (D1)
+[POP] D0 | Stack depth: 1 (D1)
 [OPCODE] 0000: nop
 [DEBUG] ldc.r8 at offset 0001:
   OperandType: InlineR
@@ -6174,49 +6188,53 @@ Generating 68000 assembly: TestMath_generated.asm
 [PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 000A: call (167772204)
 [POP] D1 | Stack depth: 1 (D0)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[PUSH] D2 | Stack depth: 2 (D0, D2)
+[POP] D0 | Stack depth: 0 ()
+[PUSH] D0 (dbl) | Stack depth: 1 (D0)
+[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 000F: stloc.0
-[POP] D2 | Stack depth: 1 (D0)
+[POP] D1 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 0 ()
 [DEBUG] ldc.r8 at offset 0010:
   OperandType: InlineR
   Result type: Double
   Result value: 1
   Hex bytes: 00 00 00 00 00 00 F0 3F
 [OPCODE] 0010: ldc.r8 (1)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 4
-[PUSH] D2 (dbl) | Stack depth: 2 (D0, D2)
-[PUSH] D3 (dbl) | Stack depth: 3 (D0, D2, D3)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 9
+[ALLOC] Allocated D0 | Stack depth: 0 | Available: 8
+[PUSH] D1 (dbl) | Stack depth: 1 (D1)
+[PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 0019: box (16777235)
-[POP] D3 | Stack depth: 2 (D0, D2)
-[PUSH] D0 | Stack depth: 3 (D0, D2, D0)
+[POP] D0 | Stack depth: 1 (D1)
+[PUSH] D0 | Stack depth: 2 (D1, D0)
 [OPCODE] 001E: ldloc.0
-[ALLOC] Allocated D3 | Stack depth: 3 | Available: 4
-[PUSH] D3 | Stack depth: 4 (D0, D2, D0, D3)
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[ALLOC] Allocated D2 (fallback, queue had D1 which was on stack) | Stack depth: 2
+[PUSH] D2 (dbl) | Stack depth: 3 (D1, D0, D2)
+[PUSH] D2 (dbl) | Stack depth: 4 (D1, D0, D2, D2)
 [OPCODE] 001F: ldc.i4.s (10)
-[ALLOC] Allocated D4 | Stack depth: 4 | Available: 3
-[PUSH] D4 | Stack depth: 5 (D0, D2, D0, D3, D4)
+[ALLOC] Allocated D3 (fallback, queue had D0 which was on stack) | Stack depth: 4
+[PUSH] D3 | Stack depth: 5 (D1, D0, D2, D2, D3)
 [OPCODE] 0021: call (167772194)
-[POP] D4 | Stack depth: 4 (D0, D2, D0, D3)
-[POP] D3 | Stack depth: 3 (D0, D2, D0)
-[POP] D0 | Stack depth: 2 (D0, D2)
-[ALLOC] Allocated D5 | Stack depth: 2 | Available: 2
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 1
-[PUSH] D5 | Stack depth: 3 (D0, D2, D5)
-[PUSH] D6 | Stack depth: 4 (D0, D2, D5, D6)
+[POP] D3 | Stack depth: 4 (D1, D0, D2, D2)
+[POP] D2 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D2 | Stack depth: 2 | Available: 5
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
+[PUSH] D2 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D3 | Stack depth: 4 (D1, D0, D2, D3)
 [OPCODE] 0026: box (16777235)
-[POP] D6 | Stack depth: 3 (D0, D2, D5)
-[PUSH] D0 | Stack depth: 4 (D0, D2, D5, D0)
+[POP] D3 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D0 | Stack depth: 4 (D1, D0, D2, D0)
 [OPCODE] 002B: call (167772195)
-[POP] D0 | Stack depth: 3 (D0, D2, D5)
-[POP] D5 | Stack depth: 2 (D0, D2)
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 1
-[PUSH] D6 | Stack depth: 3 (D0, D2, D6)
+[POP] D0 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
+[PUSH] D3 | Stack depth: 3 (D1, D0, D3)
 [OPCODE] 0030: stloc.1
-[POP] D6 | Stack depth: 2 (D0, D2)
+[POP] D3 | Stack depth: 2 (D1, D0)
 [OPCODE] 0031: ret
-[POP] D2 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 1 (D1)
 [OPCODE] 0000: nop
 [DEBUG] ldc.r8 at offset 0001:
   OperandType: InlineR
@@ -6230,49 +6248,53 @@ Generating 68000 assembly: TestMath_generated.asm
 [PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 000A: call (167772205)
 [POP] D1 | Stack depth: 1 (D0)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[PUSH] D2 | Stack depth: 2 (D0, D2)
+[POP] D0 | Stack depth: 0 ()
+[PUSH] D0 (dbl) | Stack depth: 1 (D0)
+[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 000F: stloc.0
-[POP] D2 | Stack depth: 1 (D0)
+[POP] D1 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 0 ()
 [DEBUG] ldc.r8 at offset 0010:
   OperandType: InlineR
   Result type: Double
   Result value: 1
   Hex bytes: 00 00 00 00 00 00 F0 3F
 [OPCODE] 0010: ldc.r8 (1)
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 4
-[PUSH] D2 (dbl) | Stack depth: 2 (D0, D2)
-[PUSH] D3 (dbl) | Stack depth: 3 (D0, D2, D3)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 9
+[ALLOC] Allocated D0 | Stack depth: 0 | Available: 8
+[PUSH] D1 (dbl) | Stack depth: 1 (D1)
+[PUSH] D0 (dbl) | Stack depth: 2 (D1, D0)
 [OPCODE] 0019: box (16777235)
-[POP] D3 | Stack depth: 2 (D0, D2)
-[PUSH] D0 | Stack depth: 3 (D0, D2, D0)
+[POP] D0 | Stack depth: 1 (D1)
+[PUSH] D0 | Stack depth: 2 (D1, D0)
 [OPCODE] 001E: ldloc.0
-[ALLOC] Allocated D3 | Stack depth: 3 | Available: 4
-[PUSH] D3 | Stack depth: 4 (D0, D2, D0, D3)
+[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
+[ALLOC] Allocated D2 (fallback, queue had D1 which was on stack) | Stack depth: 2
+[PUSH] D2 (dbl) | Stack depth: 3 (D1, D0, D2)
+[PUSH] D2 (dbl) | Stack depth: 4 (D1, D0, D2, D2)
 [OPCODE] 001F: ldc.i4.s (10)
-[ALLOC] Allocated D4 | Stack depth: 4 | Available: 3
-[PUSH] D4 | Stack depth: 5 (D0, D2, D0, D3, D4)
+[ALLOC] Allocated D3 (fallback, queue had D0 which was on stack) | Stack depth: 4
+[PUSH] D3 | Stack depth: 5 (D1, D0, D2, D2, D3)
 [OPCODE] 0021: call (167772194)
-[POP] D4 | Stack depth: 4 (D0, D2, D0, D3)
-[POP] D3 | Stack depth: 3 (D0, D2, D0)
-[POP] D0 | Stack depth: 2 (D0, D2)
-[ALLOC] Allocated D5 | Stack depth: 2 | Available: 2
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 1
-[PUSH] D5 | Stack depth: 3 (D0, D2, D5)
-[PUSH] D6 | Stack depth: 4 (D0, D2, D5, D6)
+[POP] D3 | Stack depth: 4 (D1, D0, D2, D2)
+[POP] D2 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D2 | Stack depth: 2 | Available: 5
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
+[PUSH] D2 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D3 | Stack depth: 4 (D1, D0, D2, D3)
 [OPCODE] 0026: box (16777235)
-[POP] D6 | Stack depth: 3 (D0, D2, D5)
-[PUSH] D0 | Stack depth: 4 (D0, D2, D5, D0)
+[POP] D3 | Stack depth: 3 (D1, D0, D2)
+[PUSH] D0 | Stack depth: 4 (D1, D0, D2, D0)
 [OPCODE] 002B: call (167772195)
-[POP] D0 | Stack depth: 3 (D0, D2, D5)
-[POP] D5 | Stack depth: 2 (D0, D2)
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 1
-[PUSH] D6 | Stack depth: 3 (D0, D2, D6)
+[POP] D0 | Stack depth: 3 (D1, D0, D2)
+[POP] D2 | Stack depth: 2 (D1, D0)
+[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
+[PUSH] D3 | Stack depth: 3 (D1, D0, D3)
 [OPCODE] 0030: stloc.1
-[POP] D6 | Stack depth: 2 (D0, D2)
+[POP] D3 | Stack depth: 2 (D1, D0)
 [OPCODE] 0031: ret
-[POP] D2 | Stack depth: 1 (D0)
+[POP] D0 | Stack depth: 1 (D1)
 [OPCODE] 0000: nop
 [DEBUG] ldc.r8 at offset 0001:
   OperandType: InlineR
@@ -7544,40 +7566,41 @@ Generating 68000 assembly: TestMath_generated.asm
 [PUSH] D2 (dbl) | Stack depth: 2 (D1, D2)
 [OPCODE] 0009: call (167772200)
 [POP] D2 | Stack depth: 1 (D1)
-[ALLOC] Allocated D0 | Stack depth: 1 | Available: 5
-[PUSH] D0 | Stack depth: 2 (D1, D0)
+[POP] D1 | Stack depth: 0 ()
+[PUSH] D0 (dbl) | Stack depth: 1 (D0)
+[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
 [OPCODE] 000E: conv.r4
-[POP] D0 | Stack depth: 1 (D1)
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 4
-[PUSH] D3 | Stack depth: 2 (D1, D3)
+[POP] D1 | Stack depth: 1 (D0)
+[ALLOC] Allocated D2 | Stack depth: 1 | Available: 7
+[PUSH] D2 | Stack depth: 2 (D0, D2)
 [OPCODE] 000F: stloc.1
-[POP] D3 | Stack depth: 1 (D1)
+[POP] D2 | Stack depth: 1 (D0)
 [DEBUG] ldc.r4 at offset 0010:
   OperandType: ShortInlineR
   Result type: Single
   Result value: 12
   Hex bytes: 00 00 40 41 8C 12 00 00
 [OPCODE] 0010: ldc.r4 (12)
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 5
-[PUSH] D3 | Stack depth: 2 (D1, D3)
+[ALLOC] Allocated D2 | Stack depth: 1 | Available: 8
+[PUSH] D2 | Stack depth: 2 (D0, D2)
 [OPCODE] 0015: box (16777234)
-[POP] D3 | Stack depth: 1 (D1)
-[PUSH] D0 | Stack depth: 2 (D1, D0)
+[POP] D2 | Stack depth: 1 (D0)
+[PUSH] D0 | Stack depth: 2 (D0, D0)
 [OPCODE] 001A: ldloc.1
-[ALLOC] Allocated D3 | Stack depth: 2 | Available: 5
-[PUSH] D3 | Stack depth: 3 (D1, D0, D3)
+[ALLOC] Allocated D2 | Stack depth: 2 | Available: 8
+[PUSH] D2 | Stack depth: 3 (D0, D0, D2)
 [OPCODE] 001B: box (16777234)
-[POP] D3 | Stack depth: 2 (D1, D0)
-[PUSH] D0 | Stack depth: 3 (D1, D0, D0)
+[POP] D2 | Stack depth: 2 (D0, D0)
+[PUSH] D0 | Stack depth: 3 (D0, D0, D0)
 [OPCODE] 0020: call (167772195)
-[POP] D0 | Stack depth: 2 (D1, D0)
-[POP] D0 | Stack depth: 1 (D1)
-[ALLOC] Allocated D3 | Stack depth: 1 | Available: 5
-[PUSH] D3 | Stack depth: 2 (D1, D3)
+[POP] D0 | Stack depth: 2 (D0, D0)
+[POP] D0 | Stack depth: 1 (D0)
+[ALLOC] Allocated D2 | Stack depth: 1 | Available: 8
+[PUSH] D2 | Stack depth: 2 (D0, D2)
 [OPCODE] 0025: stloc.2
-[POP] D3 | Stack depth: 1 (D1)
+[POP] D2 | Stack depth: 1 (D0)
 [OPCODE] 0026: ret
-[POP] D1 | Stack depth: 0 ()
+[POP] D0 | Stack depth: 0 ()
 [OPCODE] 0000: nop
 [DEBUG] ldc.r4 at offset 0001:
   OperandType: ShortInlineR
@@ -7594,22 +7617,23 @@ Generating 68000 assembly: TestMath_generated.asm
 [PUSH] D0 | Stack depth: 1 (D0)
 [OPCODE] 0008: call (167772210)
 [POP] D0 | Stack depth: 0 ()
-[PUSH] D0 | Stack depth: 1 (D0)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 6
+[PUSH] D1 | Stack depth: 1 (D1)
 [OPCODE] 000D: stloc.1
-[POP] D0 | Stack depth: 0 ()
+[POP] D1 | Stack depth: 0 ()
 [DEBUG] ldc.r4 at offset 000E:
   OperandType: ShortInlineR
   Result type: Single
   Result value: 42.5
   Hex bytes: 00 00 2A 42 8C 12 00 00
 [OPCODE] 000E: ldc.r4 (42.5)
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
-[PUSH] D0 | Stack depth: 1 (D0)
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 7
+[PUSH] D1 | Stack depth: 1 (D1)
 [OPCODE] 0013: box (16777234)
-[POP] D0 | Stack depth: 0 ()
+[POP] D1 | Stack depth: 0 ()
 [PUSH] D0 | Stack depth: 1 (D0)
 [OPCODE] 0018: ldloc.1
-[ALLOC] Allocated D1 (fallback, queue had D0 which was on stack) | Stack depth: 1
+[ALLOC] Allocated D1 | Stack depth: 1 | Available: 7
 [PUSH] D1 | Stack depth: 2 (D0, D1)
 [OPCODE] 0019: box (16777234)
 [POP] D1 | Stack depth: 1 (D0)
@@ -9149,37 +9173,37 @@ Generating 68000 assembly: TestMath_generated.asm
 [ALLOC] Allocated D7 | Stack depth: 0 | Available: 8
 [PUSH] D7 | Stack depth: 1 (D7)
 [OPCODE] 0027: ldc.i4.1
-[ALLOC] Allocated D5 | Stack depth: 1 | Available: 7
-[PUSH] D5 | Stack depth: 2 (D7, D5)
+[ALLOC] Allocated D0 (fallback, queue had D7 which was on stack) | Stack depth: 1
+[PUSH] D0 | Stack depth: 2 (D7, D0)
 [OPCODE] 0028: ldc.i4.0
-[ALLOC] Allocated D6 | Stack depth: 2 | Available: 6
-[PUSH] D6 | Stack depth: 3 (D7, D5, D6)
+[ALLOC] Allocated D5 | Stack depth: 2 | Available: 7
+[PUSH] D5 | Stack depth: 3 (D7, D0, D5)
 [OPCODE] 0029: ldc.i4.0
-[ALLOC] Allocated D0 (fallback, queue had D5 which was on stack) | Stack depth: 3
-[PUSH] D0 | Stack depth: 4 (D7, D5, D6, D0)
+[ALLOC] Allocated D6 | Stack depth: 3 | Available: 6
+[PUSH] D6 | Stack depth: 4 (D7, D0, D5, D6)
 [OPCODE] 002A: ldc.i4.0
-[ALLOC] Allocated D4 | Stack depth: 4 | Available: 4
-[PUSH] D4 | Stack depth: 5 (D7, D5, D6, D0, D4)
+[ALLOC] Allocated D1 (fallback, queue had D5 which was on stack) | Stack depth: 4
+[PUSH] D1 | Stack depth: 5 (D7, D0, D5, D6, D1)
 [OPCODE] 002B: ldc.i4.2
-[ALLOC] Allocated D3 | Stack depth: 5 | Available: 3
-[PUSH] D3 | Stack depth: 6 (D7, D5, D6, D0, D4, D3)
+[ALLOC] Allocated D4 | Stack depth: 5 | Available: 4
+[PUSH] D4 | Stack depth: 6 (D7, D0, D5, D6, D1, D4)
 [OPCODE] 002C: newobj (167772172)
-[POP] D3 | Stack depth: 5 (D7, D5, D6, D0, D4)
-[POP] D4 | Stack depth: 4 (D7, D5, D6, D0)
-[POP] D0 | Stack depth: 3 (D7, D5, D6)
-[POP] D6 | Stack depth: 2 (D7, D5)
-[POP] D5 | Stack depth: 1 (D7)
+[POP] D4 | Stack depth: 5 (D7, D0, D5, D6, D1)
+[POP] D1 | Stack depth: 4 (D7, D0, D5, D6)
+[POP] D6 | Stack depth: 3 (D7, D0, D5)
+[POP] D5 | Stack depth: 2 (D7, D0)
+[POP] D0 | Stack depth: 1 (D7)
+[ALLOC] Allocated D3 | Stack depth: 1 | Available: 3
 [ALLOC] Allocated D2 | Stack depth: 1 | Available: 2
-[ALLOC] Allocated D1 | Stack depth: 1 | Available: 1
-[PUSH] D1 | Stack depth: 2 (D7, D1)
+[PUSH] D2 | Stack depth: 2 (D7, D2)
 [OPCODE] 0031: call (167772180)
-[POP] D1 | Stack depth: 1 (D7)
+[POP] D2 | Stack depth: 1 (D7)
 [POP] D7 | Stack depth: 0 ()
-[ALLOC] Allocated D2 | Stack depth: 0 | Available: 1
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 0
-[PUSH] D2 | Stack depth: 1 (D2)
+[ALLOC] Allocated D3 | Stack depth: 0 | Available: 2
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 1
+[PUSH] D3 | Stack depth: 1 (D3)
 [OPCODE] 0036: stloc.2
-[POP] D2 | Stack depth: 0 ()
+[POP] D3 | Stack depth: 0 ()
 [OPCODE] 0037: ret
 [OPCODE] 0000: nop
 [DEBUG] ldc.r8 at offset 0001:

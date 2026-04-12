@@ -1,6 +1,6 @@
 ; Generated 68000 Assembly Code
 ; Converted from C# MSIL
-; Generated: 2026-04-12 12:55:40
+; Generated: 2026-04-12 13:25:30
 
     ; --- Code Section ---
     SECTION CODE
@@ -4412,57 +4412,57 @@ JumpCS.TestMath.Tests.DecimalMathTests_Abs:
     MOVE.L #4250,D1  ; Load constant
 
     ; Offset 001D: ldc.i4.0
-    CLR.L D2             ; Load 0
+    CLR.L D0             ; Load 0
 
     ; Offset 001E: ldc.i4.0
-    CLR.L D3             ; Load 0
+    CLR.L D2             ; Load 0
 
     ; Offset 001F: ldc.i4.0
-    CLR.L D4             ; Load 0
+    CLR.L D3             ; Load 0
 
     ; Offset 0020: ldc.i4.2
-    MOVE.L #2,D5         ; Load 2
+    MOVE.L #2,D4         ; Load 2
 
     ; Offset 0021: newobj
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),A0  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ A0, lo=D1, mid=D2, hi=D3, sign=D4, scale=D5
-    CLR.L D6           ; Clear flags
-    AND.L #0xFF,D5      ; Ensure scale is 0-255
-    LSL.L #16,D5        ; Shift scale to bits 16-23
-    OR.L D5,D6   ; Set scale in flags
-    TST.L D4        ; Check if negative
+    ; result @ A0, lo=D1, mid=D0, hi=D2, sign=D3, scale=D4
+    CLR.L D5           ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D5   ; Set scale in flags
+    TST.L D3        ; Check if negative
     BEQ .SkipNegative_L_96
-    OR.L #0x80000000,D6 ; Set sign bit if negative
+    OR.L #0x80000000,D5 ; Set sign bit if negative
 .SkipNegative_L_96:
-    MOVE.L D6,(A0)      ; Store flags at offset 0
-    MOVE.L D3,4(A0)          ; Store high at offset 4
+    MOVE.L D5,(A0)      ; Store flags at offset 0
+    MOVE.L D2,4(A0)          ; Store high at offset 4
     MOVE.L D1,8(A0)          ; Store low at offset 8
-    MOVE.L D2,12(A0)        ; Store mid at offset 12
+    MOVE.L D0,12(A0)        ; Store mid at offset 12
     ; newobj complete - convert address to data register for stack
-    MOVE.L A0,D7   ; Convert address to data register
+    MOVE.L A0,D6   ; Convert address to data register
 
     ; Offset 0026: ldloc.1
-    MOVE.L -12(A6),D6  ; Load local.1
+    MOVE.L -12(A6),D5  ; Load local.1
 
     ; Offset 0027: call
     ; System.Decimal.Equals (inline)
     ; System.Decimal Equals inline
-    MOVE.L D7,A0    ; A0 = address of left operand
-    MOVE.L D6,A1  ; A1 = address of right operand
+    MOVE.L D6,A0    ; A0 = address of left operand
+    MOVE.L D5,A1  ; A1 = address of right operand
     MOVE.L #1,D7     ; Assume equal
-    MOVE.L (A0),D6    ; Load left flags
-    CMP.L (A1),D6    ; Compare flags
+    MOVE.L (A0),D7    ; Load left flags
+    CMP.L (A1),D7    ; Compare flags
     BNE .NotEqual_L_97
-    MOVE.L 4(A0),D6   ; Load left high
-    CMP.L 4(A1),D6   ; Compare high
+    MOVE.L 4(A0),D7   ; Load left high
+    CMP.L 4(A1),D7   ; Compare high
     BNE .NotEqual_L_97
-    MOVE.L 8(A0),D6   ; Load left low
-    CMP.L 8(A1),D6   ; Compare low
+    MOVE.L 8(A0),D7   ; Load left low
+    CMP.L 8(A1),D7   ; Compare low
     BNE .NotEqual_L_97
-    MOVE.L 12(A0),D6  ; Load left mid
-    CMP.L 12(A1),D6  ; Compare mid
+    MOVE.L 12(A0),D7  ; Load left mid
+    CMP.L 12(A1),D7  ; Compare mid
     BNE .NotEqual_L_97
     BRA .Done_L_98
 .NotEqual_L_97:
@@ -6041,76 +6041,76 @@ JumpCS.TestMath.Tests.DecimalMathTests_ConversionFromFloat:
     MOVE.L D7,D7
 
     ; Offset 0027: ldc.i4.1
-    MOVE.L #1,D5         ; Load 1
+    MOVE.L #1,D0         ; Load 1
 
     ; Offset 0028: ldc.i4.0
-    CLR.L D6             ; Load 0
+    CLR.L D5             ; Load 0
 
     ; Offset 0029: ldc.i4.0
-    CLR.L D0             ; Load 0
+    CLR.L D6             ; Load 0
 
     ; Offset 002A: ldc.i4.0
-    CLR.L D4             ; Load 0
+    CLR.L D1             ; Load 0
 
     ; Offset 002B: ldc.i4.2
-    MOVE.L #2,D3         ; Load 2
+    MOVE.L #2,D4         ; Load 2
 
     ; Offset 002C: newobj
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),A2  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ A2, lo=D5, mid=D6, hi=D0, sign=D4, scale=D3
-    CLR.L D2           ; Clear flags
-    AND.L #0xFF,D3      ; Ensure scale is 0-255
-    LSL.L #16,D3        ; Shift scale to bits 16-23
-    OR.L D3,D2   ; Set scale in flags
-    TST.L D4        ; Check if negative
+    ; result @ A2, lo=D0, mid=D5, hi=D6, sign=D1, scale=D4
+    CLR.L D3           ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D3   ; Set scale in flags
+    TST.L D1        ; Check if negative
     BEQ .SkipNegative_L_137
-    OR.L #0x80000000,D2 ; Set sign bit if negative
+    OR.L #0x80000000,D3 ; Set sign bit if negative
 .SkipNegative_L_137:
-    MOVE.L D2,(A2)      ; Store flags at offset 0
-    MOVE.L D0,4(A2)          ; Store high at offset 4
-    MOVE.L D5,8(A2)          ; Store low at offset 8
-    MOVE.L D6,12(A2)        ; Store mid at offset 12
+    MOVE.L D3,(A2)      ; Store flags at offset 0
+    MOVE.L D6,4(A2)          ; Store high at offset 4
+    MOVE.L D0,8(A2)          ; Store low at offset 8
+    MOVE.L D5,12(A2)        ; Store mid at offset 12
     ; newobj complete - convert address to data register for stack
-    MOVE.L A2,D1   ; Convert address to data register
+    MOVE.L A2,D2   ; Convert address to data register
 
     ; Offset 0031: call
     ; System.Decimal.op_LessThan (inline)
     ; System.Decimal op_LessThan inline
     MOVE.L D7,A2    ; A2 = address of left operand
-    MOVE.L D1,A1  ; A1 = address of right operand
-    CLR.L D2     ; Assume not less than (default: 0)
-    MOVE.L (A2),D0    ; Load left flags
+    MOVE.L D2,A1  ; A1 = address of right operand
+    CLR.L D3     ; Assume not less than (default: 0)
+    MOVE.L (A2),D1    ; Load left flags
     MOVE.L (A1),D4          ; Load right flags
-    TST.L D0                     ; Check left sign (bit 31)
+    TST.L D1                     ; Check left sign (bit 31)
     BPL .LeftPositive_L_138
     TST.L D4
     BMI .BothNegative_L_138   ; Both negative, compare magnitude
-    MOVE.L #1,D2              ; Left negative, right positive: left < right
+    MOVE.L #1,D3              ; Left negative, right positive: left < right
     BRA .Done_L_140
 .LeftPositive_L_138:
     TST.L D4
     BMI .Done_L_140              ; Left positive, right negative: left >= right (return 0)
 .BothNegative_L_138:
-    MOVE.L 4(A2),D0   ; Load left high
-    CMP.L 4(A1),D0   ; Compare high
+    MOVE.L 4(A2),D1   ; Load left high
+    CMP.L 4(A1),D1   ; Compare high
     BLT .IsLessThan_L_138
     BGT .Done_L_140              ; If left high > right high, not less
-    MOVE.L 12(A2),D0  ; Load left mid
-    CMP.L 12(A1),D0  ; Compare mid
+    MOVE.L 12(A2),D1  ; Load left mid
+    CMP.L 12(A1),D1  ; Compare mid
     BLT .IsLessThan_L_138
     BGT .Done_L_140
-    MOVE.L 8(A2),D0   ; Load left low
-    CMP.L 8(A1),D0   ; Compare low
+    MOVE.L 8(A2),D1   ; Load left low
+    CMP.L 8(A1),D1   ; Compare low
     BLT .IsLessThan_L_138
     BRA .Done_L_140
 .IsLessThan_L_138:
-    MOVE.L #1,D2              ; Left < Right
+    MOVE.L #1,D3              ; Left < Right
 .Done_L_140:
 
     ; Offset 0036: stloc.2
-    MOVE.L D2,-12(A6)  ; Store to local 2
+    MOVE.L D3,-12(A6)  ; Store to local 2
 
     ; Offset 0037: ret
     CLR.L D0            ; Clear return value (void)
@@ -7737,37 +7737,39 @@ JumpCS.TestMath.Tests.DoubleMathTests_Sqrt:
     MOVE.L -4(A6),D0  ; Load local.0 (low)
 
     ; Offset 000C: call
-    ; System.Math.Sqrt - 1 parameters (stub)
-    MOVE.L #0,D2     ; TODO: Sqrt result
+    MOVE.L D1,D0   ; Sqrt: input high
+    MOVE.L D0,D1   ; Sqrt: input low
+    JSR __sqrt            ; IEEE 754 double square root
 
     ; Offset 0011: stloc.1
-    MOVE.L D2,-8(A6)   ; Store to local 1
+    MOVE.L D0,-8(A6)    ; Store to local 1 (high)
+    MOVE.L D1,-12(A6)   ; Store to local 1 (low)
 
     ; Offset 0012: ldc.r8
     LEA DOUBLE_CONST_0012(PC),A0
-    MOVE.L (A0),D2     ; Double high word
-    MOVE.L 4(A0),D3    ; Double low word
+    MOVE.L (A0),D1     ; Double high word
+    MOVE.L 4(A0),D0    ; Double low word
 
     ; Offset 001B: box
     ; Box type token 01000013
-    MOVE.L D3,D0     ; Boxed value
+    MOVE.L D0,D0     ; Boxed value
 
     ; Offset 0020: ldloc.1
-    MOVE.L -12(A6),D3  ; Load local.1
+    MOVE.L -12(A6),D2      ; Load local.1 (high)
+    MOVE.L -8(A6),D2  ; Load local.1 (low)
 
     ; Offset 0021: box
     ; Box type token 01000013
-    MOVE.L D3,D0     ; Boxed value
+    MOVE.L D2,D0     ; Boxed value
 
     ; Offset 0026: call
     ; Framework method: System.Object::Equals
     ; TODO: Implement framework call
 
     ; Offset 002B: stloc.2
-    MOVE.L D3,-12(A6)  ; Store to local 2
+    MOVE.L D2,-12(A6)  ; Store to local 2
 
     ; Offset 002C: ret
-    MOVE.L D2,D0  ; Move return value to D0
 
 
     ; Method epilogue
@@ -7798,38 +7800,39 @@ JumpCS.TestMath.Tests.DoubleMathTests_Abs:
 
     ; Offset 000C: call
     ; Double precision absolute value
-    AND.L #0x7FFFFFFF,D1  ; Clear sign bit
-    MOVE.L D1,D2
-    MOVE.L D0,D3
+    MOVE.L D1,D0
+    MOVE.L D0,D1
+    ANDI.L #$7FFFFFFF,D0 ; Clear sign bit (IEEE 754 abs)
 
     ; Offset 0011: stloc.1
-    MOVE.L D3,-8(A6)   ; Store to local 1
+    MOVE.L D0,-8(A6)    ; Store to local 1 (high)
+    MOVE.L D1,-12(A6)   ; Store to local 1 (low)
 
     ; Offset 0012: ldc.r8
     LEA DOUBLE_CONST_0012(PC),A0
-    MOVE.L (A0),D3     ; Double high word
-    MOVE.L 4(A0),D4    ; Double low word
+    MOVE.L (A0),D1     ; Double high word
+    MOVE.L 4(A0),D0    ; Double low word
 
     ; Offset 001B: box
     ; Box type token 01000013
-    MOVE.L D4,D0     ; Boxed value
+    MOVE.L D0,D0     ; Boxed value
 
     ; Offset 0020: ldloc.1
-    MOVE.L -12(A6),D4  ; Load local.1
+    MOVE.L -12(A6),D2      ; Load local.1 (high)
+    MOVE.L -8(A6),D2  ; Load local.1 (low)
 
     ; Offset 0021: box
     ; Box type token 01000013
-    MOVE.L D4,D0     ; Boxed value
+    MOVE.L D2,D0     ; Boxed value
 
     ; Offset 0026: call
     ; Framework method: System.Object::Equals
     ; TODO: Implement framework call
 
     ; Offset 002B: stloc.2
-    MOVE.L D4,-12(A6)  ; Store to local 2
+    MOVE.L D2,-12(A6)  ; Store to local 2
 
     ; Offset 002C: ret
-    MOVE.L D3,D0  ; Move return value to D0
 
 
     ; Method epilogue
@@ -7872,37 +7875,41 @@ JumpCS.TestMath.Tests.DoubleMathTests_Pow:
     MOVE.L -8(A6),D3  ; Load local.1 (low)
 
     ; Offset 0017: call
-    ; System.Math.Pow - 2 parameters (stub)
-    MOVE.L #0,D4     ; TODO: Pow result
+    MOVE.L D0,D0  ; Pow: base high
+    MOVE.L D1,D1  ; Pow: base low
+    MOVE.L D2,D2   ; Pow: exponent high
+    MOVE.L D3,D3   ; Pow: exponent low
+    JSR __pow             ; IEEE 754 double power
 
     ; Offset 001C: stloc.2
-    MOVE.L D4,-12(A6)  ; Store to local 2
+    MOVE.L D0,-12(A6)   ; Store to local 2 (high)
+    MOVE.L D1,-16(A6)   ; Store to local 2 (low)
 
     ; Offset 001D: ldc.r8
     LEA DOUBLE_CONST_001D(PC),A0
-    MOVE.L (A0),D4     ; Double high word
-    MOVE.L 4(A0),D5    ; Double low word
+    MOVE.L (A0),D1     ; Double high word
+    MOVE.L 4(A0),D0    ; Double low word
 
     ; Offset 0026: box
     ; Box type token 01000013
-    MOVE.L D5,D0     ; Boxed value
+    MOVE.L D0,D0     ; Boxed value
 
     ; Offset 002B: ldloc.2
-    MOVE.L -16(A6),D5  ; Load local.2
+    MOVE.L -16(A6),D2      ; Load local.2 (high)
+    MOVE.L -12(A6),D3  ; Load local.2 (low)
 
     ; Offset 002C: box
     ; Box type token 01000013
-    MOVE.L D5,D0     ; Boxed value
+    MOVE.L D3,D0     ; Boxed value
 
     ; Offset 0031: call
     ; Framework method: System.Object::Equals
     ; TODO: Implement framework call
 
     ; Offset 0036: stloc.3
-    MOVE.L D5,-16(A6)  ; Store to local 3
+    MOVE.L D3,-16(A6)  ; Store to local 3
 
     ; Offset 0037: ret
-    MOVE.L D4,D0  ; Move return value to D0
 
 
     ; Method epilogue
@@ -7932,49 +7939,51 @@ JumpCS.TestMath.Tests.DoubleMathTests_Log:
     MOVE.L -4(A6),D0  ; Load local.0 (low)
 
     ; Offset 000C: call
-    ; System.Math.Log - 1 parameters (stub)
-    MOVE.L #0,D2     ; TODO: Log result
+    MOVE.L D1,D0   ; Log: input high
+    MOVE.L D0,D1   ; Log: input low
+    JSR __log             ; IEEE 754 double natural log
 
     ; Offset 0011: stloc.1
-    MOVE.L D2,-8(A6)   ; Store to local 1
+    MOVE.L D0,-8(A6)    ; Store to local 1 (high)
+    MOVE.L D1,-12(A6)   ; Store to local 1 (low)
 
     ; Offset 0012: ldc.r8
     LEA DOUBLE_CONST_0012(PC),A0
-    MOVE.L (A0),D2     ; Double high word
-    MOVE.L 4(A0),D3    ; Double low word
+    MOVE.L (A0),D1     ; Double high word
+    MOVE.L 4(A0),D0    ; Double low word
 
     ; Offset 001B: box
     ; Box type token 01000013
-    MOVE.L D3,D0     ; Boxed value
+    MOVE.L D0,D0     ; Boxed value
 
     ; Offset 0020: ldloc.1
-    MOVE.L -12(A6),D3  ; Load local.1
+    MOVE.L -12(A6),D2      ; Load local.1 (high)
+    MOVE.L -8(A6),D2  ; Load local.1 (low)
 
     ; Offset 0021: ldc.i4.s
-    MOVE.L #10,D4  ; Load short constant
+    MOVE.L #10,D3  ; Load short constant
 
     ; Offset 0023: call
     ; System.Math.Round (inline) - 2 parameters
-    ; Round(D0:D3, D4) - double precision rounding
-    ; TODO: Implement IEEE double rounding to D4 decimal places
+    ; Round(D2:D2, D3) - double precision rounding
+    ; TODO: Implement IEEE double rounding to D3 decimal places
     ; For now: return double value unchanged
     ; (Proper implementation requires FPU or fixed-point conversion)
-    MOVE.L D0,D5  ; Copy high word
-    MOVE.L D3,D6    ; Copy low word
+    MOVE.L D2,D2  ; Copy high word
+    MOVE.L D2,D3    ; Copy low word
 
     ; Offset 0028: box
     ; Box type token 01000013
-    MOVE.L D6,D0     ; Boxed value
+    MOVE.L D3,D0     ; Boxed value
 
     ; Offset 002D: call
     ; Framework method: System.Object::Equals
     ; TODO: Implement framework call
 
     ; Offset 0032: stloc.2
-    MOVE.L D6,-12(A6)  ; Store to local 2
+    MOVE.L D3,-12(A6)  ; Store to local 2
 
     ; Offset 0033: ret
-    MOVE.L D2,D0  ; Move return value to D0
 
 
     ; Method epilogue
@@ -7996,49 +8005,51 @@ JumpCS.TestMath.Tests.DoubleMathTests_Trigonometric_Sin:
     MOVE.L 4(A0),D1    ; Double low word
 
     ; Offset 000A: call
-    ; System.Math.Sin - 1 parameters (stub)
-    MOVE.L #0,D2     ; TODO: Sin result
+    MOVE.L D0,D0   ; Sin: input high
+    MOVE.L D1,D1   ; Sin: input low
+    JSR __sin             ; IEEE 754 double sine
 
     ; Offset 000F: stloc.0
-    MOVE.L D2,-4(A6)   ; Store to local 0
+    MOVE.L D0,-4(A6)    ; Store to local 0 (high)
+    MOVE.L D1,-8(A6)    ; Store to local 0 (low)
 
     ; Offset 0010: ldc.r8
     LEA DOUBLE_CONST_0010(PC),A0
-    MOVE.L (A0),D2     ; Double high word
-    MOVE.L 4(A0),D3    ; Double low word
+    MOVE.L (A0),D1     ; Double high word
+    MOVE.L 4(A0),D0    ; Double low word
 
     ; Offset 0019: box
     ; Box type token 01000013
-    MOVE.L D3,D0     ; Boxed value
+    MOVE.L D0,D0     ; Boxed value
 
     ; Offset 001E: ldloc.0
-    MOVE.L -8(A6),D3  ; Load local.0
+    MOVE.L -8(A6),D2      ; Load local.0 (high)
+    MOVE.L -4(A6),D2  ; Load local.0 (low)
 
     ; Offset 001F: ldc.i4.s
-    MOVE.L #10,D4  ; Load short constant
+    MOVE.L #10,D3  ; Load short constant
 
     ; Offset 0021: call
     ; System.Math.Round (inline) - 2 parameters
-    ; Round(D0:D3, D4) - double precision rounding
-    ; TODO: Implement IEEE double rounding to D4 decimal places
+    ; Round(D2:D2, D3) - double precision rounding
+    ; TODO: Implement IEEE double rounding to D3 decimal places
     ; For now: return double value unchanged
     ; (Proper implementation requires FPU or fixed-point conversion)
-    MOVE.L D0,D5  ; Copy high word
-    MOVE.L D3,D6    ; Copy low word
+    MOVE.L D2,D2  ; Copy high word
+    MOVE.L D2,D3    ; Copy low word
 
     ; Offset 0026: box
     ; Box type token 01000013
-    MOVE.L D6,D0     ; Boxed value
+    MOVE.L D3,D0     ; Boxed value
 
     ; Offset 002B: call
     ; Framework method: System.Object::Equals
     ; TODO: Implement framework call
 
     ; Offset 0030: stloc.1
-    MOVE.L D6,-8(A6)   ; Store to local 1
+    MOVE.L D3,-8(A6)   ; Store to local 1
 
     ; Offset 0031: ret
-    MOVE.L D2,D0  ; Move return value to D0
 
 
     ; Method epilogue
@@ -8060,49 +8071,51 @@ JumpCS.TestMath.Tests.DoubleMathTests_Trigonometric_Cos:
     MOVE.L 4(A0),D1    ; Double low word
 
     ; Offset 000A: call
-    ; System.Math.Cos - 1 parameters (stub)
-    MOVE.L #0,D2     ; TODO: Cos result
+    MOVE.L D0,D0   ; Cos: input high
+    MOVE.L D1,D1   ; Cos: input low
+    JSR __cos             ; IEEE 754 double cosine
 
     ; Offset 000F: stloc.0
-    MOVE.L D2,-4(A6)   ; Store to local 0
+    MOVE.L D0,-4(A6)    ; Store to local 0 (high)
+    MOVE.L D1,-8(A6)    ; Store to local 0 (low)
 
     ; Offset 0010: ldc.r8
     LEA DOUBLE_CONST_0010(PC),A0
-    MOVE.L (A0),D2     ; Double high word
-    MOVE.L 4(A0),D3    ; Double low word
+    MOVE.L (A0),D1     ; Double high word
+    MOVE.L 4(A0),D0    ; Double low word
 
     ; Offset 0019: box
     ; Box type token 01000013
-    MOVE.L D3,D0     ; Boxed value
+    MOVE.L D0,D0     ; Boxed value
 
     ; Offset 001E: ldloc.0
-    MOVE.L -8(A6),D3  ; Load local.0
+    MOVE.L -8(A6),D2      ; Load local.0 (high)
+    MOVE.L -4(A6),D2  ; Load local.0 (low)
 
     ; Offset 001F: ldc.i4.s
-    MOVE.L #10,D4  ; Load short constant
+    MOVE.L #10,D3  ; Load short constant
 
     ; Offset 0021: call
     ; System.Math.Round (inline) - 2 parameters
-    ; Round(D0:D3, D4) - double precision rounding
-    ; TODO: Implement IEEE double rounding to D4 decimal places
+    ; Round(D2:D2, D3) - double precision rounding
+    ; TODO: Implement IEEE double rounding to D3 decimal places
     ; For now: return double value unchanged
     ; (Proper implementation requires FPU or fixed-point conversion)
-    MOVE.L D0,D5  ; Copy high word
-    MOVE.L D3,D6    ; Copy low word
+    MOVE.L D2,D2  ; Copy high word
+    MOVE.L D2,D3    ; Copy low word
 
     ; Offset 0026: box
     ; Box type token 01000013
-    MOVE.L D6,D0     ; Boxed value
+    MOVE.L D3,D0     ; Boxed value
 
     ; Offset 002B: call
     ; Framework method: System.Object::Equals
     ; TODO: Implement framework call
 
     ; Offset 0030: stloc.1
-    MOVE.L D6,-8(A6)   ; Store to local 1
+    MOVE.L D3,-8(A6)   ; Store to local 1
 
     ; Offset 0031: ret
-    MOVE.L D2,D0  ; Move return value to D0
 
 
     ; Method epilogue
@@ -9568,39 +9581,39 @@ JumpCS.TestMath.Tests.FloatMathTests_Sqrt:
     CLR.L D2          ; Convert to R8 (low word)
 
     ; Offset 0009: call
-    ; System.Math.Sqrt - 1 parameters (stub)
-    MOVE.L #0,D0     ; TODO: Sqrt result
+    MOVE.L D1,D0   ; Sqrt: input high
+    MOVE.L D2,D1   ; Sqrt: input low
+    JSR __sqrt            ; IEEE 754 double square root
 
     ; Offset 000E: conv.r4
-    MOVE.L D0,D3  ; Convert to R4
+    MOVE.L D1,D2  ; Convert to R4
 
     ; Offset 000F: stloc.1
-    MOVE.L D3,-8(A6)   ; Store to local 1
+    MOVE.L D2,-8(A6)   ; Store to local 1
 
     ; Offset 0010: ldc.r4
     LEA FLOAT_CONST_0010(PC),A0
-    MOVE.L (A0),D3
+    MOVE.L (A0),D2
 
     ; Offset 0015: box
     ; Box type token 01000012
-    MOVE.L D3,D0     ; Boxed value
+    MOVE.L D2,D0     ; Boxed value
 
     ; Offset 001A: ldloc.1
-    MOVE.L -12(A6),D3  ; Load local.1
+    MOVE.L -12(A6),D2  ; Load local.1
 
     ; Offset 001B: box
     ; Box type token 01000012
-    MOVE.L D3,D0     ; Boxed value
+    MOVE.L D2,D0     ; Boxed value
 
     ; Offset 0020: call
     ; Framework method: System.Object::Equals
     ; TODO: Implement framework call
 
     ; Offset 0025: stloc.2
-    MOVE.L D3,-12(A6)  ; Store to local 2
+    MOVE.L D2,-12(A6)  ; Store to local 2
 
     ; Offset 0026: ret
-    MOVE.L D1,D0  ; Move return value to D0
 
 
     ; Method epilogue
@@ -9627,18 +9640,19 @@ JumpCS.TestMath.Tests.FloatMathTests_Abs:
     MOVE.L -8(A6),D0  ; Load local.0
 
     ; Offset 0008: call
-    AND.L #0x7FFFFFFF,D0  ; Clear sign bit
+    MOVE.L D0,D1
+    ANDI.L #$7FFFFFFF,D1 ; Clear sign bit (IEEE 754 float abs)
 
     ; Offset 000D: stloc.1
-    MOVE.L D0,-8(A6)   ; Store to local 1
+    MOVE.L D1,-8(A6)   ; Store to local 1
 
     ; Offset 000E: ldc.r4
     LEA FLOAT_CONST_000E(PC),A0
-    MOVE.L (A0),D0
+    MOVE.L (A0),D1
 
     ; Offset 0013: box
     ; Box type token 01000012
-    MOVE.L D0,D0     ; Boxed value
+    MOVE.L D1,D0     ; Boxed value
 
     ; Offset 0018: ldloc.1
     MOVE.L -12(A6),D1  ; Load local.1
@@ -11832,76 +11846,76 @@ JumpCS.TestMath.Tests.TypeConversionTests_FloatToDecimal:
     MOVE.L D7,D7
 
     ; Offset 0027: ldc.i4.1
-    MOVE.L #1,D5         ; Load 1
+    MOVE.L #1,D0         ; Load 1
 
     ; Offset 0028: ldc.i4.0
-    CLR.L D6             ; Load 0
+    CLR.L D5             ; Load 0
 
     ; Offset 0029: ldc.i4.0
-    CLR.L D0             ; Load 0
+    CLR.L D6             ; Load 0
 
     ; Offset 002A: ldc.i4.0
-    CLR.L D4             ; Load 0
+    CLR.L D1             ; Load 0
 
     ; Offset 002B: ldc.i4.2
-    MOVE.L #2,D3         ; Load 2
+    MOVE.L #2,D4         ; Load 2
 
     ; Offset 002C: newobj
     ; System.Decimal newobj - create new instance (5 parameters)
     LEA -32(A6),A2  ; Allocate new Decimal instance
     ; System.Decimal newobj inline
-    ; result @ A2, lo=D5, mid=D6, hi=D0, sign=D4, scale=D3
-    CLR.L D2           ; Clear flags
-    AND.L #0xFF,D3      ; Ensure scale is 0-255
-    LSL.L #16,D3        ; Shift scale to bits 16-23
-    OR.L D3,D2   ; Set scale in flags
-    TST.L D4        ; Check if negative
+    ; result @ A2, lo=D0, mid=D5, hi=D6, sign=D1, scale=D4
+    CLR.L D3           ; Clear flags
+    AND.L #0xFF,D4      ; Ensure scale is 0-255
+    LSL.L #16,D4        ; Shift scale to bits 16-23
+    OR.L D4,D3   ; Set scale in flags
+    TST.L D1        ; Check if negative
     BEQ .SkipNegative_L_153
-    OR.L #0x80000000,D2 ; Set sign bit if negative
+    OR.L #0x80000000,D3 ; Set sign bit if negative
 .SkipNegative_L_153:
-    MOVE.L D2,(A2)      ; Store flags at offset 0
-    MOVE.L D0,4(A2)          ; Store high at offset 4
-    MOVE.L D5,8(A2)          ; Store low at offset 8
-    MOVE.L D6,12(A2)        ; Store mid at offset 12
+    MOVE.L D3,(A2)      ; Store flags at offset 0
+    MOVE.L D6,4(A2)          ; Store high at offset 4
+    MOVE.L D0,8(A2)          ; Store low at offset 8
+    MOVE.L D5,12(A2)        ; Store mid at offset 12
     ; newobj complete - convert address to data register for stack
-    MOVE.L A2,D1   ; Convert address to data register
+    MOVE.L A2,D2   ; Convert address to data register
 
     ; Offset 0031: call
     ; System.Decimal.op_LessThan (inline)
     ; System.Decimal op_LessThan inline
     MOVE.L D7,A2    ; A2 = address of left operand
-    MOVE.L D1,A1  ; A1 = address of right operand
-    CLR.L D2     ; Assume not less than (default: 0)
-    MOVE.L (A2),D0    ; Load left flags
+    MOVE.L D2,A1  ; A1 = address of right operand
+    CLR.L D3     ; Assume not less than (default: 0)
+    MOVE.L (A2),D1    ; Load left flags
     MOVE.L (A1),D4          ; Load right flags
-    TST.L D0                     ; Check left sign (bit 31)
+    TST.L D1                     ; Check left sign (bit 31)
     BPL .LeftPositive_L_154
     TST.L D4
     BMI .BothNegative_L_154   ; Both negative, compare magnitude
-    MOVE.L #1,D2              ; Left negative, right positive: left < right
+    MOVE.L #1,D3              ; Left negative, right positive: left < right
     BRA .Done_L_156
 .LeftPositive_L_154:
     TST.L D4
     BMI .Done_L_156              ; Left positive, right negative: left >= right (return 0)
 .BothNegative_L_154:
-    MOVE.L 4(A2),D0   ; Load left high
-    CMP.L 4(A1),D0   ; Compare high
+    MOVE.L 4(A2),D1   ; Load left high
+    CMP.L 4(A1),D1   ; Compare high
     BLT .IsLessThan_L_154
     BGT .Done_L_156              ; If left high > right high, not less
-    MOVE.L 12(A2),D0  ; Load left mid
-    CMP.L 12(A1),D0  ; Compare mid
+    MOVE.L 12(A2),D1  ; Load left mid
+    CMP.L 12(A1),D1  ; Compare mid
     BLT .IsLessThan_L_154
     BGT .Done_L_156
-    MOVE.L 8(A2),D0   ; Load left low
-    CMP.L 8(A1),D0   ; Compare low
+    MOVE.L 8(A2),D1   ; Load left low
+    CMP.L 8(A1),D1   ; Compare low
     BLT .IsLessThan_L_154
     BRA .Done_L_156
 .IsLessThan_L_154:
-    MOVE.L #1,D2              ; Left < Right
+    MOVE.L #1,D3              ; Left < Right
 .Done_L_156:
 
     ; Offset 0036: stloc.2
-    MOVE.L D2,-12(A6)  ; Store to local 2
+    MOVE.L D3,-12(A6)  ; Store to local 2
 
     ; Offset 0037: ret
     CLR.L D0            ; Clear return value (void)
