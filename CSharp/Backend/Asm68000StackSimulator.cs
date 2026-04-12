@@ -4,6 +4,7 @@ namespace JumpCS.Backend
     public class Asm68000StackSimulator
     {
         private List<string> _stack = new();
+        private List<bool> _stackIsDoubleWord = new();
         private int _spillOffset;
         private readonly int _maxLocals;
         private readonly int _maxStack;
@@ -12,12 +13,15 @@ namespace JumpCS.Backend
         private readonly string[] _dataRegisters = { "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7" };
         private readonly string[] _addressRegisters = { "A0", "A1", "A2", "A3", "A4", "A5" };
 
-        // Track which registers are currently allocated
-        private Queue<string> _availableDataRegisters;
-        private Queue<string> _availableAddressRegisters;
+        // Track which registers are currently allocated - using Stack (LIFO)
+        private Stack<string> _availableDataRegisters;
+        private Stack<string> _availableAddressRegisters;
 
         public int StackDepth => _stack.Count;
         public int CurrentFrameOffset => _spillOffset;
+
+        /// <summary>Whether the top stack entry is part of a double-word (64-bit) pair</summary>
+        public bool IsTopDoubleWord => _stackIsDoubleWord.Count > 0 && _stackIsDoubleWord[^1];
 
         public Asm68000StackSimulator(int maxLocals, int maxStack)
         {
@@ -25,9 +29,20 @@ namespace JumpCS.Backend
             _maxStack = maxStack;
             _spillOffset = -maxLocals * 4 - 4;
 
-            // Initialize register queues
-            _availableDataRegisters = new Queue<string>(_dataRegisters);
-            _availableAddressRegisters = new Queue<string>(_addressRegisters);
+            // Initialize register stacks (LIFO) - push D7,D6,D5...D1,D0 so D7 pops first
+            var dataRegsForStack = new Stack<string>();
+            for (int i = 7; i >= 0; i--)
+            {
+                dataRegsForStack.Push(_dataRegisters[i]);
+            }
+            _availableDataRegisters = dataRegsForStack;
+
+            var addrRegsForStack = new Stack<string>();
+            for (int i = 5; i >= 0; i--)
+            {
+                addrRegsForStack.Push(_addressRegisters[i]);
+            }
+            _availableAddressRegisters = addrRegsForStack;
         }
 
         /// <summary>Get next available data register for arithmetic operations</summary>
@@ -48,21 +63,18 @@ namespace JumpCS.Backend
         {
             if (_availableDataRegisters.Count == 0)
             {
-                // All registers exhausted - find unused ones and add back to pool
-                // This handles the case where we have more values on stack than registers
+                // All allocated - try to reclaim registers not on stack
                 foreach (var reg in _dataRegisters)
                 {
-                    // Only add back registers that aren't currently on the evaluation stack
                     if (!_stack.Contains(reg))
                     {
-                        _availableDataRegisters.Enqueue(reg);
+                        _availableDataRegisters.Push(reg);
                     }
                 }
                 
-                // If still no registers (all 8 are in use on stack), we have a real problem
+                // If still nothing, we're truly exhausted
                 if (_availableDataRegisters.Count == 0)
                 {
-                    // Debug output before throwing
                     if (Program.CodeOptions?.Verbosity >= 2)
                     {
                         Console.WriteLine("\n[CRITICAL] REGISTER EXHAUSTION:");
@@ -75,8 +87,29 @@ namespace JumpCS.Backend
                     throw new InvalidOperationException($"Evaluation stack overflow: all {_dataRegisters.Length} data registers in use. Stack contains: {string.Join(", ", _stack)}");
                 }
             }
-
-            string allocated = _availableDataRegisters.Dequeue();
+            
+            // Pop from the LIFO queue
+            string allocated = _availableDataRegisters.Pop();
+            
+            // If the popped register is on the stack, find a replacement
+            if (_stack.Contains(allocated))
+            {
+                // Search all registers for one NOT on the stack
+                foreach (var reg in _dataRegisters)
+                {
+                    if (!_stack.Contains(reg))
+                    {
+                        if (Program.CodeOptions?.Verbosity >= 2)
+                        {
+                            Console.WriteLine($"[ALLOC] Allocated {reg} (fallback, queue had {allocated} which was on stack) | Stack depth: {_stack.Count}");
+                        }
+                        return reg;
+                    }
+                }
+                
+                // No clean registers available - truly exhausted
+                throw new InvalidOperationException($"Evaluation stack overflow: all {_dataRegisters.Length} data registers in use. Stack contains: {string.Join(", ", _stack)}");
+            }
             
             if (Program.CodeOptions?.Verbosity >= 2)
             {
@@ -91,7 +124,7 @@ namespace JumpCS.Backend
         {
             if (Array.Exists(_dataRegisters, r => r == register))
             {
-                _availableDataRegisters.Enqueue(register);
+                _availableDataRegisters.Push(register);
             }
         }
 
@@ -103,7 +136,7 @@ namespace JumpCS.Backend
                 throw new InvalidOperationException("No address registers available - too many nested struct operations");
             }
 
-            return _availableAddressRegisters.Dequeue();
+            return _availableAddressRegisters.Pop();
         }
 
         /// <summary>Release an address register back to the pool for reuse</summary>
@@ -111,21 +144,22 @@ namespace JumpCS.Backend
         {
             if (Array.Exists(_addressRegisters, r => r == register))
             {
-                _availableAddressRegisters.Enqueue(register);
+                _availableAddressRegisters.Push(register);
             }
         }
 
         /// <summary>Push a register onto the evaluation stack</summary>
-        public void Push(string register)
+        public void Push(string register, bool isDoubleWord = false)
         {
             if (_stack.Count > _maxStack)
                 throw new InvalidOperationException("Evaluation stack overflow");
             
             _stack.Add(register);
+            _stackIsDoubleWord.Add(isDoubleWord);
             
             if (Program.CodeOptions?.Verbosity >= 2)
             {
-                Console.WriteLine($"[PUSH] {register} | Stack depth: {_stack.Count} ({string.Join(", ", _stack)})");
+                Console.WriteLine($"[PUSH] {register}{(isDoubleWord ? " (dbl)" : "")} | Stack depth: {_stack.Count} ({string.Join(", ", _stack)})");
             }
         }
 
@@ -137,6 +171,7 @@ namespace JumpCS.Backend
             
             string register = _stack[^1];
             _stack.RemoveAt(_stack.Count - 1);
+            _stackIsDoubleWord.RemoveAt(_stackIsDoubleWord.Count - 1);
             
             if (Program.CodeOptions?.Verbosity >= 2)
             {
@@ -158,9 +193,23 @@ namespace JumpCS.Backend
         public void Clear()
         {
             _stack.Clear();
+            _stackIsDoubleWord.Clear();
             _spillOffset = -_maxLocals * 4 - 4;
-            _availableDataRegisters = new Queue<string>(_dataRegisters);
-            _availableAddressRegisters = new Queue<string>(_addressRegisters);
+            
+            // Re-initialize register stacks
+            var dataRegsForStack = new Stack<string>();
+            for (int i = 7; i >= 0; i--)
+            {
+                dataRegsForStack.Push(_dataRegisters[i]);
+            }
+            _availableDataRegisters = dataRegsForStack;
+
+            var addrRegsForStack = new Stack<string>();
+            for (int i = 5; i >= 0; i--)
+            {
+                addrRegsForStack.Push(_addressRegisters[i]);
+            }
+            _availableAddressRegisters = addrRegsForStack;
         }
     }
 }

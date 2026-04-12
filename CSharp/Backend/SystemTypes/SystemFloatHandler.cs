@@ -108,14 +108,22 @@ namespace JumpCS.Backend.SystemTypes
 
         private void HandleAddition(Asm68000StackSimulator stack)
         {
-            // Single addition: pop two singles (2 regs total: D0 and D1), add them
-            string right = stack.Pop();
-            string left = stack.Pop();
+            // Float addition: pop two floats (2 regs total), call __addsf3
+            string right = stack.Pop();   // Second float
+            string left = stack.Pop();    // First float
 
-            AsmWriter?.WriteLine($"    ; Single addition stub: {left} + {right}");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}     ; Stub result");
-            stack.Push(resultReg);
+            // Setup arguments: left in D0, right in D1
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            // Call library function for float addition
+            AsmWriter?.WriteLine($"    JSR __addsf3          ; IEEE 754 float addition");
+            
+            // Result is in D0
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleSubtraction(Asm68000StackSimulator stack)
@@ -123,10 +131,15 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single subtraction stub: {left} - {right}");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}     ; Stub result");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __subsf3          ; IEEE 754 float subtraction");
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleMultiply(Asm68000StackSimulator stack)
@@ -134,10 +147,15 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single multiply stub: {left} * {right}");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}     ; Stub result");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __mulsf3          ; IEEE 754 float multiply");
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleDivision(Asm68000StackSimulator stack)
@@ -145,21 +163,28 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single division stub: {left} / {right}");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}     ; Stub result");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __divsf3          ; IEEE 754 float division");
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleUnaryNegation(Asm68000StackSimulator stack)
         {
             string val = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single unary negation stub: -{val}");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {val},{resultReg}");
-            AsmWriter?.WriteLine($"    BCHG #31,{resultReg}   ; Flip sign bit");
-            stack.Push(resultReg);
+            // Flip the sign bit (bit 31 of the IEEE 754 float)
+            AsmWriter?.WriteLine($"    MOVE.L {val},D0       ; Value");
+            AsmWriter?.WriteLine($"    EORI.L #$80000000,D0  ; Flip sign bit");
+            
+            stack.ReleaseDataRegister(val);
+            
+            stack.Push("D0");
         }
 
         private void HandleEquality(Asm68000StackSimulator stack)
@@ -167,10 +192,16 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single equality comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left} == {right}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __eqsf2           ; IEEE 754 float equality");
+            // Result: D0 = 0 if not equal, non-zero if equal
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleInequality(Asm68000StackSimulator stack)
@@ -178,10 +209,16 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single inequality comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}  ; TODO: Compare {left} != {right}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __nesf2           ; IEEE 754 float inequality");
+            // Result: D0 = 0 if equal, non-zero if not equal
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleLessThan(Asm68000StackSimulator stack)
@@ -189,10 +226,16 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single less than comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left} < {right}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __ltsf2           ; IEEE 754 float less-than");
+            // Result: D0 = 0 if not less, 1 if less
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleGreaterThan(Asm68000StackSimulator stack)
@@ -200,10 +243,16 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single greater than comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left} > {right}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __gtsf2           ; IEEE 754 float greater-than");
+            // Result: D0 = 0 if not greater, 1 if greater
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleLessThanOrEqual(Asm68000StackSimulator stack)
@@ -211,10 +260,15 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single less than or equal comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left} <= {right}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __lesf2           ; IEEE 754 float less-than-or-equal");
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleGreaterThanOrEqual(Asm68000StackSimulator stack)
@@ -222,19 +276,32 @@ namespace JumpCS.Backend.SystemTypes
             string right = stack.Pop();
             string left = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Single greater than or equal comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left} >= {right}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
+            
+            AsmWriter?.WriteLine($"    JSR __gesf2           ; IEEE 754 float greater-than-or-equal");
+            
+            stack.ReleaseDataRegister(left);
+            stack.ReleaseDataRegister(right);
+            
+            stack.Push("D0");
         }
 
         private void HandleEquals(Asm68000StackSimulator stack)
         {
-            string objRef = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Single.Equals({objRef}) stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Equals comparison");
-            stack.Push(resultReg);
+            // Object.Equals(other) - compare the float values
+            string other = stack.Pop();
+            string self = stack.Pop();
+
+            AsmWriter?.WriteLine($"    MOVE.L {self},D0      ; Self");
+            AsmWriter?.WriteLine($"    MOVE.L {other},D1     ; Other");
+            
+            AsmWriter?.WriteLine($"    JSR __eqsf2           ; IEEE 754 float equality");
+            
+            stack.ReleaseDataRegister(self);
+            stack.ReleaseDataRegister(other);
+            
+            stack.Push("D0");
         }
     }
 }

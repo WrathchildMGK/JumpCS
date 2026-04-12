@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path="err.txt" />
     <File Path="RunTests.cmd" />
+    <File Path="TestMath_generated.asm" />
   </Folder>
   <Project Path="CSharp.Tests/CSharp.Tests.csproj" />
   <Project Path="CSharp/CSharp.csproj" />

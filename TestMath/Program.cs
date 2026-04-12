@@ -164,9 +164,9 @@ namespace JumpCS.TestMath
         {
 //            AllIntegerMathTests();
 //            AllFloatMathTests();
-            AllDoubleMathTests();
+//            AllDoubleMathTests();
 //          AllDecimalMathTests();
-//          AllTypeConversionTests();
+          AllTypeConversionTests();
         }
     }
 }

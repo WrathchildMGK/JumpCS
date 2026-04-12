@@ -108,54 +108,128 @@ namespace JumpCS.Backend.SystemTypes
             }
         }
 
-        private void HandleAddition(Asm68000StackSimulator stack)
+        /// <summary>Public method for double addition - delegates to library function</summary>
+        public void HandleAddition(Asm68000StackSimulator stack)
         {
-            // Double addition: pop two doubles (4 regs total: D0/D1 and D2/D3), add them
+            // Double addition: pop two doubles (4 regs total), call __adddf3
             string right_lo = stack.Pop();  // Low word of second double
             string right_hi = stack.Pop();  // High word of second double
             string left_lo = stack.Pop();   // Low word of first double
             string left_hi = stack.Pop();   // High word of first double
 
-            // For now, stub implementation - just return left value
-            AsmWriter?.WriteLine($"    ; Double addition stub: {left_hi}/{left_lo} + {right_hi}/{right_lo}");
-            stack.Push(left_hi);
-            stack.Push(left_lo);
+            // Setup arguments: left in D0/D1, right in D2/D3
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            // Call library function for double addition
+            AsmWriter?.WriteLine($"    JSR __adddf3          ; IEEE 754 double addition");
+
+            // Result is in D0/D1
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);  // High word
+            stack.Push("D1", isDoubleWord: true);  // Low word
         }
 
-        private void HandleSubtraction(Asm68000StackSimulator stack)
+        /// <summary>Public method for double subtraction - delegates to library function</summary>
+        public void HandleSubtraction(Asm68000StackSimulator stack)
         {
             string right_lo = stack.Pop();
             string right_hi = stack.Pop();
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double subtraction stub: {left_hi}/{left_lo} - {right_hi}/{right_lo}");
-            stack.Push(left_hi);
-            stack.Push(left_lo);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __subdf3          ; IEEE 754 double subtraction");
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D1", isDoubleWord: true);
         }
 
-        private void HandleMultiply(Asm68000StackSimulator stack)
+        /// <summary>Public method for double multiplication - delegates to library function</summary>
+        public void HandleMultiply(Asm68000StackSimulator stack)
         {
             string right_lo = stack.Pop();
             string right_hi = stack.Pop();
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double multiply stub: {left_hi}/{left_lo} * {right_hi}/{right_lo}");
-            stack.Push(left_hi);
-            stack.Push(left_lo);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __muldf3          ; IEEE 754 double multiply");
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D1", isDoubleWord: true);
         }
 
-        private void HandleDivision(Asm68000StackSimulator stack)
+        /// <summary>Public method for double division - delegates to library function</summary>
+        public void HandleDivision(Asm68000StackSimulator stack)
         {
             string right_lo = stack.Pop();
             string right_hi = stack.Pop();
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double division stub: {left_hi}/{left_lo} / {right_hi}/{right_lo}");
-            stack.Push(left_hi);
-            stack.Push(left_lo);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __divdf3          ; IEEE 754 double division");
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D1", isDoubleWord: true);
+        }
+
+        /// <summary>Public method for double remainder - delegates to library function</summary>
+        public void HandleRemainder(Asm68000StackSimulator stack)
+        {
+            string right_lo = stack.Pop();
+            string right_hi = stack.Pop();
+            string left_lo = stack.Pop();
+            string left_hi = stack.Pop();
+
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __fmod            ; IEEE 754 double remainder/modulo");
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D1", isDoubleWord: true);
         }
 
         private void HandleUnaryNegation(Asm68000StackSimulator stack)
@@ -163,10 +237,16 @@ namespace JumpCS.Backend.SystemTypes
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
 
-            // Negate the sign bit (bit 63)
-            AsmWriter?.WriteLine($"    ; Double unary negation stub: -{val_hi}/{val_lo}");
-            stack.Push(val_hi);
-            stack.Push(val_lo);
+            // Flip the sign bit (bit 63 of the IEEE 754 double)
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0    ; Value high word");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1    ; Value low word");
+            AsmWriter?.WriteLine($"    EORI.L #$80000000,D0  ; Flip sign bit");
+
+            stack.ReleaseDataRegister(val_hi);
+            stack.ReleaseDataRegister(val_lo);
+
+            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D1", isDoubleWord: true);
         }
 
         private void HandleEquality(Asm68000StackSimulator stack)
@@ -176,10 +256,20 @@ namespace JumpCS.Backend.SystemTypes
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double equality comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left_hi}/{left_lo} == {right_hi}/{right_lo}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __eqdf2           ; IEEE 754 double equality");
+            // Result: D0 = 0 if not equal, non-zero if equal
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
         }
 
         private void HandleInequality(Asm68000StackSimulator stack)
@@ -189,10 +279,20 @@ namespace JumpCS.Backend.SystemTypes
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double inequality comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}  ; TODO: Compare {left_hi}/{left_lo} != {right_hi}/{right_lo}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __nedf2           ; IEEE 754 double inequality");
+            // Result: D0 = 0 if equal, non-zero if not equal
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
         }
 
         private void HandleLessThan(Asm68000StackSimulator stack)
@@ -202,10 +302,20 @@ namespace JumpCS.Backend.SystemTypes
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double less than comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left_hi}/{left_lo} < {right_hi}/{right_lo}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __ltdf2           ; IEEE 754 double less-than");
+            // Result: D0 = 0 if not less, 1 if less
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
         }
 
         private void HandleGreaterThan(Asm68000StackSimulator stack)
@@ -215,10 +325,20 @@ namespace JumpCS.Backend.SystemTypes
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double greater than comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left_hi}/{left_lo} > {right_hi}/{right_lo}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __gtdf2           ; IEEE 754 double greater-than");
+            // Result: D0 = 0 if not greater, 1 if greater
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
         }
 
         private void HandleLessThanOrEqual(Asm68000StackSimulator stack)
@@ -228,10 +348,19 @@ namespace JumpCS.Backend.SystemTypes
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double less than or equal comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left_hi}/{left_lo} <= {right_hi}/{right_lo}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __ledf2           ; IEEE 754 double less-than-or-equal");
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
         }
 
         private void HandleGreaterThanOrEqual(Asm68000StackSimulator stack)
@@ -241,20 +370,42 @@ namespace JumpCS.Backend.SystemTypes
             string left_lo = stack.Pop();
             string left_hi = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Double greater than or equal comparison stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Compare {left_hi}/{left_lo} >= {right_hi}/{right_lo}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    MOVE.L {left_hi},D0   ; Left high");
+            AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
+            AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
+            AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
+
+            AsmWriter?.WriteLine($"    JSR __gedf2           ; IEEE 754 double greater-than-or-equal");
+
+            stack.ReleaseDataRegister(left_hi);
+            stack.ReleaseDataRegister(left_lo);
+            stack.ReleaseDataRegister(right_hi);
+            stack.ReleaseDataRegister(right_lo);
+
+            stack.Push("D0", isDoubleWord: true);
         }
 
         private void HandleEquals(Asm68000StackSimulator stack)
         {
-            // Decimal.Equals(object) - pop object, compare with this
-            string objRef = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Double.Equals({objRef}) stub");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Equals comparison");
-            stack.Push(resultReg);
+            // Object.Equals(other) - compare the double values
+            string other_lo = stack.Pop();
+            string other_hi = stack.Pop();
+            string self_lo = stack.Pop();
+            string self_hi = stack.Pop();
+
+            AsmWriter?.WriteLine($"    MOVE.L {self_hi},D0   ; Self high");
+            AsmWriter?.WriteLine($"    MOVE.L {self_lo},D1   ; Self low");
+            AsmWriter?.WriteLine($"    MOVE.L {other_hi},D2  ; Other high");
+            AsmWriter?.WriteLine($"    MOVE.L {other_lo},D3  ; Other low");
+
+            AsmWriter?.WriteLine($"    JSR __eqdf2           ; IEEE 754 double equality");
+
+            stack.ReleaseDataRegister(self_hi);
+            stack.ReleaseDataRegister(self_lo);
+            stack.ReleaseDataRegister(other_hi);
+            stack.ReleaseDataRegister(other_lo);
+
+            stack.Push("D0", isDoubleWord: true);
         }
     }
 }

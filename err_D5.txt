@@ -1,0 +1,719 @@
+Jump  .NET/C# Post-Compiler for Embedded Systems  Version 3.0.0
+Copyright (c) 1996,1997 by Greg Hewgill
+Copyright (c) 2000,2004 by Ralf Kleberhoff
+Copyright (c) 2026 by .NET Port Contributors
+Please see the file COPYING (GPL v2) for distribution rights.
+
+Compiling assembly: TestMath\bin\Debug\net10.0\TestMath
+Options: Model=Small, Target=Motorola68000, Optimization=Medium, CheckBounds=True, CheckNull=True, StackSize=8192
+  Method AllIntegerMathTests: CodeLength=158, MaxStack=0, MaxLocals=0
+  Method AllFloatMathTests: CodeLength=140, MaxStack=0, MaxLocals=0
+  Method AllDoubleMathTests: CodeLength=164, MaxStack=0, MaxLocals=0
+  Method AllDecimalMathTests: CodeLength=194, MaxStack=0, MaxLocals=0
+  Method AllTypeConversionTests: CodeLength=116, MaxStack=0, MaxLocals=0
+  Method Main: CodeLength=8, MaxStack=8, MaxLocals=0
+  Method GetType: CodeLength=18, MaxStack=8, MaxLocals=0
+  Method MemberwiseClone: CodeLength=68, MaxStack=3, MaxLocals=4
+  Method Finalize: CodeLength=1, MaxStack=8, MaxLocals=0
+  Method ToString: CodeLength=12, MaxStack=8, MaxLocals=0
+  Method Equals: CodeLength=5, MaxStack=8, MaxLocals=0
+  Method GetHashCode: CodeLength=7, MaxStack=8, MaxLocals=0
+  Method Addition_PositiveNumbers: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Addition_NegativeNumbers: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Addition_MixedSigns: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Subtraction_PositiveNumbers: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Subtraction_NegativeResult: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Multiplication_PositiveNumbers: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Multiplication_ByZero: CodeLength=55, MaxStack=6, MaxLocals=4
+  Method Multiplication_NegativeNumbers: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Division_PositiveNumbers: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Division_WithPrecision: CodeLength=72, MaxStack=6, MaxLocals=4
+  Method Division_NegativeNumbers: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Division_MixedSigns: CodeLength=63, MaxStack=6, MaxLocals=4
+  Method Remainder_PositiveNumbers: CodeLength=60, MaxStack=6, MaxLocals=4
+  Method Remainder_NegativeNumbers: CodeLength=60, MaxStack=6, MaxLocals=4
+  Method UnaryMinus: CodeLength=46, MaxStack=6, MaxLocals=3
+  Method UnaryPlus: CodeLength=41, MaxStack=6, MaxLocals=3
+  Method Comparison_LessThan: CodeLength=42, MaxStack=6, MaxLocals=3
+  Method Comparison_GreaterThan: CodeLength=42, MaxStack=6, MaxLocals=3
+  Method Comparison_Equal: CodeLength=42, MaxStack=6, MaxLocals=3
+  Method Comparison_NotEqual: CodeLength=42, MaxStack=6, MaxLocals=3
+  Method Abs: CodeLength=46, MaxStack=6, MaxLocals=3
+  Method Round_ToNearestEven: CodeLength=47, MaxStack=6, MaxLocals=3
+  Method Round_AwayFromZero: CodeLength=48, MaxStack=6, MaxLocals=3
+  Method Truncate: CodeLength=39, MaxStack=6, MaxLocals=3
+  Method Floor: CodeLength=39, MaxStack=6, MaxLocals=3
+  Method Ceiling: CodeLength=39, MaxStack=6, MaxLocals=3
+  Method DivideByZeroThrows: CodeLength=51, MaxStack=6, MaxLocals=4
+  Method ChainedOperations: CodeLength=105, MaxStack=6, MaxLocals=5
+  Method FinancialCalculation_CompoundInterest: CodeLength=92, MaxStack=6, MaxLocals=5
+  Method FinancialCalculation_PercentageIncrease: CodeLength=84, MaxStack=6, MaxLocals=5
+  Method ConversionFromFloat: CodeLength=56, MaxStack=6, MaxLocals=3
+  Method ConversionToFloat: CodeLength=56, MaxStack=6, MaxLocals=3
+  Method GetType: CodeLength=18, MaxStack=8, MaxLocals=0
+  Method MemberwiseClone: CodeLength=68, MaxStack=3, MaxLocals=4
+  Method Finalize: CodeLength=1, MaxStack=8, MaxLocals=0
+  Method ToString: CodeLength=12, MaxStack=8, MaxLocals=0
+  Method Equals: CodeLength=5, MaxStack=8, MaxLocals=0
+  Method GetHashCode: CodeLength=7, MaxStack=8, MaxLocals=0
+  Method Addition_PositiveNumbers: CodeLength=58, MaxStack=3, MaxLocals=4
+  Method Addition_NegativeNumbers: CodeLength=58, MaxStack=3, MaxLocals=4
+  Method Addition_MixedSigns: CodeLength=58, MaxStack=3, MaxLocals=4
+  Method Subtraction_PositiveNumbers: CodeLength=58, MaxStack=3, MaxLocals=4
+  Method Subtraction_NegativeResult: CodeLength=58, MaxStack=3, MaxLocals=4
+  Method Multiplication_PositiveNumbers: CodeLength=58, MaxStack=3, MaxLocals=4
+  Method Multiplication_ByZero: CodeLength=52, MaxStack=2, MaxLocals=4
+  Method Multiplication_NegativeNumbers: CodeLength=58, MaxStack=3, MaxLocals=4
+  Method Division_PositiveNumbers: CodeLength=52, MaxStack=2, MaxLocals=4
+  Method Division_NegativeNumbers: CodeLength=52, MaxStack=2, MaxLocals=4
+  Method Division_MixedSigns: CodeLength=52, MaxStack=2, MaxLocals=4
+  Method Division_ByZeroPositive: CodeLength=33, MaxStack=2, MaxLocals=4
+  Method Division_ByZeroNegative: CodeLength=33, MaxStack=2, MaxLocals=4
+  Method Remainder_PositiveNumbers: CodeLength=57, MaxStack=2, MaxLocals=4
+  Method UnaryMinus: CodeLength=41, MaxStack=2, MaxLocals=3
+  Method Comparison_LessThan: CodeLength=27, MaxStack=2, MaxLocals=3
+  Method Comparison_GreaterThan: CodeLength=27, MaxStack=2, MaxLocals=3
+  Method Comparison_Equal: CodeLength=27, MaxStack=2, MaxLocals=3
+  Method SpecialValue_NaN: CodeLength=19, MaxStack=1, MaxLocals=2
+  Method SpecialValue_Infinity: CodeLength=19, MaxStack=1, MaxLocals=2
+  Method Sqrt: CodeLength=45, MaxStack=2, MaxLocals=3
+  Method Abs: CodeLength=45, MaxStack=2, MaxLocals=3
+  Method Pow: CodeLength=56, MaxStack=2, MaxLocals=4
+  Method Log: CodeLength=52, MaxStack=3, MaxLocals=3
+  Method Trigonometric_Sin: CodeLength=50, MaxStack=3, MaxLocals=2
+  Method Trigonometric_Cos: CodeLength=50, MaxStack=3, MaxLocals=2
+  Method ChainedOperations: CodeLength=80, MaxStack=2, MaxLocals=5
+  Method GetType: CodeLength=18, MaxStack=8, MaxLocals=0
+  Method MemberwiseClone: CodeLength=68, MaxStack=3, MaxLocals=4
+  Method Finalize: CodeLength=1, MaxStack=8, MaxLocals=0
+  Method ToString: CodeLength=12, MaxStack=8, MaxLocals=0
+  Method Equals: CodeLength=5, MaxStack=8, MaxLocals=0
+  Method GetHashCode: CodeLength=7, MaxStack=8, MaxLocals=0
+  Method Addition_PositiveNumbers: CodeLength=47, MaxStack=3, MaxLocals=4
+  Method Addition_NegativeNumbers: CodeLength=47, MaxStack=3, MaxLocals=4
+  Method Addition_MixedSigns: CodeLength=47, MaxStack=3, MaxLocals=4
+  Method Subtraction_PositiveNumbers: CodeLength=47, MaxStack=3, MaxLocals=4
+  Method Subtraction_NegativeResult: CodeLength=47, MaxStack=3, MaxLocals=4
+  Method Multiplication_PositiveNumbers: CodeLength=47, MaxStack=3, MaxLocals=4
+  Method Multiplication_ByZero: CodeLength=40, MaxStack=2, MaxLocals=4
+  Method Multiplication_NegativeNumbers: CodeLength=47, MaxStack=3, MaxLocals=4
+  Method Division_PositiveNumbers: CodeLength=40, MaxStack=2, MaxLocals=4
+  Method Division_NegativeNumbers: CodeLength=40, MaxStack=2, MaxLocals=4
+  Method Division_MixedSigns: CodeLength=40, MaxStack=2, MaxLocals=4
+  Method Division_ByZeroPositive: CodeLength=25, MaxStack=2, MaxLocals=4
+  Method Division_ByZeroNegative: CodeLength=25, MaxStack=2, MaxLocals=4
+  Method Remainder_PositiveNumbers: CodeLength=41, MaxStack=2, MaxLocals=4
+  Method UnaryMinus: CodeLength=33, MaxStack=2, MaxLocals=3
+  Method Comparison_LessThan: CodeLength=19, MaxStack=2, MaxLocals=3
+  Method Comparison_GreaterThan: CodeLength=19, MaxStack=2, MaxLocals=3
+  Method Comparison_Equal: CodeLength=19, MaxStack=2, MaxLocals=3
+  Method SpecialValue_NaN: CodeLength=15, MaxStack=1, MaxLocals=2
+  Method SpecialValue_Infinity: CodeLength=15, MaxStack=1, MaxLocals=2
+  Method Sqrt: CodeLength=39, MaxStack=2, MaxLocals=3
+  Method Abs: CodeLength=37, MaxStack=2, MaxLocals=3
+  Method ChainedOperations: CodeLength=56, MaxStack=2, MaxLocals=5
+  Method GetType: CodeLength=18, MaxStack=8, MaxLocals=0
+  Method MemberwiseClone: CodeLength=68, MaxStack=3, MaxLocals=4
+  Method Finalize: CodeLength=1, MaxStack=8, MaxLocals=0
+  Method ToString: CodeLength=12, MaxStack=8, MaxLocals=0
+  Method Equals: CodeLength=5, MaxStack=8, MaxLocals=0
+  Method GetHashCode: CodeLength=7, MaxStack=8, MaxLocals=0
+  Method Addition_PositiveNumbers: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Addition_NegativeNumbers: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Addition_MixedSigns: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Addition_Overflow: CodeLength=36, MaxStack=2, MaxLocals=4
+  Method Subtraction_PositiveNumbers: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Subtraction_NegativeResult: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Subtraction_NegativeNumbers: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Multiplication_PositiveNumbers: CodeLength=30, MaxStack=2, MaxLocals=4
+  Method Multiplication_ByZero: CodeLength=29, MaxStack=2, MaxLocals=4
+  Method Multiplication_NegativeNumbers: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Multiplication_MixedSigns: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Division_PositiveNumbers: CodeLength=30, MaxStack=2, MaxLocals=4
+  Method Division_WithRemainder: CodeLength=30, MaxStack=2, MaxLocals=4
+  Method Division_NegativeNumbers: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Division_MixedSigns: CodeLength=31, MaxStack=2, MaxLocals=4
+  Method Remainder_PositiveNumbers: CodeLength=29, MaxStack=2, MaxLocals=4
+  Method Remainder_NegativeNumbers: CodeLength=29, MaxStack=2, MaxLocals=4
+  Method BitwiseAnd: CodeLength=40, MaxStack=2, MaxLocals=4
+  Method BitwiseOr: CodeLength=40, MaxStack=2, MaxLocals=4
+  Method BitwiseXor: CodeLength=37, MaxStack=2, MaxLocals=4
+  Method LeftShift: CodeLength=27, MaxStack=2, MaxLocals=3
+  Method RightShift: CodeLength=27, MaxStack=2, MaxLocals=3
+  Method UnaryMinus: CodeLength=27, MaxStack=2, MaxLocals=3
+  Method ChainedOperations: CodeLength=38, MaxStack=2, MaxLocals=5
+  Method DivideByZeroThrows: CodeLength=24, MaxStack=2, MaxLocals=4
+  Method ModuloByZeroThrows: CodeLength=24, MaxStack=2, MaxLocals=4
+  Method GetType: CodeLength=18, MaxStack=8, MaxLocals=0
+  Method MemberwiseClone: CodeLength=68, MaxStack=3, MaxLocals=4
+  Method Finalize: CodeLength=1, MaxStack=8, MaxLocals=0
+  Method ToString: CodeLength=12, MaxStack=8, MaxLocals=0
+  Method Equals: CodeLength=5, MaxStack=8, MaxLocals=0
+  Method GetHashCode: CodeLength=7, MaxStack=8, MaxLocals=0
+  Method IntToFloat: CodeLength=30, MaxStack=2, MaxLocals=3
+  Method IntToDouble: CodeLength=34, MaxStack=2, MaxLocals=3
+  Method IntToDecimal: CodeLength=26, MaxStack=2, MaxLocals=3
+  Method FloatToInt: CodeLength=30, MaxStack=2, MaxLocals=3
+  Method FloatToDouble: CodeLength=43, MaxStack=3, MaxLocals=3
+  Method FloatToDecimal: CodeLength=56, MaxStack=6, MaxLocals=3
+  Method DoubleToInt: CodeLength=34, MaxStack=2, MaxLocals=3
+  Method DoubleToFloat: CodeLength=44, MaxStack=3, MaxLocals=3
+  Method DoubleToDecimal: CodeLength=40, MaxStack=5, MaxLocals=3
+  Method DecimalToInt: CodeLength=44, MaxStack=6, MaxLocals=3
+  Method DecimalToFloat: CodeLength=55, MaxStack=6, MaxLocals=3
+  Method DecimalToDouble: CodeLength=58, MaxStack=6, MaxLocals=3
+  Method ByteToInt: CodeLength=26, MaxStack=2, MaxLocals=3
+  Method IntToByte_WithOverflow: CodeLength=30, MaxStack=2, MaxLocals=3
+  Method ShortToInt: CodeLength=32, MaxStack=2, MaxLocals=3
+  Method LongToInt: CodeLength=28, MaxStack=2, MaxLocals=3
+  Method IntToLong: CodeLength=28, MaxStack=2, MaxLocals=3
+  Method NegativeIntToUnsigned: CodeLength=24, MaxStack=2, MaxLocals=3
+  Method ChainedConversions: CodeLength=33, MaxStack=2, MaxLocals=5
+  Method GetType: CodeLength=18, MaxStack=8, MaxLocals=0
+  Method MemberwiseClone: CodeLength=68, MaxStack=3, MaxLocals=4
+  Method Finalize: CodeLength=1, MaxStack=8, MaxLocals=0
+  Method ToString: CodeLength=12, MaxStack=8, MaxLocals=0
+  Method Equals: CodeLength=5, MaxStack=8, MaxLocals=0
+  Method GetHashCode: CodeLength=7, MaxStack=8, MaxLocals=0
+Marking MethodMetadata as needed (status=1): Main
+Marking ClassMetadata as needed (status=1): Method Main is needed
+  Token 06000003  JumpCS.TestMath.Program.AllDoubleMathTests()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.Main
+  Token 06000027  JumpCS.TestMath.Tests.DoubleMathTests.Addition_PositiveNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+Marking ClassMetadata as needed (status=1): Method Addition_PositiveNumbers is needed
+  Token 06000028  JumpCS.TestMath.Tests.DoubleMathTests.Addition_NegativeNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000029  JumpCS.TestMath.Tests.DoubleMathTests.Addition_MixedSigns()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600002A  JumpCS.TestMath.Tests.DoubleMathTests.Subtraction_PositiveNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600002B  JumpCS.TestMath.Tests.DoubleMathTests.Subtraction_NegativeResult()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600002C  JumpCS.TestMath.Tests.DoubleMathTests.Multiplication_PositiveNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600002D  JumpCS.TestMath.Tests.DoubleMathTests.Multiplication_ByZero()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600002E  JumpCS.TestMath.Tests.DoubleMathTests.Multiplication_NegativeNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600002F  JumpCS.TestMath.Tests.DoubleMathTests.Division_PositiveNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000030  JumpCS.TestMath.Tests.DoubleMathTests.Division_NegativeNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000031  JumpCS.TestMath.Tests.DoubleMathTests.Division_MixedSigns()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000032  JumpCS.TestMath.Tests.DoubleMathTests.Division_ByZeroPositive()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000033  JumpCS.TestMath.Tests.DoubleMathTests.Division_ByZeroNegative()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000034  JumpCS.TestMath.Tests.DoubleMathTests.Remainder_PositiveNumbers()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000035  JumpCS.TestMath.Tests.DoubleMathTests.UnaryMinus()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000036  JumpCS.TestMath.Tests.DoubleMathTests.Comparison_LessThan()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000037  JumpCS.TestMath.Tests.DoubleMathTests.Comparison_GreaterThan()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000038  JumpCS.TestMath.Tests.DoubleMathTests.Comparison_Equal()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000039  JumpCS.TestMath.Tests.DoubleMathTests.SpecialValue_NaN()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600003A  JumpCS.TestMath.Tests.DoubleMathTests.SpecialValue_Infinity()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600003B  JumpCS.TestMath.Tests.DoubleMathTests.Sqrt()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600003C  JumpCS.TestMath.Tests.DoubleMathTests.Abs()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600003D  JumpCS.TestMath.Tests.DoubleMathTests.Pow()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600003E  JumpCS.TestMath.Tests.DoubleMathTests.Log()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 0600003F  JumpCS.TestMath.Tests.DoubleMathTests.Trigonometric_Sin()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000040  JumpCS.TestMath.Tests.DoubleMathTests.Trigonometric_Cos()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000041  JumpCS.TestMath.Tests.DoubleMathTests.ChainedOperations()V
+Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllDoubleMathTests
+  Token 06000003  JumpCS.TestMath.Program.AllDoubleMathTests()V
+  Token 06000027  JumpCS.TestMath.Tests.DoubleMathTests.Addition_PositiveNumbers()V
+  Token 06000028  JumpCS.TestMath.Tests.DoubleMathTests.Addition_NegativeNumbers()V
+  Token 06000029  JumpCS.TestMath.Tests.DoubleMathTests.Addition_MixedSigns()V
+  Token 0600002A  JumpCS.TestMath.Tests.DoubleMathTests.Subtraction_PositiveNumbers()V
+  Token 0600002B  JumpCS.TestMath.Tests.DoubleMathTests.Subtraction_NegativeResult()V
+  Token 0600002C  JumpCS.TestMath.Tests.DoubleMathTests.Multiplication_PositiveNumbers()V
+  Token 0600002D  JumpCS.TestMath.Tests.DoubleMathTests.Multiplication_ByZero()V
+  Token 0600002E  JumpCS.TestMath.Tests.DoubleMathTests.Multiplication_NegativeNumbers()V
+  Token 0600002F  JumpCS.TestMath.Tests.DoubleMathTests.Division_PositiveNumbers()V
+  Token 06000030  JumpCS.TestMath.Tests.DoubleMathTests.Division_NegativeNumbers()V
+  Token 06000031  JumpCS.TestMath.Tests.DoubleMathTests.Division_MixedSigns()V
+  Token 06000032  JumpCS.TestMath.Tests.DoubleMathTests.Division_ByZeroPositive()V
+  Token 06000033  JumpCS.TestMath.Tests.DoubleMathTests.Division_ByZeroNegative()V
+  Token 06000034  JumpCS.TestMath.Tests.DoubleMathTests.Remainder_PositiveNumbers()V
+  Token 06000035  JumpCS.TestMath.Tests.DoubleMathTests.UnaryMinus()V
+  Token 06000036  JumpCS.TestMath.Tests.DoubleMathTests.Comparison_LessThan()V
+  Token 06000037  JumpCS.TestMath.Tests.DoubleMathTests.Comparison_GreaterThan()V
+  Token 06000038  JumpCS.TestMath.Tests.DoubleMathTests.Comparison_Equal()V
+  Token 06000039  JumpCS.TestMath.Tests.DoubleMathTests.SpecialValue_NaN()V
+  Token 0600003A  JumpCS.TestMath.Tests.DoubleMathTests.SpecialValue_Infinity()V
+  Token 0600003B  JumpCS.TestMath.Tests.DoubleMathTests.Sqrt()V
+  Token 0600003C  JumpCS.TestMath.Tests.DoubleMathTests.Abs()V
+  Token 0600003D  JumpCS.TestMath.Tests.DoubleMathTests.Pow()V
+  Token 0600003E  JumpCS.TestMath.Tests.DoubleMathTests.Log()V
+  Token 0600003F  JumpCS.TestMath.Tests.DoubleMathTests.Trigonometric_Sin()V
+  Token 06000040  JumpCS.TestMath.Tests.DoubleMathTests.Trigonometric_Cos()V
+  Token 06000041  JumpCS.TestMath.Tests.DoubleMathTests.ChainedOperations()V
+  Token 06000003  JumpCS.TestMath.Program.AllDoubleMathTests()V
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 58.3
+  Hex bytes: 66 66 66 66 66 26 4D 40
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 100.8
+  Hex bytes: 33 33 33 33 33 33 59 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -42.5
+  Hex bytes: 00 00 00 00 00 40 45 C0
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -58.3
+  Hex bytes: 66 66 66 66 66 26 4D C0
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -100.8
+  Hex bytes: 33 33 33 33 33 33 59 C0
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 100.5
+  Hex bytes: 00 00 00 00 00 20 59 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -42.3
+  Hex bytes: 66 66 66 66 66 26 45 C0
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: 9A 99 99 99 99 19 4D 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: CD CC CC CC CC 2C 59 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.3
+  Hex bytes: 66 66 66 66 66 26 45 40
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 58.4
+  Hex bytes: 33 33 33 33 33 33 4D 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.3
+  Hex bytes: 66 66 66 66 66 26 45 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: CD CC CC CC CC 2C 59 40
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -58.4
+  Hex bytes: 33 33 33 33 33 33 4D C0
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 12.5
+  Hex bytes: 00 00 00 00 00 00 29 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: CD CC CC CC CC CC 1C 40
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 90
+  Hex bytes: 00 00 00 00 00 80 56 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 0
+  Hex bytes: 00 00 00 00 00 00 00 00
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 0
+  Hex bytes: 00 00 00 00 00 00 00 00
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -12.5
+  Hex bytes: 00 00 00 00 00 00 29 C0
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: CD CC CC CC CC CC 1C C0
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 90
+  Hex bytes: 00 00 00 00 00 80 56 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 84
+  Hex bytes: 00 00 00 00 00 00 55 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 7
+  Hex bytes: 00 00 00 00 00 00 1C 40
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 12
+  Hex bytes: 00 00 00 00 00 00 28 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -84
+  Hex bytes: 00 00 00 00 00 00 55 C0
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -7
+  Hex bytes: 00 00 00 00 00 00 1C C0
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 12
+  Hex bytes: 00 00 00 00 00 00 28 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 84
+  Hex bytes: 00 00 00 00 00 00 55 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -7
+  Hex bytes: 00 00 00 00 00 00 1C C0
+[DEBUG] ldc.r8 at offset 0019:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -12
+  Hex bytes: 00 00 00 00 00 00 28 C0
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42
+  Hex bytes: 00 00 00 00 00 00 45 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 0
+  Hex bytes: 00 00 00 00 00 00 00 00
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -42
+  Hex bytes: 00 00 00 00 00 00 45 C0
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 0
+  Hex bytes: 00 00 00 00 00 00 00 00
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 85.5
+  Hex bytes: 00 00 00 00 00 60 55 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 7
+  Hex bytes: 00 00 00 00 00 00 1C 40
+[DEBUG] ldc.r8 at offset 001A:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 1.4
+  Hex bytes: 66 66 66 66 66 66 F6 3F
+[DEBUG] ldc.r8 at offset 0026:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: 9A 99 99 99 99 99 F9 3F
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 000E:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -42.5
+  Hex bytes: 00 00 00 00 00 40 45 C0
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 58.3
+  Hex bytes: 66 66 66 66 66 26 4D 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 58.3
+  Hex bytes: 66 66 66 66 66 26 4D 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: 00 00 00 00 00 00 F8 FF
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 8
+  Hex bytes: 00 00 00 00 00 00 F0 7F
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 144
+  Hex bytes: 00 00 00 00 00 00 62 40
+[DEBUG] ldc.r8 at offset 0012:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 12
+  Hex bytes: 00 00 00 00 00 00 28 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: -42.5
+  Hex bytes: 00 00 00 00 00 40 45 C0
+[DEBUG] ldc.r8 at offset 0012:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 2
+  Hex bytes: 00 00 00 00 00 00 00 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 8
+  Hex bytes: 00 00 00 00 00 00 20 40
+[DEBUG] ldc.r8 at offset 001D:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 256
+  Hex bytes: 00 00 00 00 00 00 70 40
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: 69 57 14 8B 0A BF 05 40
+[DEBUG] ldc.r8 at offset 0012:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 1
+  Hex bytes: 00 00 00 00 00 00 F0 3F
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 1.5707963267948966
+  Hex bytes: 18 2D 44 54 FB 21 F9 3F
+[DEBUG] ldc.r8 at offset 0010:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 1
+  Hex bytes: 00 00 00 00 00 00 F0 3F
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 0
+  Hex bytes: 00 00 00 00 00 00 00 00
+[DEBUG] ldc.r8 at offset 0010:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 1
+  Hex bytes: 00 00 00 00 00 00 F0 3F
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 10.5
+  Hex bytes: 00 00 00 00 00 00 25 40
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: CD CC CC CC CC 4C 34 40
+[DEBUG] ldc.r8 at offset 0015:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 3
+  Hex bytes: 00 00 00 00 00 00 08 40
+[DEBUG] ldc.r8 at offset 0024:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: CD CC CC CC CC CC 14 40
+[DEBUG] ldc.r8 at offset 0030:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: 5C 8F C2 F5 28 CC 55 40
+[DEBUG] ldc.r8 at offset 003C:
+  OperandType: InlineR
+  Result type: Double
+  Result value: NaN
+  Hex bytes: 3D 0A D7 A3 70 CD 55 40
+
+=== Class Report ===
+Class: JumpCS.TestMath.Program (index=0, dataSize=0)
+  Fields: 0, Methods: 12
+Class: JumpCS.TestMath.Tests.DoubleMathTests (index=1, dataSize=0)
+  Fields: 1, Methods: 33
+
+=== Compilation Statistics ===
+Classes:  6
+Methods:  169
+Fields:   2
+==============================
+
+Generating 68000 assembly: TestMath_generated.asm
+[OPCODE] 0000: nop
+[OPCODE] 0001: call (100663335)
+[OPCODE] 0006: nop
+[OPCODE] 0007: call (100663336)
+[OPCODE] 000C: nop
+[OPCODE] 000D: call (100663337)
+[OPCODE] 0012: nop
+[OPCODE] 0013: call (100663338)
+[OPCODE] 0018: nop
+[OPCODE] 0019: call (100663339)
+[OPCODE] 001E: nop
+[OPCODE] 001F: call (100663340)
+[OPCODE] 0024: nop
+[OPCODE] 0025: call (100663341)
+[OPCODE] 002A: nop
+[OPCODE] 002B: call (100663342)
+[OPCODE] 0030: nop
+[OPCODE] 0031: call (100663343)
+[OPCODE] 0036: nop
+[OPCODE] 0037: call (100663344)
+[OPCODE] 003C: nop
+[OPCODE] 003D: call (100663345)
+[OPCODE] 0042: nop
+[OPCODE] 0043: call (100663346)
+[OPCODE] 0048: nop
+[OPCODE] 0049: call (100663347)
+[OPCODE] 004E: nop
+[OPCODE] 004F: call (100663348)
+[OPCODE] 0054: nop
+[OPCODE] 0055: call (100663349)
+[OPCODE] 005A: nop
+[OPCODE] 005B: call (100663350)
+[OPCODE] 0060: nop
+[OPCODE] 0061: call (100663351)
+[OPCODE] 0066: nop
+[OPCODE] 0067: call (100663352)
+[OPCODE] 006C: nop
+[OPCODE] 006D: call (100663353)
+[OPCODE] 0072: nop
+[OPCODE] 0073: call (100663354)
+[OPCODE] 0078: nop
+[OPCODE] 0079: call (100663355)
+[OPCODE] 007E: nop
+[OPCODE] 007F: call (100663356)
+[OPCODE] 0084: nop
+[OPCODE] 0085: call (100663357)
+[OPCODE] 008A: nop
+[OPCODE] 008B: call (100663358)
+[OPCODE] 0090: nop
+[OPCODE] 0091: call (100663359)
+[OPCODE] 0096: nop
+[OPCODE] 0097: call (100663360)
+[OPCODE] 009C: nop
+[OPCODE] 009D: call (100663361)
+[OPCODE] 00A2: nop
+[OPCODE] 00A3: ret
+[OPCODE] 0000: nop
+[OPCODE] 0001: call (100663299)
+[OPCODE] 0006: nop
+[OPCODE] 0007: ret
+[OPCODE] 0000: nop
+[DEBUG] ldc.r8 at offset 0001:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 42.5
+  Hex bytes: 00 00 00 00 00 40 45 40
+[OPCODE] 0001: ldc.r8 (42.5)
+[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
+[ALLOC] Allocated D1 | Stack depth: 0 | Available: 6
+[PUSH] D0 | Stack depth: 1 (D0)
+[PUSH] D1 | Stack depth: 2 (D0, D1)
+[OPCODE] 000A: stloc.0
+[POP] D1 | Stack depth: 1 (D0)
+[DEBUG] ldc.r8 at offset 000B:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 58.3
+  Hex bytes: 66 66 66 66 66 26 4D 40
+[OPCODE] 000B: ldc.r8 (58.3)
+[ALLOC] Allocated D2 | Stack depth: 1 | Available: 6
+[ALLOC] Allocated D3 | Stack depth: 1 | Available: 5
+[PUSH] D2 | Stack depth: 2 (D0, D2)
+[PUSH] D3 | Stack depth: 3 (D0, D2, D3)
+[OPCODE] 0014: stloc.1
+[POP] D3 | Stack depth: 2 (D0, D2)
+[OPCODE] 0015: ldloc.0
+[ALLOC] Allocated D4 | Stack depth: 2 | Available: 5
+[PUSH] D4 | Stack depth: 3 (D0, D2, D4)
+[OPCODE] 0016: ldloc.1
+[ALLOC] Allocated D5 | Stack depth: 3 | Available: 4
