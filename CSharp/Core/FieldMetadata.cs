@@ -3,7 +3,7 @@ using System.Reflection;
 namespace JumpCS.Core
 {
     /// <summary>Metadata and state for a class field</summary>
-    public class FieldMetadata : JavaElement
+    public class FieldMetadata : CSharpElement
     {
         public ClassMetadata OwningClass { get; }
         public string Name { get; }

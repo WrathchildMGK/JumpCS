@@ -3,7 +3,7 @@ using System.Reflection;
 namespace JumpCS.Core
 {
     /// <summary>Metadata and state for a class method</summary>
-    public class MethodMetadata : JavaElement
+    public class MethodMetadata : CSharpElement
     {
         public ClassMetadata OwningClass { get; }
         public string Name { get; }
@@ -22,7 +22,7 @@ namespace JumpCS.Core
         public object? NativeRef { get; set; }
 
         /// <summary>Dependencies used by native methods</summary>
-        public List<JavaElement> NativeDependencies { get; } = new();
+        public List<CSharpElement> NativeDependencies { get; } = new();
 
         /// <summary>Generic method this belongs to</summary>
         public GenericMethod? GenericMethod { get; set; }

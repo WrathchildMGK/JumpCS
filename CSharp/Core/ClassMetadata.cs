@@ -3,7 +3,7 @@ using System.Reflection;
 namespace JumpCS.Core
 {
     /// <summary>Metadata and state for a class</summary>
-    public class ClassMetadata : JavaElement
+    public class ClassMetadata : CSharpElement
     {
         private static List<ClassMetadata> _allClasses = new();
         private static Dictionary<string, ClassMetadata> _classCache = new();

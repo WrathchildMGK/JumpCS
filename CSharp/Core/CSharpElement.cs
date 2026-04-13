@@ -4,7 +4,7 @@ namespace JumpCS.Core
     /// JavaElement is the superclass of all components of a runnable program.
     /// Contains decisions whether a component is needed in the resulting program.
     /// </summary>
-    public abstract class JavaElement
+    public abstract class CSharpElement
     {
         /// <summary>needed-mode constant: element unneeded</summary>
         public const int UNNEEDED = 0;
