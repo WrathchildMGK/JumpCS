@@ -5,6 +5,6 @@
     <File Path="TestMath_generated.asm" />
   </Folder>
   <Project Path="CSharp.Tests/CSharp.Tests.csproj" />
-  <Project Path="CSharp/CSharp.csproj" />
+  <Project Path="CSharp/JumpCS.csproj" />
   <Project Path="TestMath/TestMath.csproj" />
 </Solution>

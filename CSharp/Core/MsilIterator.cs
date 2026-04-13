@@ -45,7 +45,6 @@ namespace JumpCS.Core
             _nextIndex = _currentIndex + 1;
 
             OpCode opcode;
-            int operandSize = 0;
             object? operand = null;
 
             // Handle two-byte opcodes

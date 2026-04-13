@@ -1,4 +1,4 @@
-namespace JumpCS.Backend
+namespace JumpCS.Optimization
 {
     public static class Peephole
     {

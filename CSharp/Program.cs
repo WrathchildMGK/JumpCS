@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using JumpCS.Backend;
+using JumpCS.Backend.Asm68000;
+using JumpCS.Backend.Interfaces;
 using JumpCS.Core;
-using JumpCS.Backend;
+using JumpCS.Optimization;
+using Microsoft.Extensions.Configuration;
 
 namespace JumpCS
 {
@@ -12,8 +15,8 @@ namespace JumpCS
         private static IConfiguration? configuration;
         private static string? mainAssemblyPath;
         private static AssemblyMetadata? mainAssembly;
-        private static BackEnd? backEnd;
         private static ClassMetadata? mainClass;
+        private static IBackEnd? backEnd;
         private static bool newNeeds;
 
         static int Main(string[] args)
