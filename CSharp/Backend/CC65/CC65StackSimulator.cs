@@ -1,9 +1,9 @@
 using JumpCS.Backend.Interfaces;
 
-namespace JumpCS.Backend.Asm68000
+namespace JumpCS.Backend.CC65
 {
     /// <summary>Stack simulator for tracking evaluation stack during MSIL translation</summary>
-    public class Asm68000StackSimulator : IBackendStackSimulator
+    public class CC65StackSimulator : IBackendStackSimulator
     {
         private List<string> _stack = new();
         private List<bool> _stackIsDoubleWord = new();
@@ -25,7 +25,7 @@ namespace JumpCS.Backend.Asm68000
         /// <summary>Whether the top stack entry is part of a double-word (64-bit) pair</summary>
         public bool IsTopDoubleWord => _stackIsDoubleWord.Count > 0 && _stackIsDoubleWord[^1];
 
-        public Asm68000StackSimulator(int maxLocals, int maxStack)
+        public CC65StackSimulator(int maxLocals, int maxStack)
         {
             _maxLocals = maxLocals;
             _maxStack = maxStack;

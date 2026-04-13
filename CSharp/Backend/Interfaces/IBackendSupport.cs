@@ -1,5 +1,4 @@
-﻿using JumpCS.Backend.Asm68000;
-using JumpCS.Backend.Asm68000.SystemTypes;
+﻿using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
 using System.Reflection;
 
@@ -8,16 +7,16 @@ namespace JumpCS.Backend.Interfaces
     public interface IBackendSupport
     {
         StreamWriter AsmWriter { get; }
-        SystemDecimalHandler DecimalHandler { get; }
+        ISystemDecimalHandler DecimalHandler { get; }
         Dictionary<int, double> DoubleConstants { get; }
-        SystemDoubleHandler DoubleHandler { get; }
+        ISystemDoubleHandler DoubleHandler { get; }
         HashSet<int> DoubleLocals { get; }
         Dictionary<int, float> FloatConstants { get; }
-        SystemFloatHandler FloatHandler { get; }
-        SystemIntegerHandler IntegerHandler { get; }
+        ISystemFloatHandler FloatHandler { get; }
+        ISystemIntegerHandler IntegerHandler { get; }
         MsilIterator Iterator { get; }
         IBackendLabelMapper Labels { get; }
-        SystemMathHandler MathHandler { get; }
+        ISystemMathHandler MathHandler { get; }
         MethodMetadata Method { get; }
         IBackendStackSimulator Stack { get; }
 

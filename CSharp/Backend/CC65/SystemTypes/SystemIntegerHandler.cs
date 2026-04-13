@@ -4,7 +4,7 @@ using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
 
-namespace JumpCS.Backend.Asm68000.SystemTypes
+namespace JumpCS.Backend.CC65.SystemTypes
 {
     /// <summary>Handler for System.Int32 (int) type operations</summary>
     public class SystemIntegerHandler : SystemHandlerBase, ISystemIntegerHandler

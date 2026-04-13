@@ -4,7 +4,7 @@ using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
 using System.Reflection;
 
-namespace JumpCS.Backend.Asm68000.SystemTypes
+namespace JumpCS.Backend.CC65.SystemTypes
 {
     /// <summary>Handler for System.Double type operations</summary>
     public class SystemDoubleHandler : SystemHandlerBase, ISystemDoubleHandler

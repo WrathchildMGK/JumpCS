@@ -3,7 +3,7 @@ using JumpCS.Backend.Base;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 
-namespace JumpCS.Backend.Asm68000.SystemTypes
+namespace JumpCS.Backend.CC65.SystemTypes
 {
     /// <summary>Handler for System.Math type operations</summary>
     public class SystemMathHandler : SystemHandlerBase, ISystemMathHandler

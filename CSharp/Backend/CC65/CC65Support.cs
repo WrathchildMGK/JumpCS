@@ -1,23 +1,23 @@
-﻿using JumpCS.Backend.Asm68000.SystemTypes;
+﻿using JumpCS.Backend.CC65.SystemTypes;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
 using System.Reflection;
 
-namespace JumpCS.Backend.Asm68000
+namespace JumpCS.Backend.CC65
 {
-    public class Asm68000Support : IBackendSupport
+    public class CC65Support : IBackendSupport
     {
         private readonly Dictionary<int, float> _floatConstants;
         private readonly Dictionary<int, double> _doubleConstants;
 
         private HashSet<int> _doubleLocals = new();
 
-        private readonly Asm68000StackSimulator _stack;
+        private readonly CC65StackSimulator _stack;
         private readonly StreamWriter _asmWriter;
         private readonly MsilIterator _iterator;
         private readonly MethodMetadata _method;
-        private readonly Asm68000LabelMapper _labels;
+        private readonly CC65LabelMapper _labels;
 
         private readonly SystemDecimalHandler _decimalHandler;
         private readonly SystemMathHandler _mathHandler;
@@ -29,11 +29,11 @@ namespace JumpCS.Backend.Asm68000
         private readonly Func<ClassMetadata, int, MethodMetadata?> _resolveMethodToken;
         private readonly Func<ClassMetadata, int, MethodBase?> _tryResolveFrameworkMethod;
 
-        public Asm68000Support(
+        public CC65Support(
             MsilIterator iterator,
             MethodMetadata method,
-            Asm68000StackSimulator stack,
-            Asm68000LabelMapper labels,
+            CC65StackSimulator stack,
+            CC65LabelMapper labels,
             StreamWriter asmWriter,
             Dictionary<int, float> floatConstants,
             Dictionary<int, double> doubleConstants,
