@@ -1,107 +1,101 @@
-﻿using JumpCS.Backend.CC65.SystemTypes;
-using JumpCS.Backend.Interfaces;
+﻿using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
 using System.Reflection;
 
-namespace JumpCS.Backend.CC65
+namespace JumpCS.Backend.CC65;
+
+/// <summary>Shared context for CC65 opcode translation</summary>
+public class CC65Support : IBackendSupport
 {
-    public class CC65Support : IBackendSupport
+    private readonly MsilIterator _iterator;
+    private readonly MethodMetadata _method;
+    private readonly StreamWriter _writer;
+    private readonly CC65MethodBank _methodBank;
+    private readonly CC65LabelMapper _labels;
+    private readonly IBackendStackSimulator _stack;
+    private readonly Func<ClassMetadata, int, MethodMetadata?> _resolveMethodToken;
+    private readonly Func<ClassMetadata, int, MethodBase?> _tryResolveFrameworkMethod;
+
+    private int _labelCounter = 0;
+
+    public CC65Support(
+        MsilIterator iterator,
+        MethodMetadata method,
+        CC65StackSimulator stack,
+        StreamWriter writer,
+        CC65MethodBank methodBank,
+        Func<ClassMetadata, int, MethodMetadata?> resolveMethodToken,
+        Func<ClassMetadata, int, MethodBase?> tryResolveFrameworkMethod)
     {
-        private readonly Dictionary<int, float> _floatConstants;
-        private readonly Dictionary<int, double> _doubleConstants;
+        _iterator = iterator;
+        _method = method;
+        _stack = stack;
+        _writer = writer;
+        _methodBank = methodBank;
+        _resolveMethodToken = resolveMethodToken;
+        _tryResolveFrameworkMethod = tryResolveFrameworkMethod;
+    }
 
-        private HashSet<int> _doubleLocals = new();
+    // --- Public accessors (consistent naming with Asm68000Support) ---
 
-        private readonly CC65StackSimulator _stack;
-        private readonly StreamWriter _asmWriter;
-        private readonly MsilIterator _iterator;
-        private readonly MethodMetadata _method;
-        private readonly CC65LabelMapper _labels;
+    public MsilIterator Iterator => _iterator;
+    public MethodMetadata Method => _method;
+    public StreamWriter AsmWriter => _writer;
+    public CC65MethodBank MethodBank => _methodBank;
+    public IBackendStackSimulator Stack => _stack;
+    public IBackendLabelMapper Labels { get { return _labels; } }
 
-        private readonly SystemDecimalHandler _decimalHandler;
-        private readonly SystemMathHandler _mathHandler;
-        private readonly SystemDoubleHandler _doubleHandler;
-        private readonly SystemFloatHandler _floatHandler;
-        private readonly SystemIntegerHandler _integerHandler;
+    public ISystemDecimalHandler DecimalHandler => throw new NotImplementedException();
 
-        // Method resolution delegates — injected from BackEnd
-        private readonly Func<ClassMetadata, int, MethodMetadata?> _resolveMethodToken;
-        private readonly Func<ClassMetadata, int, MethodBase?> _tryResolveFrameworkMethod;
+    public Dictionary<int, double> DoubleConstants => throw new NotImplementedException();
 
-        public CC65Support(
-            MsilIterator iterator,
-            MethodMetadata method,
-            CC65StackSimulator stack,
-            CC65LabelMapper labels,
-            StreamWriter asmWriter,
-            Dictionary<int, float> floatConstants,
-            Dictionary<int, double> doubleConstants,
-            Func<ClassMetadata, int, MethodMetadata?> resolveMethodToken,
-            Func<ClassMetadata, int, MethodBase?> tryResolveFrameworkMethod)
-        {
-            _iterator = iterator;
-            _method = method;
-            _stack = stack;
-            _labels = labels;
-            _asmWriter = asmWriter;
-            _floatConstants = floatConstants;
-            _doubleConstants = doubleConstants;
-            _resolveMethodToken = resolveMethodToken;
-            _tryResolveFrameworkMethod = tryResolveFrameworkMethod;
+    public ISystemDoubleHandler DoubleHandler => throw new NotImplementedException();
 
-            _mathHandler = new SystemMathHandler(
-                _asmWriter,
-                (stack) => stack.AllocateDataRegister()
-            );
+    public HashSet<int> DoubleLocals => throw new NotImplementedException();
 
-            _decimalHandler = new SystemDecimalHandler(
-                _asmWriter,
-                (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
-            );
+    public Dictionary<int, float> FloatConstants => throw new NotImplementedException();
 
-            _doubleHandler = new SystemDoubleHandler(
-                _asmWriter,
-                (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
-            );
+    public ISystemFloatHandler FloatHandler => throw new NotImplementedException();
 
-            _floatHandler = new SystemFloatHandler(
-                _asmWriter,
-                (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
-            );
+    public ISystemIntegerHandler IntegerHandler => throw new NotImplementedException();
 
-            _integerHandler = new SystemIntegerHandler(
-                _asmWriter,
-                (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
-            );
+    public ISystemMathHandler MathHandler => throw new NotImplementedException();
 
-            _doubleLocals.Clear();
-        }
+    // --- Method resolution ---
 
-        // --- Existing properties (unchanged) ---
-        public Dictionary<int, float> FloatConstants { get { return _floatConstants; } }
-        public Dictionary<int, double> DoubleConstants { get { return _doubleConstants; } }
-        public HashSet<int> DoubleLocals { get { return _doubleLocals; } }
-        public IBackendStackSimulator Stack { get { return _stack; } }
-        public StreamWriter AsmWriter { get { return _asmWriter; } }
-        public MsilIterator Iterator { get { return _iterator; } }
-        public MethodMetadata Method { get { return _method; } }
-        public IBackendLabelMapper Labels { get { return _labels; } }
-        public ISystemDecimalHandler DecimalHandler { get { return _decimalHandler; } }
-        public ISystemMathHandler MathHandler { get { return _mathHandler; } }
-        public ISystemDoubleHandler DoubleHandler { get { return _doubleHandler; } }
-        public ISystemFloatHandler FloatHandler { get { return _floatHandler; } }
-        public ISystemIntegerHandler IntegerHandler { get { return _integerHandler; } }
+    public MethodMetadata? ResolveMethodToken(ClassMetadata callingClass, int methodToken)
+        => _resolveMethodToken(callingClass, methodToken);
 
-        // --- New: method resolution ---
-        public MethodMetadata? ResolveMethodToken(ClassMetadata callingClass, int methodToken)
-            => _resolveMethodToken(callingClass, methodToken);
+    public MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken)
+        => _tryResolveFrameworkMethod(callingClass, methodToken);
 
-        public MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken)
-            => _tryResolveFrameworkMethod(callingClass, methodToken);
+    // --- Label generation ---
+
+    public string GetUniqueLabel() => $"L_{_labelCounter++}";
+
+    // --- Code emission helpers ---
+
+    public void Emit(string line) => _writer.WriteLine($"    {line}");
+
+    public void EmitComment(string comment) => Emit($"/* {comment} */");
+
+    public void EmitLabel(string label) => _writer.WriteLine($"  {label}:");
+
+    public void EmitBlank() => _writer.WriteLine();
+
+    /// <summary>Emit: type temp = expr; and push temp onto eval stack</summary>
+    public string EmitAssign(string expr, bool isWide = false)
+    {
+        string temp = _stack.AllocateDataRegister();
+        Emit($"{CC65TypeMapper.StackType} {temp} = ({CC65TypeMapper.StackType})({expr});");
+        _stack.Push(temp, isWide);
+        return temp;
+    }
+
+    /// <summary>Emit: temp = expr; reusing an existing variable, push onto stack</summary>
+    public void EmitReassign(string varName, string expr)
+    {
+        Emit($"{varName} = ({CC65TypeMapper.StackType})({expr});");
     }
 }

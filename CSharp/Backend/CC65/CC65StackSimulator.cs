@@ -1,217 +1,123 @@
 using JumpCS.Backend.Interfaces;
 
-namespace JumpCS.Backend.CC65
+namespace JumpCS.Backend.CC65;
+
+/// <summary>
+/// Evaluation stack simulator for CC65 C code generation.
+/// Tracks MSIL eval stack as C local variable names (s0, s1, s2...).
+/// No register allocation — C handles that.
+/// Implements IBackendStackSimulator for cross-backend compatibility.
+/// </summary>
+public class CC65StackSimulator : IBackendStackSimulator
 {
-    /// <summary>Stack simulator for tracking evaluation stack during MSIL translation</summary>
-    public class CC65StackSimulator : IBackendStackSimulator
+    private readonly List<string> _stack = new();
+    private readonly List<bool> _stackIsWide = new();
+    private readonly int _maxLocals;
+    private readonly int _maxStack;
+    private int _tempCounter = 0;
+
+    public CC65StackSimulator(int maxLocals, int maxStack)
     {
-        private List<string> _stack = new();
-        private List<bool> _stackIsDoubleWord = new();
-        private int _spillOffset;
-        private readonly int _maxLocals;
-        private readonly int _maxStack;
+        _maxLocals = maxLocals;
+        _maxStack = maxStack;
+    }
 
-        // Register pools - now separated by purpose
-        private readonly string[] _dataRegisters = { "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7" };
-        private readonly string[] _addressRegisters = { "A0", "A1", "A2", "A3", "A4", "A5" };
+    // --- IBackendStackSimulator properties ---
 
-        // Track which registers are currently allocated - using Stack (LIFO)
-        private Stack<string> _availableDataRegisters;
-        private Stack<string> _availableAddressRegisters;
+    public int StackDepth => _stack.Count;
 
-        public int StackDepth => _stack.Count;
-        public int CurrentFrameOffset => _spillOffset;
+    /// <summary>Maps to IsTopDoubleWord — for CC65 this tracks 32-bit wide values</summary>
+    public bool IsTopDoubleWord => _stackIsWide.Count > 0 && _stackIsWide[^1];
 
-        /// <summary>Whether the top stack entry is part of a double-word (64-bit) pair</summary>
-        public bool IsTopDoubleWord => _stackIsDoubleWord.Count > 0 && _stackIsDoubleWord[^1];
+    /// <summary>Not applicable to C code generation — locals are C variables, not frame offsets</summary>
+    public int CurrentFrameOffset =>
+        throw new NotSupportedException("CC65 backend uses C local variables, not frame pointer offsets.");
 
-        public CC65StackSimulator(int maxLocals, int maxStack)
+    // --- IBackendStackSimulator: register allocation → temp variable allocation ---
+
+    /// <summary>Allocates a C temp variable name instead of a data register</summary>
+    public string AllocateDataRegister() => $"s{_tempCounter++}";
+
+    /// <summary>Returns next available temp variable name</summary>
+    public string GetNextDataRegister()
+    {
+        // Peek at what the next temp name would be without consuming it
+        return $"s{_tempCounter}";
+    }
+
+    /// <summary>No-op for CC65 — C manages variable lifetime automatically</summary>
+    public void ReleaseDataRegister(string register)
+    {
+        // No-op: C local variables don't need explicit release
+    }
+
+    /// <summary>Not applicable to C code generation — no address registers on 6502 via C</summary>
+    public string AllocateAddressRegister() =>
+        throw new NotSupportedException(
+            "CC65 backend does not use address registers. Use C pointer variables instead.");
+
+    /// <summary>Not applicable to C code generation — no address registers on 6502 via C</summary>
+    public void ReleaseAddressRegister(string register) =>
+        throw new NotSupportedException(
+            "CC65 backend does not use address registers. Use C pointer variables instead.");
+
+    // --- IBackendStackSimulator: stack operations ---
+
+    /// <summary>Push a C expression onto the eval stack</summary>
+    public void Push(string expr, bool isDoubleWord = false)
+    {
+        if (_stack.Count >= _maxStack)
         {
-            _maxLocals = maxLocals;
-            _maxStack = maxStack;
-            _spillOffset = -maxLocals * 4 - 4;
-
-            // Initialize register stacks (LIFO) - push D7,D6,D5...D1,D0 so D7 pops first
-            var dataRegsForStack = new Stack<string>();
-            for (int i = 7; i >= 0; i--)
+            if (Program.CodeOptions?.Verbosity >= 1)
             {
-                dataRegsForStack.Push(_dataRegisters[i]);
-            }
-            _availableDataRegisters = dataRegsForStack;
-
-            var addrRegsForStack = new Stack<string>();
-            for (int i = 5; i >= 0; i--)
-            {
-                addrRegsForStack.Push(_addressRegisters[i]);
-            }
-            _availableAddressRegisters = addrRegsForStack;
-        }
-
-        /// <summary>Get next available data register for arithmetic operations</summary>
-        public string GetNextDataRegister()
-        {
-            int registerIndex = _stack.Count;
-
-            if (registerIndex < _dataRegisters.Length)
-            {
-                return _dataRegisters[registerIndex];
-            }
-
-            return _dataRegisters[registerIndex % _dataRegisters.Length];
-        }
-
-        /// <summary>Allocate a data register (D0-D7) for temporary arithmetic use. Safe to destroy.</summary>
-        public string AllocateDataRegister()
-        {
-            if (_availableDataRegisters.Count == 0)
-            {
-                // All allocated - try to reclaim registers not on stack
-                foreach (var reg in _dataRegisters)
-                {
-                    if (!_stack.Contains(reg))
-                    {
-                        _availableDataRegisters.Push(reg);
-                    }
-                }
-
-                // If still nothing, we're truly exhausted
-                if (_availableDataRegisters.Count == 0)
-                {
-                    if (Program.CodeOptions?.Verbosity >= 2)
-                    {
-                        Console.WriteLine("\n[CRITICAL] REGISTER EXHAUSTION:");
-                        Console.WriteLine($"  Stack depth: {_stack.Count}");
-                        Console.WriteLine($"  Registers on stack: {string.Join(", ", _stack)}");
-                        Console.WriteLine($"  Available registers: {string.Join(", ", _availableDataRegisters)}");
-                        Console.WriteLine($"  All registers: {string.Join(", ", _dataRegisters)}");
-                    }
-
-                    throw new InvalidOperationException($"Evaluation stack overflow: all {_dataRegisters.Length} data registers in use. Stack contains: {string.Join(", ", _stack)}");
-                }
-            }
-
-            // Pop from the LIFO queue
-            string allocated = _availableDataRegisters.Pop();
-
-            // If the popped register is on the stack, find a replacement
-            if (_stack.Contains(allocated))
-            {
-                // Search all registers for one NOT on the stack
-                foreach (var reg in _dataRegisters)
-                {
-                    if (!_stack.Contains(reg))
-                    {
-                        if (Program.CodeOptions?.Verbosity >= 2)
-                        {
-                            Console.WriteLine($"[ALLOC] Allocated {reg} (fallback, queue had {allocated} which was on stack) | Stack depth: {_stack.Count}");
-                        }
-                        return reg;
-                    }
-                }
-
-                // No clean registers available - truly exhausted
-                throw new InvalidOperationException($"Evaluation stack overflow: all {_dataRegisters.Length} data registers in use. Stack contains: {string.Join(", ", _stack)}");
-            }
-
-            if (Program.CodeOptions?.Verbosity >= 2)
-            {
-                Console.WriteLine($"[ALLOC] Allocated {allocated} | Stack depth: {_stack.Count} | Available: {_availableDataRegisters.Count}");
-            }
-
-            return allocated;
-        }
-
-        /// <summary>Release a data register back to the pool for reuse</summary>
-        public void ReleaseDataRegister(string register)
-        {
-            if (Array.Exists(_dataRegisters, r => r == register))
-            {
-                _availableDataRegisters.Push(register);
+                Console.WriteLine($"[CC65] WARNING: Eval stack overflow at depth {_stack.Count}, max {_maxStack}");
             }
         }
 
-        /// <summary>Allocate an address register (A0-A5) for struct addresses. Must be preserved.</summary>
-        public string AllocateAddressRegister()
-        {
-            if (_availableAddressRegisters.Count == 0)
-            {
-                throw new InvalidOperationException("No address registers available - too many nested struct operations");
-            }
+        _stack.Add(expr);
+        _stackIsWide.Add(isDoubleWord);
 
-            return _availableAddressRegisters.Pop();
+        if (Program.CodeOptions?.Verbosity >= 2)
+        {
+            Console.WriteLine($"[CC65 PUSH] {expr}{(isDoubleWord ? " (wide)" : "")} | depth: {_stack.Count}");
+        }
+    }
+
+    /// <summary>Pop a C expression from the eval stack</summary>
+    public string Pop()
+    {
+        if (_stack.Count == 0)
+            throw new InvalidOperationException("CC65 evaluation stack underflow");
+
+        string expr = _stack[^1];
+        _stack.RemoveAt(_stack.Count - 1);
+        _stackIsWide.RemoveAt(_stackIsWide.Count - 1);
+
+        if (Program.CodeOptions?.Verbosity >= 2)
+        {
+            Console.WriteLine($"[CC65 POP] {expr} | depth: {_stack.Count}");
         }
 
-        /// <summary>Release an address register back to the pool for reuse</summary>
-        public void ReleaseAddressRegister(string register)
+        return expr;
+    }
+
+    /// <summary>Peek at top of stack without popping</summary>
+    public string Peek()
+    {
+        if (_stack.Count == 0)
+            throw new InvalidOperationException("CC65 evaluation stack is empty");
+        return _stack[^1];
+    }
+
+    /// <summary>Clear the stack (e.g., after unconditional branch)</summary>
+    public void Clear()
+    {
+        _stack.Clear();
+        _stackIsWide.Clear();
+
+        if (Program.CodeOptions?.Verbosity >= 2)
         {
-            if (Array.Exists(_addressRegisters, r => r == register))
-            {
-                _availableAddressRegisters.Push(register);
-            }
-        }
-
-        /// <summary>Push a register onto the evaluation stack</summary>
-        public void Push(string register, bool isDoubleWord = false)
-        {
-            if (_stack.Count > _maxStack)
-                throw new InvalidOperationException("Evaluation stack overflow");
-
-            _stack.Add(register);
-            _stackIsDoubleWord.Add(isDoubleWord);
-
-            if (Program.CodeOptions?.Verbosity >= 2)
-            {
-                Console.WriteLine($"[PUSH] {register}{(isDoubleWord ? " (dbl)" : "")} | Stack depth: {_stack.Count} ({string.Join(", ", _stack)})");
-            }
-        }
-
-        /// <summary>Pop a register from the evaluation stack</summary>
-        public string Pop()
-        {
-            if (_stack.Count == 0)
-                throw new InvalidOperationException("Evaluation stack underflow");
-
-            string register = _stack[^1];
-            _stack.RemoveAt(_stack.Count - 1);
-            _stackIsDoubleWord.RemoveAt(_stackIsDoubleWord.Count - 1);
-
-            if (Program.CodeOptions?.Verbosity >= 2)
-            {
-                Console.WriteLine($"[POP] {register} | Stack depth: {_stack.Count} ({string.Join(", ", _stack)})");
-            }
-
-            return register;
-        }
-
-        /// <summary>Peek at top of stack without popping</summary>
-        public string Peek()
-        {
-            if (_stack.Count == 0)
-                throw new InvalidOperationException("Evaluation stack is empty");
-            return _stack[^1];
-        }
-
-        /// <summary>Clear the stack and reset register allocation</summary>
-        public void Clear()
-        {
-            _stack.Clear();
-            _stackIsDoubleWord.Clear();
-            _spillOffset = -_maxLocals * 4 - 4;
-
-            // Re-initialize register stacks
-            var dataRegsForStack = new Stack<string>();
-            for (int i = 7; i >= 0; i--)
-            {
-                dataRegsForStack.Push(_dataRegisters[i]);
-            }
-            _availableDataRegisters = dataRegsForStack;
-
-            var addrRegsForStack = new Stack<string>();
-            for (int i = 5; i >= 0; i--)
-            {
-                addrRegsForStack.Push(_addressRegisters[i]);
-            }
-            _availableAddressRegisters = addrRegsForStack;
+            Console.WriteLine("[CC65] Stack cleared");
         }
     }
 }

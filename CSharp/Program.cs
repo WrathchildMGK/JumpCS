@@ -1,4 +1,5 @@
 ﻿using JumpCS.Backend.Asm68000;
+using JumpCS.Backend.CC65;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Core;
 using JumpCS.Optimization;
@@ -79,7 +80,15 @@ namespace JumpCS
 
                 // Initialize backend
                 string? outputBaseName = Path.GetFileNameWithoutExtension(mainAssemblyPath);
-                backEnd = new Asm68000BackEnd(outputBaseName);
+                // Backend selection:
+                if (codeOptions.Target == TargetPlatform.AtariCC65)
+                {
+                    backEnd = new CC65BackEnd(outputBaseName, codeOptions.MemoryModel);
+                }
+                else
+                {
+                    backEnd = new Asm68000BackEnd(outputBaseName);
+                }
 
                 // Mark entry points as needed
                 MarkEntryPoints();

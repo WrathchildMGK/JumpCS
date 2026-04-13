@@ -1,10 +1,11 @@
 using JumpCS.Backend.Interfaces;
+using JumpCS.Backend.SystemTypes;
 using System.Reflection;
 
 namespace JumpCS.Backend.Base
 {
     /// <summary>Base class for handling System.* type operations</summary>
-    public abstract class SystemHandlerBase
+    public abstract class SystemHandlerBase : ISystemHandlerBase
     {
         protected readonly StreamWriter AsmWriter;
         protected readonly Func<IBackendStackSimulator, string> GetAvailableRegister;

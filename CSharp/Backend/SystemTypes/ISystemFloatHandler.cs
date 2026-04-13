@@ -1,14 +1,6 @@
-﻿using JumpCS.Backend.Interfaces;
-using JumpCS.Core;
-using System.Reflection;
-
-namespace JumpCS.Backend.SystemTypes
+﻿namespace JumpCS.Backend.SystemTypes
 {
-    public interface ISystemFloatHandler
+    public interface ISystemFloatHandler : ISystemHandlerBase
     {
-        void HandleMethodCall(MethodMetadata method, IBackendStackSimulator stack);
-        void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack);
-        bool IsMethod(MethodMetadata method);
-        bool IsReflectionMethod(MethodBase method);
     }
 }

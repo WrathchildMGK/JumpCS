@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 namespace JumpCS.Core
 {
     public enum MemoryModel { Small, Large, Huge }
-    public enum TargetPlatform { Motorola68000, AtariST, Atari6502 }
+    public enum TargetPlatform { Motorola68000, AtariST, Atari6502, AtariCC65 }
     public enum OptimizationLevel { None = 0, Low = 1, Medium = 2, High = 3, Aggressive = 6 }
 
     public class CodeOptions
