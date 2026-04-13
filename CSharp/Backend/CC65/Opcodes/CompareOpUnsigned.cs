@@ -11,7 +11,7 @@ public class CompareOpUnsigned(string op) : IOpcodeTranslation
         string right = s.Stack.Pop();
         string left = s.Stack.Pop();
         string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{CC65TypeMapper.StackType} {temp} = ((uint32_t){left} {op} (uint32_t){right}) ? 1 : 0;");
+        s.Emit($"{temp} = ((uint32_t){left} {op} (uint32_t){right}) ? 1 : 0;");
         s.Stack.Push(temp);
     }
 }

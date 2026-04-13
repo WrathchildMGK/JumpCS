@@ -6,7 +6,7 @@ public class Ldloca_S : IOpcodeTranslation
     {
         if (operand is int localIdx)
         {
-            int frameOffset = -(localIdx + 1) * 4 - 4;
+            int frameOffset = -(localIdx + 1) * 4;
             string addrReg = support.Stack.AllocateAddressRegister();
             support.AsmWriter.WriteLine($"    LEA {frameOffset}(A6),{addrReg}  ; Load address of local.{localIdx}");
             string dataReg = support.Stack.AllocateDataRegister();

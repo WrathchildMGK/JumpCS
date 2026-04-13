@@ -9,65 +9,114 @@
 #pragma codeseg(push, "BANK00")
 void JumpCS_TestMath_Program_AllIntegerMathTests(void)
 {
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
 
-/* IL_0000: nop */
-/* IL_0001: call */
-/* IL_0006: nop */
-/* IL_0007: call */
-/* IL_000C: nop */
-/* IL_000D: call */
-/* IL_0012: nop */
-/* IL_0013: call */
-/* IL_0018: nop */
-/* IL_0019: call */
-/* IL_001E: nop */
-/* IL_001F: call */
-/* IL_0024: nop */
-/* IL_0025: call */
-/* IL_002A: nop */
-/* IL_002B: call */
-/* IL_0030: nop */
-/* IL_0031: call */
-/* IL_0036: nop */
-/* IL_0037: call */
-/* IL_003C: nop */
-/* IL_003D: call */
-/* IL_0042: nop */
-/* IL_0043: call */
-/* IL_0048: nop */
-/* IL_0049: call */
-/* IL_004E: nop */
-/* IL_004F: call */
-/* IL_0054: nop */
-/* IL_0055: call */
-/* IL_005A: nop */
-/* IL_005B: call */
-/* IL_0060: nop */
-/* IL_0061: call */
-/* IL_0066: nop */
-/* IL_0067: call */
-/* IL_006C: nop */
-/* IL_006D: call */
-/* IL_0072: nop */
-/* IL_0073: call */
-/* IL_0078: nop */
-/* IL_0079: call */
-/* IL_007E: nop */
-/* IL_007F: call */
-/* IL_0084: nop */
-/* IL_0085: call */
-/* IL_008A: nop */
-/* IL_008B: call */
-/* IL_0090: nop */
-/* IL_0091: call */
-/* IL_0096: nop */
-/* IL_0097: call */
-/* IL_009C: nop */
-/* IL_009D: ret */
+    /* IL_0000: nop */
+    /* IL_0001: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Addition_PositiveNumbers */
+    call_banked(2); /* JumpCS_TestMath_Tests_IntegerMathTests_Addition_PositiveNumbers */
+    /* IL_0006: nop */
+    /* IL_0007: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Addition_NegativeNumbers */
+    call_banked(3); /* JumpCS_TestMath_Tests_IntegerMathTests_Addition_NegativeNumbers */
+    /* IL_000C: nop */
+    /* IL_000D: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Addition_MixedSigns */
+    call_banked(4); /* JumpCS_TestMath_Tests_IntegerMathTests_Addition_MixedSigns */
+    /* IL_0012: nop */
+    /* IL_0013: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Addition_Overflow */
+    call_banked(5); /* JumpCS_TestMath_Tests_IntegerMathTests_Addition_Overflow */
+    /* IL_0018: nop */
+    /* IL_0019: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_PositiveNumbers */
+    call_banked(6); /* JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_PositiveNumbers */
+    /* IL_001E: nop */
+    /* IL_001F: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeResult */
+    call_banked(7); /* JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_NegativeResult */
+    /* IL_0024: nop */
+    /* IL_0025: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeNumbers */
+    call_banked(8); /* JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_NegativeNumbers */
+    /* IL_002A: nop */
+    /* IL_002B: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_PositiveNumbers */
+    call_banked(9); /* JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_PositiveNumbers */
+    /* IL_0030: nop */
+    /* IL_0031: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_ByZero */
+    call_banked(10); /* JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_ByZero */
+    /* IL_0036: nop */
+    /* IL_0037: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_NegativeNumbers */
+    call_banked(11); /* JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_NegativeNumbers */
+    /* IL_003C: nop */
+    /* IL_003D: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_MixedSigns */
+    call_banked(12); /* JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_MixedSigns */
+    /* IL_0042: nop */
+    /* IL_0043: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Division_PositiveNumbers */
+    call_banked(13); /* JumpCS_TestMath_Tests_IntegerMathTests_Division_PositiveNumbers */
+    /* IL_0048: nop */
+    /* IL_0049: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Division_WithRemainder */
+    call_banked(14); /* JumpCS_TestMath_Tests_IntegerMathTests_Division_WithRemainder */
+    /* IL_004E: nop */
+    /* IL_004F: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Division_NegativeNumbers */
+    call_banked(15); /* JumpCS_TestMath_Tests_IntegerMathTests_Division_NegativeNumbers */
+    /* IL_0054: nop */
+    /* IL_0055: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Division_MixedSigns */
+    call_banked(16); /* JumpCS_TestMath_Tests_IntegerMathTests_Division_MixedSigns */
+    /* IL_005A: nop */
+    /* IL_005B: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Remainder_PositiveNumbers */
+    call_banked(17); /* JumpCS_TestMath_Tests_IntegerMathTests_Remainder_PositiveNumbers */
+    /* IL_0060: nop */
+    /* IL_0061: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.Remainder_NegativeNumbers */
+    call_banked(18); /* JumpCS_TestMath_Tests_IntegerMathTests_Remainder_NegativeNumbers */
+    /* IL_0066: nop */
+    /* IL_0067: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.BitwiseAnd */
+    call_banked(19); /* JumpCS_TestMath_Tests_IntegerMathTests_BitwiseAnd */
+    /* IL_006C: nop */
+    /* IL_006D: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.BitwiseOr */
+    call_banked(20); /* JumpCS_TestMath_Tests_IntegerMathTests_BitwiseOr */
+    /* IL_0072: nop */
+    /* IL_0073: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.BitwiseXor */
+    call_banked(21); /* JumpCS_TestMath_Tests_IntegerMathTests_BitwiseXor */
+    /* IL_0078: nop */
+    /* IL_0079: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.LeftShift */
+    call_banked(22); /* JumpCS_TestMath_Tests_IntegerMathTests_LeftShift */
+    /* IL_007E: nop */
+    /* IL_007F: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.RightShift */
+    call_banked(23); /* JumpCS_TestMath_Tests_IntegerMathTests_RightShift */
+    /* IL_0084: nop */
+    /* IL_0085: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.UnaryMinus */
+    call_banked(24); /* JumpCS_TestMath_Tests_IntegerMathTests_UnaryMinus */
+    /* IL_008A: nop */
+    /* IL_008B: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.ChainedOperations */
+    call_banked(25); /* JumpCS_TestMath_Tests_IntegerMathTests_ChainedOperations */
+    /* IL_0090: nop */
+    /* IL_0091: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.DivideByZeroThrows */
+    call_banked(26); /* JumpCS_TestMath_Tests_IntegerMathTests_DivideByZeroThrows */
+    /* IL_0096: nop */
+    /* IL_0097: call */
+    /* call JumpCS.TestMath.Tests.IntegerMathTests.ModuloByZeroThrows */
+    call_banked(27); /* JumpCS_TestMath_Tests_IntegerMathTests_ModuloByZeroThrows */
+    /* IL_009C: nop */
+    /* IL_009D: ret */
+    return;
 }
 #pragma codeseg(pop)
 
@@ -76,6 +125,1070 @@ void JumpCS_TestMath_Program_AllIntegerMathTests(void)
 #pragma codeseg(push, "BANK00")
 void JumpCS_TestMath_Program_Main(void)
 {
+
+    /* IL_0000: nop */
+    /* IL_0001: call */
+    /* call JumpCS.TestMath.Program.AllIntegerMathTests */
+    call_banked(0); /* JumpCS_TestMath_Program_AllIntegerMathTests */
+    /* IL_0006: nop */
+    /* IL_0007: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 2: JumpCS.TestMath.Tests.IntegerMathTests.Addition_PositiveNumbers()V */
+/* Bank 0, offset 0x0530 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Addition_PositiveNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = 58;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: add */
+    s2 = local_0 + local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = 100;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 3: JumpCS.TestMath.Tests.IntegerMathTests.Addition_NegativeNumbers()V */
+/* Bank 0, offset 0x0628 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Addition_NegativeNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = -42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = -58;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: add */
+    s2 = local_0 + local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = -100;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 4: JumpCS.TestMath.Tests.IntegerMathTests.Addition_MixedSigns()V */
+/* Bank 0, offset 0x0720 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Addition_MixedSigns(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 100;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = -42;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: add */
+    s2 = local_0 + local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = 58;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 5: JumpCS.TestMath.Tests.IntegerMathTests.Addition_Overflow()V */
+/* Bank 0, offset 0x0818 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Addition_Overflow(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4 */
+    s0 = 2147483647L;
+    /* IL_0006: stloc.0 */
+    local_0 = s0;
+    /* IL_0007: ldc.i4.1 */
+    s1 = 1;
+    /* IL_0008: stloc.1 */
+    local_1 = s1;
+    /* IL_0009: ldloc.0 */
+    /* IL_000A: ldloc.1 */
+    /* IL_000B: add */
+    s2 = local_0 + local_1;
+    /* IL_000C: stloc.2 */
+    local_2 = s2;
+    /* IL_000D: ldc.i4 */
+    s3 = -2147483648L;
+    /* IL_0012: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0017: ldloc.2 */
+    /* IL_0018: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_001D: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_0022: stloc.3 */
+    local_3 = s4;
+    /* IL_0023: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 6: JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_PositiveNumbers()V */
+/* Bank 0, offset 0x0938 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_PositiveNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 100;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = 42;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: sub */
+    s2 = local_0 - local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = 58;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 7: JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeResult()V */
+/* Bank 0, offset 0x0A30 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_NegativeResult(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = 100;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: sub */
+    s2 = local_0 - local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = -58;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 8: JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeNumbers()V */
+/* Bank 0, offset 0x0B28 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_NegativeNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = -42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = -100;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: sub */
+    s2 = local_0 - local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = 58;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 9: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_PositiveNumbers()V */
+/* Bank 0, offset 0x0C20 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_PositiveNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 12;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.7 */
+    s1 = 7;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldloc.0 */
+    /* IL_0007: ldloc.1 */
+    /* IL_0008: mul */
+    s2 = local_0 * local_1;
+    /* IL_0009: stloc.2 */
+    local_2 = s2;
+    /* IL_000A: ldc.i4.s */
+    s3 = 84;
+    /* IL_000C: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0011: ldloc.2 */
+    /* IL_0012: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0017: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001C: stloc.3 */
+    local_3 = s4;
+    /* IL_001D: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 10: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_ByZero()V */
+/* Bank 0, offset 0x0D10 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_ByZero(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.0 */
+    s1 = 0;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldloc.0 */
+    /* IL_0007: ldloc.1 */
+    /* IL_0008: mul */
+    s2 = local_0 * local_1;
+    /* IL_0009: stloc.2 */
+    local_2 = s2;
+    /* IL_000A: ldc.i4.0 */
+    s3 = 0;
+    /* IL_000B: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0010: ldloc.2 */
+    /* IL_0011: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0016: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001B: stloc.3 */
+    local_3 = s4;
+    /* IL_001C: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 11: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_NegativeNumbers()V */
+/* Bank 0, offset 0x0DF8 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_NegativeNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = -12;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = -7;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: mul */
+    s2 = local_0 * local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = 84;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 12: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_MixedSigns()V */
+/* Bank 0, offset 0x0EF0 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_MixedSigns(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 12;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = -7;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: mul */
+    s2 = local_0 * local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = -84;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 13: JumpCS.TestMath.Tests.IntegerMathTests.Division_PositiveNumbers()V */
+/* Bank 0, offset 0x0FE8 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Division_PositiveNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 84;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.7 */
+    s1 = 7;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldloc.0 */
+    /* IL_0007: ldloc.1 */
+    /* IL_0008: div */
+    s2 = local_0 / local_1;
+    /* IL_0009: stloc.2 */
+    local_2 = s2;
+    /* IL_000A: ldc.i4.s */
+    s3 = 12;
+    /* IL_000C: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0011: ldloc.2 */
+    /* IL_0012: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0017: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001C: stloc.3 */
+    local_3 = s4;
+    /* IL_001D: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 14: JumpCS.TestMath.Tests.IntegerMathTests.Division_WithRemainder()V */
+/* Bank 0, offset 0x10D8 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Division_WithRemainder(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 85;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.7 */
+    s1 = 7;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldloc.0 */
+    /* IL_0007: ldloc.1 */
+    /* IL_0008: div */
+    s2 = local_0 / local_1;
+    /* IL_0009: stloc.2 */
+    local_2 = s2;
+    /* IL_000A: ldc.i4.s */
+    s3 = 12;
+    /* IL_000C: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0011: ldloc.2 */
+    /* IL_0012: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0017: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001C: stloc.3 */
+    local_3 = s4;
+    /* IL_001D: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 15: JumpCS.TestMath.Tests.IntegerMathTests.Division_NegativeNumbers()V */
+/* Bank 0, offset 0x11C8 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Division_NegativeNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = -84;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = -7;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: div */
+    s2 = local_0 / local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = 12;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 16: JumpCS.TestMath.Tests.IntegerMathTests.Division_MixedSigns()V */
+/* Bank 0, offset 0x12C0 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Division_MixedSigns(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 84;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = -7;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldloc.0 */
+    /* IL_0008: ldloc.1 */
+    /* IL_0009: div */
+    s2 = local_0 / local_1;
+    /* IL_000A: stloc.2 */
+    local_2 = s2;
+    /* IL_000B: ldc.i4.s */
+    s3 = -12;
+    /* IL_000D: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0012: ldloc.2 */
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001D: stloc.3 */
+    local_3 = s4;
+    /* IL_001E: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 17: JumpCS.TestMath.Tests.IntegerMathTests.Remainder_PositiveNumbers()V */
+/* Bank 0, offset 0x13B8 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Remainder_PositiveNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 85;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.7 */
+    s1 = 7;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldloc.0 */
+    /* IL_0007: ldloc.1 */
+    /* IL_0008: rem */
+    s2 = local_0 % local_1;
+    /* IL_0009: stloc.2 */
+    local_2 = s2;
+    /* IL_000A: ldc.i4.1 */
+    s3 = 1;
+    /* IL_000B: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0010: ldloc.2 */
+    /* IL_0011: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0016: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001B: stloc.3 */
+    local_3 = s4;
+    /* IL_001C: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 18: JumpCS.TestMath.Tests.IntegerMathTests.Remainder_NegativeNumbers()V */
+/* Bank 0, offset 0x14A0 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_Remainder_NegativeNumbers(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = -85;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.7 */
+    s1 = 7;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldloc.0 */
+    /* IL_0007: ldloc.1 */
+    /* IL_0008: rem */
+    s2 = local_0 % local_1;
+    /* IL_0009: stloc.2 */
+    local_2 = s2;
+    /* IL_000A: ldc.i4.m1 */
+    s3 = -1;
+    /* IL_000B: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0010: ldloc.2 */
+    /* IL_0011: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0016: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_001B: stloc.3 */
+    local_3 = s4;
+    /* IL_001C: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 19: JumpCS.TestMath.Tests.IntegerMathTests.BitwiseAnd()V */
+/* Bank 0, offset 0x1588 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_BitwiseAnd(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4 */
+    s0 = 172L;
+    /* IL_0006: stloc.0 */
+    local_0 = s0;
+    /* IL_0007: ldc.i4 */
+    s1 = 195L;
+    /* IL_000C: stloc.1 */
+    local_1 = s1;
+    /* IL_000D: ldloc.0 */
+    /* IL_000E: ldloc.1 */
+    /* IL_000F: and */
+    s2 = local_0 & local_1;
+    /* IL_0010: stloc.2 */
+    local_2 = s2;
+    /* IL_0011: ldc.i4 */
+    s3 = 128L;
+    /* IL_0016: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_001B: ldloc.2 */
+    /* IL_001C: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0021: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_0026: stloc.3 */
+    local_3 = s4;
+    /* IL_0027: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 20: JumpCS.TestMath.Tests.IntegerMathTests.BitwiseOr()V */
+/* Bank 0, offset 0x16C8 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_BitwiseOr(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4 */
+    s0 = 172L;
+    /* IL_0006: stloc.0 */
+    local_0 = s0;
+    /* IL_0007: ldc.i4 */
+    s1 = 195L;
+    /* IL_000C: stloc.1 */
+    local_1 = s1;
+    /* IL_000D: ldloc.0 */
+    /* IL_000E: ldloc.1 */
+    /* IL_000F: or */
+    s2 = local_0 | local_1;
+    /* IL_0010: stloc.2 */
+    local_2 = s2;
+    /* IL_0011: ldc.i4 */
+    s3 = 239L;
+    /* IL_0016: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_001B: ldloc.2 */
+    /* IL_001C: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0021: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_0026: stloc.3 */
+    local_3 = s4;
+    /* IL_0027: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 21: JumpCS.TestMath.Tests.IntegerMathTests.BitwiseXor()V */
+/* Bank 0, offset 0x1808 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_BitwiseXor(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4 */
+    s0 = 172L;
+    /* IL_0006: stloc.0 */
+    local_0 = s0;
+    /* IL_0007: ldc.i4 */
+    s1 = 195L;
+    /* IL_000C: stloc.1 */
+    local_1 = s1;
+    /* IL_000D: ldloc.0 */
+    /* IL_000E: ldloc.1 */
+    /* IL_000F: xor */
+    s2 = local_0 ^ local_1;
+    /* IL_0010: stloc.2 */
+    local_2 = s2;
+    /* IL_0011: ldc.i4.s */
+    s3 = 111;
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: ldloc.2 */
+    /* IL_0019: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_001E: call */
+    s4 = (s3 == local_2) ? 1 : 0;
+    /* IL_0023: stloc.3 */
+    local_3 = s4;
+    /* IL_0024: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 22: JumpCS.TestMath.Tests.IntegerMathTests.LeftShift()V */
+/* Bank 0, offset 0x1930 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_LeftShift(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.1 */
+    s0 = 1;
+    /* IL_0002: stloc.0 */
+    local_0 = s0;
+    /* IL_0003: ldloc.0 */
+    /* IL_0004: ldc.i4.4 */
+    s1 = 4;
+    /* IL_0005: shl */
+    s2 = local_0 << s1;
+    /* IL_0006: stloc.1 */
+    local_1 = s2;
+    /* IL_0007: ldc.i4.s */
+    s3 = 16;
+    /* IL_0009: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_000E: ldloc.1 */
+    /* IL_000F: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0014: call */
+    s4 = (s3 == local_1) ? 1 : 0;
+    /* IL_0019: stloc.2 */
+    local_2 = s4;
+    /* IL_001A: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 23: JumpCS.TestMath.Tests.IntegerMathTests.RightShift()V */
+/* Bank 0, offset 0x1A08 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_RightShift(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 16;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldloc.0 */
+    /* IL_0005: ldc.i4.4 */
+    s1 = 4;
+    /* IL_0006: shr */
+    s2 = local_0 >> s1;
+    /* IL_0007: stloc.1 */
+    local_1 = s2;
+    /* IL_0008: ldc.i4.1 */
+    s3 = 1;
+    /* IL_0009: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_000E: ldloc.1 */
+    /* IL_000F: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0014: call */
+    s4 = (s3 == local_1) ? 1 : 0;
+    /* IL_0019: stloc.2 */
+    local_2 = s4;
+    /* IL_001A: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 24: JumpCS.TestMath.Tests.IntegerMathTests.UnaryMinus()V */
+/* Bank 0, offset 0x1AE0 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_UnaryMinus(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldloc.0 */
+    /* IL_0005: neg */
+    s1 = -local_0;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldc.i4.s */
+    s2 = -42;
+    /* IL_0009: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_000E: ldloc.1 */
+    /* IL_000F: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0014: call */
+    s3 = (s2 == local_1) ? 1 : 0;
+    /* IL_0019: stloc.2 */
+    local_2 = s3;
+    /* IL_001A: ret */
+    return;
+}
+#pragma codeseg(pop)
+
+/* Method ID 25: JumpCS.TestMath.Tests.IntegerMathTests.ChainedOperations()V */
+/* Bank 0, offset 0x1BB8 */
+#pragma codeseg(push, "BANK00")
+void JumpCS_TestMath_Tests_IntegerMathTests_ChainedOperations(void)
+{
+    int32_t local_0 = 0;
+    int32_t local_1 = 0;
+    int32_t local_2 = 0;
+    int32_t local_3 = 0;
+    int32_t local_4 = 0;
     int32_t s0 = 0;
     int32_t s1 = 0;
     int32_t s2 = 0;
@@ -85,807 +1198,46 @@ void JumpCS_TestMath_Program_Main(void)
     int32_t s6 = 0;
     int32_t s7 = 0;
     int32_t s8 = 0;
-    int32_t s9 = 0;
-    int32_t s10 = 0;
-    int32_t s11 = 0;
-    int32_t s12 = 0;
-    int32_t s13 = 0;
-    int32_t s14 = 0;
-    int32_t s15 = 0;
 
-/* IL_0000: nop */
-/* IL_0001: call */
-/* IL_0006: nop */
-/* IL_0007: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 2: JumpCS.TestMath.Tests.IntegerMathTests.Addition_PositiveNumbers()V */
-/* Bank 0, offset 0x0530 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Addition_PositiveNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: add */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 3: JumpCS.TestMath.Tests.IntegerMathTests.Addition_NegativeNumbers()V */
-/* Bank 0, offset 0x0628 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Addition_NegativeNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: add */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 4: JumpCS.TestMath.Tests.IntegerMathTests.Addition_MixedSigns()V */
-/* Bank 0, offset 0x0720 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Addition_MixedSigns(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: add */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 5: JumpCS.TestMath.Tests.IntegerMathTests.Addition_Overflow()V */
-/* Bank 0, offset 0x0818 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Addition_Overflow(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4 */
-/* IL_0006: stloc.0 */
-/* IL_0007: ldc.i4.1 */
-/* IL_0008: stloc.1 */
-/* IL_0009: ldloc.0 */
-/* IL_000A: ldloc.1 */
-/* IL_000B: add */
-/* IL_000C: stloc.2 */
-/* IL_000D: ldc.i4 */
-/* IL_0012: box */
-/* IL_0017: ldloc.2 */
-/* IL_0018: box */
-/* IL_001D: call */
-/* IL_0022: stloc.3 */
-/* IL_0023: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 6: JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_PositiveNumbers()V */
-/* Bank 0, offset 0x0938 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_PositiveNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: sub */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 7: JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeResult()V */
-/* Bank 0, offset 0x0A30 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_NegativeResult(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: sub */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 8: JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeNumbers()V */
-/* Bank 0, offset 0x0B28 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Subtraction_NegativeNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: sub */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 9: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_PositiveNumbers()V */
-/* Bank 0, offset 0x0C20 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_PositiveNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.7 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldloc.0 */
-/* IL_0007: ldloc.1 */
-/* IL_0008: mul */
-/* IL_0009: stloc.2 */
-/* IL_000A: ldc.i4.s */
-/* IL_000C: box */
-/* IL_0011: ldloc.2 */
-/* IL_0012: box */
-/* IL_0017: call */
-/* IL_001C: stloc.3 */
-/* IL_001D: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 10: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_ByZero()V */
-/* Bank 0, offset 0x0D10 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_ByZero(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.0 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldloc.0 */
-/* IL_0007: ldloc.1 */
-/* IL_0008: mul */
-/* IL_0009: stloc.2 */
-/* IL_000A: ldc.i4.0 */
-/* IL_000B: box */
-/* IL_0010: ldloc.2 */
-/* IL_0011: box */
-/* IL_0016: call */
-/* IL_001B: stloc.3 */
-/* IL_001C: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 11: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_NegativeNumbers()V */
-/* Bank 0, offset 0x0DF8 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_NegativeNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: mul */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 12: JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_MixedSigns()V */
-/* Bank 0, offset 0x0EF0 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Multiplication_MixedSigns(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: mul */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 13: JumpCS.TestMath.Tests.IntegerMathTests.Division_PositiveNumbers()V */
-/* Bank 0, offset 0x0FE8 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Division_PositiveNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.7 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldloc.0 */
-/* IL_0007: ldloc.1 */
-/* IL_0008: div */
-/* IL_0009: stloc.2 */
-/* IL_000A: ldc.i4.s */
-/* IL_000C: box */
-/* IL_0011: ldloc.2 */
-/* IL_0012: box */
-/* IL_0017: call */
-/* IL_001C: stloc.3 */
-/* IL_001D: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 14: JumpCS.TestMath.Tests.IntegerMathTests.Division_WithRemainder()V */
-/* Bank 0, offset 0x10D8 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Division_WithRemainder(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.7 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldloc.0 */
-/* IL_0007: ldloc.1 */
-/* IL_0008: div */
-/* IL_0009: stloc.2 */
-/* IL_000A: ldc.i4.s */
-/* IL_000C: box */
-/* IL_0011: ldloc.2 */
-/* IL_0012: box */
-/* IL_0017: call */
-/* IL_001C: stloc.3 */
-/* IL_001D: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 15: JumpCS.TestMath.Tests.IntegerMathTests.Division_NegativeNumbers()V */
-/* Bank 0, offset 0x11C8 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Division_NegativeNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: div */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 16: JumpCS.TestMath.Tests.IntegerMathTests.Division_MixedSigns()V */
-/* Bank 0, offset 0x12C0 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Division_MixedSigns(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldloc.0 */
-/* IL_0008: ldloc.1 */
-/* IL_0009: div */
-/* IL_000A: stloc.2 */
-/* IL_000B: ldc.i4.s */
-/* IL_000D: box */
-/* IL_0012: ldloc.2 */
-/* IL_0013: box */
-/* IL_0018: call */
-/* IL_001D: stloc.3 */
-/* IL_001E: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 17: JumpCS.TestMath.Tests.IntegerMathTests.Remainder_PositiveNumbers()V */
-/* Bank 0, offset 0x13B8 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Remainder_PositiveNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.7 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldloc.0 */
-/* IL_0007: ldloc.1 */
-/* IL_0008: rem */
-/* IL_0009: stloc.2 */
-/* IL_000A: ldc.i4.1 */
-/* IL_000B: box */
-/* IL_0010: ldloc.2 */
-/* IL_0011: box */
-/* IL_0016: call */
-/* IL_001B: stloc.3 */
-/* IL_001C: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 18: JumpCS.TestMath.Tests.IntegerMathTests.Remainder_NegativeNumbers()V */
-/* Bank 0, offset 0x14A0 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_Remainder_NegativeNumbers(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.7 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldloc.0 */
-/* IL_0007: ldloc.1 */
-/* IL_0008: rem */
-/* IL_0009: stloc.2 */
-/* IL_000A: ldc.i4.m1 */
-/* IL_000B: box */
-/* IL_0010: ldloc.2 */
-/* IL_0011: box */
-/* IL_0016: call */
-/* IL_001B: stloc.3 */
-/* IL_001C: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 19: JumpCS.TestMath.Tests.IntegerMathTests.BitwiseAnd()V */
-/* Bank 0, offset 0x1588 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_BitwiseAnd(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4 */
-/* IL_0006: stloc.0 */
-/* IL_0007: ldc.i4 */
-/* IL_000C: stloc.1 */
-/* IL_000D: ldloc.0 */
-/* IL_000E: ldloc.1 */
-/* IL_000F: and */
-/* IL_0010: stloc.2 */
-/* IL_0011: ldc.i4 */
-/* IL_0016: box */
-/* IL_001B: ldloc.2 */
-/* IL_001C: box */
-/* IL_0021: call */
-/* IL_0026: stloc.3 */
-/* IL_0027: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 20: JumpCS.TestMath.Tests.IntegerMathTests.BitwiseOr()V */
-/* Bank 0, offset 0x16C8 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_BitwiseOr(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4 */
-/* IL_0006: stloc.0 */
-/* IL_0007: ldc.i4 */
-/* IL_000C: stloc.1 */
-/* IL_000D: ldloc.0 */
-/* IL_000E: ldloc.1 */
-/* IL_000F: or */
-/* IL_0010: stloc.2 */
-/* IL_0011: ldc.i4 */
-/* IL_0016: box */
-/* IL_001B: ldloc.2 */
-/* IL_001C: box */
-/* IL_0021: call */
-/* IL_0026: stloc.3 */
-/* IL_0027: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 21: JumpCS.TestMath.Tests.IntegerMathTests.BitwiseXor()V */
-/* Bank 0, offset 0x1808 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_BitwiseXor(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4 */
-/* IL_0006: stloc.0 */
-/* IL_0007: ldc.i4 */
-/* IL_000C: stloc.1 */
-/* IL_000D: ldloc.0 */
-/* IL_000E: ldloc.1 */
-/* IL_000F: xor */
-/* IL_0010: stloc.2 */
-/* IL_0011: ldc.i4.s */
-/* IL_0013: box */
-/* IL_0018: ldloc.2 */
-/* IL_0019: box */
-/* IL_001E: call */
-/* IL_0023: stloc.3 */
-/* IL_0024: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 22: JumpCS.TestMath.Tests.IntegerMathTests.LeftShift()V */
-/* Bank 0, offset 0x1930 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_LeftShift(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.1 */
-/* IL_0002: stloc.0 */
-/* IL_0003: ldloc.0 */
-/* IL_0004: ldc.i4.4 */
-/* IL_0005: shl */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldc.i4.s */
-/* IL_0009: box */
-/* IL_000E: ldloc.1 */
-/* IL_000F: box */
-/* IL_0014: call */
-/* IL_0019: stloc.2 */
-/* IL_001A: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 23: JumpCS.TestMath.Tests.IntegerMathTests.RightShift()V */
-/* Bank 0, offset 0x1A08 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_RightShift(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldloc.0 */
-/* IL_0005: ldc.i4.4 */
-/* IL_0006: shr */
-/* IL_0007: stloc.1 */
-/* IL_0008: ldc.i4.1 */
-/* IL_0009: box */
-/* IL_000E: ldloc.1 */
-/* IL_000F: box */
-/* IL_0014: call */
-/* IL_0019: stloc.2 */
-/* IL_001A: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 24: JumpCS.TestMath.Tests.IntegerMathTests.UnaryMinus()V */
-/* Bank 0, offset 0x1AE0 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_UnaryMinus(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldloc.0 */
-/* IL_0005: neg */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldc.i4.s */
-/* IL_0009: box */
-/* IL_000E: ldloc.1 */
-/* IL_000F: box */
-/* IL_0014: call */
-/* IL_0019: stloc.2 */
-/* IL_001A: ret */
-}
-#pragma codeseg(pop)
-
-/* Method ID 25: JumpCS.TestMath.Tests.IntegerMathTests.ChainedOperations()V */
-/* Bank 0, offset 0x1BB8 */
-#pragma codeseg(push, "BANK00")
-void JumpCS_TestMath_Tests_IntegerMathTests_ChainedOperations(void)
-{
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
-    int32_t local_0 = 0;
-    int32_t local_1 = 0;
-    int32_t local_2 = 0;
-    int32_t local_3 = 0;
-    int32_t local_4 = 0;
-
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.s */
-/* IL_0006: stloc.1 */
-/* IL_0007: ldc.i4.3 */
-/* IL_0008: stloc.2 */
-/* IL_0009: ldloc.0 */
-/* IL_000A: ldloc.1 */
-/* IL_000B: add */
-/* IL_000C: ldloc.2 */
-/* IL_000D: mul */
-/* IL_000E: ldc.i4.5 */
-/* IL_000F: sub */
-/* IL_0010: stloc.3 */
-/* IL_0011: ldc.i4.s */
-/* IL_0013: box */
-/* IL_0018: ldloc.3 */
-/* IL_0019: box */
-/* IL_001E: call */
-/* IL_0023: stloc.s */
-/* IL_0025: ret */
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 10;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.s */
+    s1 = 20;
+    /* IL_0006: stloc.1 */
+    local_1 = s1;
+    /* IL_0007: ldc.i4.3 */
+    s2 = 3;
+    /* IL_0008: stloc.2 */
+    local_2 = s2;
+    /* IL_0009: ldloc.0 */
+    /* IL_000A: ldloc.1 */
+    /* IL_000B: add */
+    s3 = local_0 + local_1;
+    /* IL_000C: ldloc.2 */
+    /* IL_000D: mul */
+    s4 = s3 * local_2;
+    /* IL_000E: ldc.i4.5 */
+    s5 = 5;
+    /* IL_000F: sub */
+    s6 = s4 - s5;
+    /* IL_0010: stloc.3 */
+    local_3 = s6;
+    /* IL_0011: ldc.i4.s */
+    s7 = 85;
+    /* IL_0013: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_0018: ldloc.3 */
+    /* IL_0019: box */
+    /* box ? passthrough (no heap allocation) */
+    /* IL_001E: call */
+    s8 = (s7 == local_3) ? 1 : 0;
+    /* IL_0023: stloc.s */
+    local_4 = s8;
+    /* IL_0025: ret */
+    return;
 }
 #pragma codeseg(pop)
 
@@ -894,36 +1246,51 @@ void JumpCS_TestMath_Tests_IntegerMathTests_ChainedOperations(void)
 #pragma codeseg(push, "BANK00")
 void JumpCS_TestMath_Tests_IntegerMathTests_DivideByZeroThrows(void)
 {
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
     int32_t local_0 = 0;
     int32_t local_1 = 0;
     int32_t local_2 = 0;
     int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
 
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.0 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldc.i4.1 */
-/* IL_0007: stloc.2 */
-/* IL_0008: nop */
-/* IL_0009: ldloc.0 */
-/* IL_000A: ldloc.1 */
-/* IL_000B: div */
-/* IL_000C: stloc.3 */
-/* IL_000D: nop */
-/* IL_000E: leave.s */
-/* IL_0010: pop */
-/* IL_0011: nop */
-/* IL_0012: ldc.i4.0 */
-/* IL_0013: stloc.2 */
-/* IL_0014: nop */
-/* IL_0015: leave.s */
-/* IL_0017: ret */
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.0 */
+    s1 = 0;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldc.i4.1 */
+    s2 = 1;
+    /* IL_0007: stloc.2 */
+    local_2 = s2;
+    /* IL_0008: nop */
+    /* IL_0009: ldloc.0 */
+    /* IL_000A: ldloc.1 */
+    /* IL_000B: div */
+    s3 = local_0 / local_1;
+    /* IL_000C: stloc.3 */
+    local_3 = s3;
+    /* IL_000D: nop */
+    /* IL_000E: leave.s */
+    goto IL_0017;
+    /* IL_0010: pop */
+    /* IL_0011: nop */
+    /* IL_0012: ldc.i4.0 */
+    s4 = 0;
+    /* IL_0013: stloc.2 */
+    local_2 = s4;
+    /* IL_0014: nop */
+    /* IL_0015: leave.s */
+    goto IL_0017;
+  IL_0017:
+    /* IL_0017: ret */
+    return;
 }
 #pragma codeseg(pop)
 
@@ -932,35 +1299,50 @@ void JumpCS_TestMath_Tests_IntegerMathTests_DivideByZeroThrows(void)
 #pragma codeseg(push, "BANK00")
 void JumpCS_TestMath_Tests_IntegerMathTests_ModuloByZeroThrows(void)
 {
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
     int32_t local_0 = 0;
     int32_t local_1 = 0;
     int32_t local_2 = 0;
     int32_t local_3 = 0;
+    int32_t s0 = 0;
+    int32_t s1 = 0;
+    int32_t s2 = 0;
+    int32_t s3 = 0;
+    int32_t s4 = 0;
 
-/* IL_0000: nop */
-/* IL_0001: ldc.i4.s */
-/* IL_0003: stloc.0 */
-/* IL_0004: ldc.i4.0 */
-/* IL_0005: stloc.1 */
-/* IL_0006: ldc.i4.1 */
-/* IL_0007: stloc.2 */
-/* IL_0008: nop */
-/* IL_0009: ldloc.0 */
-/* IL_000A: ldloc.1 */
-/* IL_000B: rem */
-/* IL_000C: stloc.3 */
-/* IL_000D: nop */
-/* IL_000E: leave.s */
-/* IL_0010: pop */
-/* IL_0011: nop */
-/* IL_0012: ldc.i4.0 */
-/* IL_0013: stloc.2 */
-/* IL_0014: nop */
-/* IL_0015: leave.s */
-/* IL_0017: ret */
+    /* IL_0000: nop */
+    /* IL_0001: ldc.i4.s */
+    s0 = 42;
+    /* IL_0003: stloc.0 */
+    local_0 = s0;
+    /* IL_0004: ldc.i4.0 */
+    s1 = 0;
+    /* IL_0005: stloc.1 */
+    local_1 = s1;
+    /* IL_0006: ldc.i4.1 */
+    s2 = 1;
+    /* IL_0007: stloc.2 */
+    local_2 = s2;
+    /* IL_0008: nop */
+    /* IL_0009: ldloc.0 */
+    /* IL_000A: ldloc.1 */
+    /* IL_000B: rem */
+    s3 = local_0 % local_1;
+    /* IL_000C: stloc.3 */
+    local_3 = s3;
+    /* IL_000D: nop */
+    /* IL_000E: leave.s */
+    goto IL_0017;
+    /* IL_0010: pop */
+    /* IL_0011: nop */
+    /* IL_0012: ldc.i4.0 */
+    s4 = 0;
+    /* IL_0013: stloc.2 */
+    local_2 = s4;
+    /* IL_0014: nop */
+    /* IL_0015: leave.s */
+    goto IL_0017;
+  IL_0017:
+    /* IL_0017: ret */
+    return;
 }
 #pragma codeseg(pop)

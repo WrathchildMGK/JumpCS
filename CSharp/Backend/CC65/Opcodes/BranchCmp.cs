@@ -10,7 +10,8 @@ public class BranchCmp(string op) : IOpcodeTranslation
         var s = (CC65Support)support;
         string right = s.Stack.Pop();
         string left = s.Stack.Pop();
-        int target = s.Iterator.NextIndex + (int)(operand ?? 0);
+        int offset = Br.SignExtendOffset(operand, s.Iterator.CurrentOpcode);
+        int target = s.Iterator.NextIndex + offset;
         s.Emit($"if ({left} {op} {right}) goto IL_{target:X4};");
     }
 }

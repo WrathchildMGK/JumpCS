@@ -11,7 +11,7 @@ public class CompareOp(string op) : IOpcodeTranslation
         string right = s.Stack.Pop();
         string left = s.Stack.Pop();
         string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{CC65TypeMapper.StackType} {temp} = ({left} {op} {right}) ? 1 : 0;");
+        s.Emit($"{temp} = ({left} {op} {right}) ? 1 : 0;");
         s.Stack.Push(temp);
     }
 }

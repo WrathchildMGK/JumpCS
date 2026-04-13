@@ -11,7 +11,7 @@ public class Ldc_I4 : IOpcodeTranslation
         if (operand is int val)
         {
             string temp = s.Stack.AllocateDataRegister();
-            s.Emit($"{CC65TypeMapper.StackType} {temp} = {val}L;");
+            s.Emit($"{temp} = {val}L;");
             s.Stack.Push(temp);
         }
     }

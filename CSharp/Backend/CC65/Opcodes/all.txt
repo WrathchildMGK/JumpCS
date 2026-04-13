@@ -1,0 +1,495 @@
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>Binary operation: add, sub, mul, div, rem, and, or, xor, shl, shr</summary>
+public class BinaryOp(string op) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string right = s.Stack.Pop();
+        string left = s.Stack.Pop();
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = {left} {op} {right};");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>box — passthrough for value types (no heap boxing on 6502)</summary>
+public class Box : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        ((CC65Support)support).Emit("/* box — passthrough (no heap allocation) */");
+    }
+}
+using System.Reflection.Emit;
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>br, br.s, leave, leave.s — unconditional branch</summary>
+public class Br : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        int offset = SignExtendOffset(operand, s.Iterator.CurrentOpcode);
+        int target = s.Iterator.NextIndex + offset;
+        s.Emit($"goto IL_{target:X4};");
+        s.Stack.Clear();
+    }
+
+    /// <summary>Sign-extend short-form branch offsets</summary>
+    internal static int SignExtendOffset(object? operand, OpCode opcode)
+    {
+        if (operand is not int val) return 0;
+
+        // Short-form opcodes use signed byte offsets
+        if (opcode.OperandType == OperandType.ShortInlineBrTarget)
+            return (sbyte)(val & 0xFF);
+
+        return val;
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>beq, bne.un, blt, bge, ble — signed conditional branch</summary>
+public class BranchCmp(string op) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string right = s.Stack.Pop();
+        string left = s.Stack.Pop();
+        int offset = Br.SignExtendOffset(operand, s.Iterator.CurrentOpcode);
+        int target = s.Iterator.NextIndex + offset;
+        s.Emit($"if ({left} {op} {right}) goto IL_{target:X4};");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>blt.un, bge.un, ble.un, bgt.un — unsigned conditional branch</summary>
+public class BranchCmpUnsigned(string op) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string right = s.Stack.Pop();
+        string left = s.Stack.Pop();
+        int offset = Br.SignExtendOffset(operand, s.Iterator.CurrentOpcode);
+        int target = s.Iterator.NextIndex + offset;
+        s.Emit($"if ((uint32_t){left} {op} (uint32_t){right}) goto IL_{target:X4};");
+    }
+}
+using System.Reflection;
+using JumpCS.Backend.Interfaces;
+using JumpCS.Core;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>call / callvirt — invoke a method</summary>
+public class Call : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (operand is not int methodToken) return;
+
+        var targetMethod = s.ResolveMethodToken(s.Method.OwningClass, methodToken);
+
+        if (targetMethod != null)
+        {
+            string funcName = CC65BackEnd.GetCFunctionName(targetMethod.OwningClass, targetMethod);
+            bool isVoid = targetMethod.Signature.EndsWith(")V");
+
+            s.EmitComment($"call {targetMethod.OwningClass.FullName}.{targetMethod.Name}");
+
+            string methodKey = CC65MethodBank.GetMethodKey(targetMethod.OwningClass, targetMethod);
+            if (s.MethodBank.Assignments.TryGetValue(methodKey, out var assign))
+            {
+                if (isVoid)
+                {
+                    s.Emit($"call_banked({assign.MethodId}); /* {funcName} */");
+                }
+                else
+                {
+                    string temp = s.Stack.AllocateDataRegister();
+                    s.Emit($"{temp} = call_banked({assign.MethodId}); /* {funcName} */");
+                    s.Stack.Push(temp);
+                }
+            }
+            else
+            {
+                s.Emit($"/* WARNING: method not assigned to bank: {funcName} */");
+            }
+        }
+        else
+        {
+            var reflectionMethod = s.TryResolveFrameworkMethod(s.Method.OwningClass, methodToken);
+
+            if (reflectionMethod != null)
+            {
+                if (s.ObjectHandler.IsReflectionMethod(reflectionMethod))
+                {
+                    s.ObjectHandler.HandleReflectionMethodCall(reflectionMethod, s.Stack);
+                }
+                else
+                {
+                    s.Emit($"/* TODO: framework call {reflectionMethod.DeclaringType?.Name}::{reflectionMethod.Name} */");
+
+                    var paramCount = reflectionMethod is MethodInfo mi ? mi.GetParameters().Length : 0;
+                    for (int i = 0; i < paramCount && s.Stack.StackDepth > 0; i++)
+                        s.Stack.Pop();
+
+                    if (reflectionMethod is MethodInfo info && info.ReturnType != typeof(void))
+                    {
+                        string temp = s.Stack.AllocateDataRegister();
+                        s.Emit($"{temp} = 0; /* TODO: framework return */");
+                        s.Stack.Push(temp);
+                    }
+                }
+            }
+            else
+            {
+                s.Emit($"/* WARNING: unresolved method token 0x{methodToken:X8} */");
+            }
+        }
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ceq, clt, cgt — signed comparison, push 0 or 1</summary>
+public class CompareOp(string op) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string right = s.Stack.Pop();
+        string left = s.Stack.Pop();
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = ({left} {op} {right}) ? 1 : 0;");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>clt.un, cgt.un — unsigned comparison, push 0 or 1</summary>
+public class CompareOpUnsigned(string op) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string right = s.Stack.Pop();
+        string left = s.Stack.Pop();
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = ((uint32_t){left} {op} (uint32_t){right}) ? 1 : 0;");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>conv.i4, conv.u1, conv.i8 — type conversion via C cast</summary>
+public class Conv(string targetType) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string value = s.Stack.Pop();
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = ({targetType}){value};");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>conv.r4, conv.r8 — float conversions not yet supported</summary>
+public class ConvUnsupported(string typeName) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string value = s.Stack.Pop();
+        s.Emit($"/* WARNING: {typeName} conversion not supported on 6502 */");
+        s.Stack.Push(value);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>dup — duplicate top of stack</summary>
+public class Dup : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string top = s.Stack.Peek();
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = {top};");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ldarg.0 — push first argument (this or first param)</summary>
+public class Ldarg_0 : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        ((CC65Support)support).Stack.Push("arg_0");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ldc.i4 — push 32-bit integer constant from operand</summary>
+public class Ldc_I4 : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (operand is int val)
+        {
+            string temp = s.Stack.AllocateDataRegister();
+            s.Emit($"{temp} = {val}L;");
+            s.Stack.Push(temp);
+        }
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ldc.i4.0 through ldc.i4.8 and ldc.i4.m1 — push integer constant</summary>
+public class Ldc_I4_N(int value) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = {value};");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ldc.i4.s — push short-form integer constant (signed byte, sign-extended)</summary>
+public class Ldc_I4_S : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (operand is int val)
+        {
+            // ldc.i4.s operand is a signed byte (-128..127) sign-extended to int32
+            int signExtended = (sbyte)(val & 0xFF);
+            string temp = s.Stack.AllocateDataRegister();
+            s.Emit($"{temp} = {signExtended};");
+            s.Stack.Push(temp);
+        }
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ldloc — push local variable by index operand</summary>
+public class Ldloc : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (operand is int idx) s.Stack.Push($"local_{idx}");
+        else if (operand is ushort uidx) s.Stack.Push($"local_{uidx}");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ldloc.0 through ldloc.3 — push local variable</summary>
+public class Ldloc_N(int index) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        ((CC65Support)support).Stack.Push($"local_{index}");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ldloc.s — push local variable by index operand</summary>
+public class Ldloc_S : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        if (operand is int idx)
+            ((CC65Support)support).Stack.Push($"local_{idx}");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>newobj — allocate and construct object (simplified)</summary>
+public class Newobj : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (operand is int methodToken)
+        {
+            s.Emit($"/* TODO: newobj token 0x{methodToken:X8} */");
+            string temp = s.Stack.AllocateDataRegister();
+            s.Emit($"{temp} = 0; /* newobj placeholder */");
+            s.Stack.Push(temp);
+        }
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>nop — no operation</summary>
+public class Nop : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support) { }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>pop — discard top of stack</summary>
+public class Pop : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (s.Stack.StackDepth > 0)
+            s.Emit($"(void){s.Stack.Pop()}; /* pop */");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>ret — return from method</summary>
+public class Ret : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (s.Stack.StackDepth > 0)
+            s.Emit($"return {s.Stack.Pop()};");
+        else
+            s.Emit("return;");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>shr.un — unsigned (logical) right shift</summary>
+public class Shr_Un : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string amount = s.Stack.Pop();
+        string value = s.Stack.Pop();
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = (uint32_t){value} >> {amount};");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>stloc.0 through stloc.3 — store to local variable</summary>
+public class Stloc_N(int index) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string value = s.Stack.Pop();
+        s.Emit($"local_{index} = {value};");
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>stloc.s — store to local variable by index operand</summary>
+public class Stloc_S : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        if (operand is int idx)
+        {
+            string value = s.Stack.Pop();
+            s.Emit($"local_{idx} = {value};");
+        }
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>Unary operation: neg (-), not (~)</summary>
+public class UnaryOp(string op) : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        var s = (CC65Support)support;
+        string value = s.Stack.Pop();
+        string temp = s.Stack.AllocateDataRegister();
+        s.Emit($"{temp} = {op}{value};");
+        s.Stack.Push(temp);
+    }
+}
+using JumpCS.Backend.Interfaces;
+
+namespace JumpCS.Backend.CC65.Opcodes;
+
+/// <summary>unbox / unbox.any — passthrough for value types</summary>
+public class Unbox : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        ((CC65Support)support).Emit("/* unbox — passthrough */");
+    }
+}
+using JumpCS.Backend.Interfaces;
+namespace JumpCS.Backend.CC65.Opcodes;
+public class Xor : IOpcodeTranslation
+{
+    public void Translate(object? operand, IBackendSupport support)
+    {
+        // TODO: Fix for CC65
+    }
+}

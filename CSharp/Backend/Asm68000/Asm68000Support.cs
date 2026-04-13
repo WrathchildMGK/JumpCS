@@ -24,6 +24,7 @@ namespace JumpCS.Backend.Asm68000
         private readonly SystemDoubleHandler _doubleHandler;
         private readonly SystemFloatHandler _floatHandler;
         private readonly SystemIntegerHandler _integerHandler;
+        private readonly SystemObjectHandler _objectHandler;
 
         // Method resolution delegates — injected from BackEnd
         private readonly Func<ClassMetadata, int, MethodMetadata?> _resolveMethodToken;
@@ -79,6 +80,12 @@ namespace JumpCS.Backend.Asm68000
                 () => _labels.GetUniqueLabel()
             );
 
+            _objectHandler = new SystemObjectHandler(
+                _asmWriter,
+                (stack) => stack.AllocateDataRegister(),
+                () => _labels.GetUniqueLabel()
+            );
+
             _doubleLocals.Clear();
         }
 
@@ -96,6 +103,7 @@ namespace JumpCS.Backend.Asm68000
         public ISystemDoubleHandler DoubleHandler { get { return _doubleHandler; } }
         public ISystemFloatHandler FloatHandler { get { return _floatHandler; } }
         public ISystemIntegerHandler IntegerHandler { get { return _integerHandler; } }
+        public ISystemObjectHandler ObjectHandler { get { return _objectHandler; } }
 
         // --- New: method resolution ---
         public MethodMetadata? ResolveMethodToken(ClassMetadata callingClass, int methodToken)

@@ -35,6 +35,9 @@ public class CC65StackSimulator : IBackendStackSimulator
 
     // --- IBackendStackSimulator: register allocation → temp variable allocation ---
 
+    /// <summary>Total temp variables allocated (for declaring them at method top)</summary>
+    public int TempCount => _tempCounter;
+    
     /// <summary>Allocates a C temp variable name instead of a data register</summary>
     public string AllocateDataRegister() => $"s{_tempCounter++}";
 

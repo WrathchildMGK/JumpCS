@@ -10,7 +10,7 @@ public class UnaryOp(string op) : IOpcodeTranslation
         var s = (CC65Support)support;
         string value = s.Stack.Pop();
         string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{CC65TypeMapper.StackType} {temp} = {op}{value};");
+        s.Emit($"{temp} = {op}{value};");
         s.Stack.Push(temp);
     }
 }

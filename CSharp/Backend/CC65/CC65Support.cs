@@ -1,4 +1,5 @@
-﻿using JumpCS.Backend.Interfaces;
+﻿using JumpCS.Backend.CC65.SystemTypes;
+using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
 using System.Reflection;
@@ -14,6 +15,7 @@ public class CC65Support : IBackendSupport
     private readonly CC65MethodBank _methodBank;
     private readonly CC65LabelMapper _labels;
     private readonly IBackendStackSimulator _stack;
+    private readonly ISystemObjectHandler _objectHandler;
     private readonly Func<ClassMetadata, int, MethodMetadata?> _resolveMethodToken;
     private readonly Func<ClassMetadata, int, MethodBase?> _tryResolveFrameworkMethod;
 
@@ -35,6 +37,12 @@ public class CC65Support : IBackendSupport
         _methodBank = methodBank;
         _resolveMethodToken = resolveMethodToken;
         _tryResolveFrameworkMethod = tryResolveFrameworkMethod;
+
+        _objectHandler = new SystemObjectHandler(
+            writer,
+            (stack) => stack.AllocateDataRegister(),
+            () => GetUniqueLabel()
+        );
     }
 
     // --- Public accessors (consistent naming with Asm68000Support) ---
@@ -61,6 +69,8 @@ public class CC65Support : IBackendSupport
     public ISystemIntegerHandler IntegerHandler => throw new NotImplementedException();
 
     public ISystemMathHandler MathHandler => throw new NotImplementedException();
+
+    public ISystemObjectHandler ObjectHandler => _objectHandler;
 
     // --- Method resolution ---
 

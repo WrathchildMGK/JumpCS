@@ -7,7 +7,8 @@ public class Ldc_I4_S : IOpcodeTranslation
         if (operand is int shortIntVal)
         {
             string targetReg = support.Stack.AllocateDataRegister();
-            support.AsmWriter.WriteLine($"    MOVE.L #{shortIntVal},{targetReg}  ; Load short constant");
+            int signExtended = (sbyte)(shortIntVal & 0xFF);
+            support.AsmWriter.WriteLine($"    MOVE.L #{signExtended},{targetReg}  ; Load short constant");
             support.Stack.Push(targetReg);
         }
     }

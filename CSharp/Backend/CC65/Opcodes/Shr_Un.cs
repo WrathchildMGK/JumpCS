@@ -11,7 +11,7 @@ public class Shr_Un : IOpcodeTranslation
         string amount = s.Stack.Pop();
         string value = s.Stack.Pop();
         string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{CC65TypeMapper.StackType} {temp} = (uint32_t){value} >> {amount};");
+        s.Emit($"{temp} = (uint32_t){value} >> {amount};");
         s.Stack.Push(temp);
     }
 }

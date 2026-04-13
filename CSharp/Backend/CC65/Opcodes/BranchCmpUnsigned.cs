@@ -10,7 +10,8 @@ public class BranchCmpUnsigned(string op) : IOpcodeTranslation
         var s = (CC65Support)support;
         string right = s.Stack.Pop();
         string left = s.Stack.Pop();
-        int target = s.Iterator.NextIndex + (int)(operand ?? 0);
+        int offset = Br.SignExtendOffset(operand, s.Iterator.CurrentOpcode);
+        int target = s.Iterator.NextIndex + offset;
         s.Emit($"if ((uint32_t){left} {op} (uint32_t){right}) goto IL_{target:X4};");
     }
 }

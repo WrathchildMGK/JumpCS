@@ -4,13 +4,7 @@ public class Box : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        if (operand is int typeToken)
-        {
-            string valueReg = support.Stack.Pop();
-            support.AsmWriter.WriteLine($"    ; Box type token {typeToken:X8}");
-            support.AsmWriter.WriteLine($"    MOVE.L {valueReg},D0     ; Boxed value");
-            support.Stack.ReleaseDataRegister(valueReg);
-            support.Stack.Push("D0");
-        }
+        var s = (Asm68000Support)support;
+        s.AsmWriter.WriteLine($"    ; Box (passthrough — value stays in register)");
     }
 }

@@ -5,7 +5,7 @@ Copyright (c) 2026 by .NET Port Contributors
 Please see the file COPYING (GPL v2) for distribution rights.
 
 Compiling assembly: TestMath\bin\Debug\net10.0\TestMath
-Options: Model=Small, Target=AtariCC65, Optimization=Medium, CheckBounds=True, CheckNull=True, StackSize=8192
+Options: Model=Small, Target=Motorola68000, Optimization=Medium, CheckBounds=True, CheckNull=True, StackSize=8192
   Method AllIntegerMathTests: CodeLength=158, MaxStack=0, MaxLocals=0
   Method AllFloatMathTests: CodeLength=140, MaxStack=0, MaxLocals=0
   Method AllDoubleMathTests: CodeLength=164, MaxStack=0, MaxLocals=0
@@ -177,89 +177,34 @@ Options: Model=Small, Target=AtariCC65, Optimization=Medium, CheckBounds=True, C
   Method GetHashCode: CodeLength=7, MaxStack=8, MaxLocals=0
 Marking MethodMetadata as needed (status=1): Main
 Marking ClassMetadata as needed (status=1): Method Main is needed
-  Token 06000001  JumpCS.TestMath.Program.AllIntegerMathTests()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.Main
-  Token 06000059  JumpCS.TestMath.Tests.IntegerMathTests.Addition_PositiveNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
 Marking ClassMetadata as needed (status=1): Method Addition_PositiveNumbers is needed
-  Token 0600005A  JumpCS.TestMath.Tests.IntegerMathTests.Addition_NegativeNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600005B  JumpCS.TestMath.Tests.IntegerMathTests.Addition_MixedSigns()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600005C  JumpCS.TestMath.Tests.IntegerMathTests.Addition_Overflow()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600005D  JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_PositiveNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600005E  JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeResult()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600005F  JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000060  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_PositiveNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000061  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_ByZero()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000062  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_NegativeNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000063  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_MixedSigns()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000064  JumpCS.TestMath.Tests.IntegerMathTests.Division_PositiveNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000065  JumpCS.TestMath.Tests.IntegerMathTests.Division_WithRemainder()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000066  JumpCS.TestMath.Tests.IntegerMathTests.Division_NegativeNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000067  JumpCS.TestMath.Tests.IntegerMathTests.Division_MixedSigns()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000068  JumpCS.TestMath.Tests.IntegerMathTests.Remainder_PositiveNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000069  JumpCS.TestMath.Tests.IntegerMathTests.Remainder_NegativeNumbers()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600006A  JumpCS.TestMath.Tests.IntegerMathTests.BitwiseAnd()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600006B  JumpCS.TestMath.Tests.IntegerMathTests.BitwiseOr()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600006C  JumpCS.TestMath.Tests.IntegerMathTests.BitwiseXor()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600006D  JumpCS.TestMath.Tests.IntegerMathTests.LeftShift()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600006E  JumpCS.TestMath.Tests.IntegerMathTests.RightShift()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 0600006F  JumpCS.TestMath.Tests.IntegerMathTests.UnaryMinus()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000070  JumpCS.TestMath.Tests.IntegerMathTests.ChainedOperations()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000071  JumpCS.TestMath.Tests.IntegerMathTests.DivideByZeroThrows()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000072  JumpCS.TestMath.Tests.IntegerMathTests.ModuloByZeroThrows()V
 Marking MethodMetadata as needed (status=1): Called from JumpCS.TestMath.Program.AllIntegerMathTests
-  Token 06000001  JumpCS.TestMath.Program.AllIntegerMathTests()V
-  Token 06000059  JumpCS.TestMath.Tests.IntegerMathTests.Addition_PositiveNumbers()V
-  Token 0600005A  JumpCS.TestMath.Tests.IntegerMathTests.Addition_NegativeNumbers()V
-  Token 0600005B  JumpCS.TestMath.Tests.IntegerMathTests.Addition_MixedSigns()V
-  Token 0600005C  JumpCS.TestMath.Tests.IntegerMathTests.Addition_Overflow()V
-  Token 0600005D  JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_PositiveNumbers()V
-  Token 0600005E  JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeResult()V
-  Token 0600005F  JumpCS.TestMath.Tests.IntegerMathTests.Subtraction_NegativeNumbers()V
-  Token 06000060  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_PositiveNumbers()V
-  Token 06000061  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_ByZero()V
-  Token 06000062  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_NegativeNumbers()V
-  Token 06000063  JumpCS.TestMath.Tests.IntegerMathTests.Multiplication_MixedSigns()V
-  Token 06000064  JumpCS.TestMath.Tests.IntegerMathTests.Division_PositiveNumbers()V
-  Token 06000065  JumpCS.TestMath.Tests.IntegerMathTests.Division_WithRemainder()V
-  Token 06000066  JumpCS.TestMath.Tests.IntegerMathTests.Division_NegativeNumbers()V
-  Token 06000067  JumpCS.TestMath.Tests.IntegerMathTests.Division_MixedSigns()V
-  Token 06000068  JumpCS.TestMath.Tests.IntegerMathTests.Remainder_PositiveNumbers()V
-  Token 06000069  JumpCS.TestMath.Tests.IntegerMathTests.Remainder_NegativeNumbers()V
-  Token 0600006A  JumpCS.TestMath.Tests.IntegerMathTests.BitwiseAnd()V
-  Token 0600006B  JumpCS.TestMath.Tests.IntegerMathTests.BitwiseOr()V
-  Token 0600006C  JumpCS.TestMath.Tests.IntegerMathTests.BitwiseXor()V
-  Token 0600006D  JumpCS.TestMath.Tests.IntegerMathTests.LeftShift()V
-  Token 0600006E  JumpCS.TestMath.Tests.IntegerMathTests.RightShift()V
-  Token 0600006F  JumpCS.TestMath.Tests.IntegerMathTests.UnaryMinus()V
-  Token 06000070  JumpCS.TestMath.Tests.IntegerMathTests.ChainedOperations()V
-  Token 06000071  JumpCS.TestMath.Tests.IntegerMathTests.DivideByZeroThrows()V
-  Token 06000072  JumpCS.TestMath.Tests.IntegerMathTests.ModuloByZeroThrows()V
-  Token 06000001  JumpCS.TestMath.Program.AllIntegerMathTests()V
 
 === Class Report ===
 Class: JumpCS.TestMath.Program (index=0, dataSize=0)
@@ -273,8 +218,7 @@ Methods:  169
 Fields:   2
 ==============================
 
-Generating CC65 output for Atari XEGS (SMALL (32KB)): TestMath_cc65/
-  Banks used: 1 of 3 switchable + 1 fixed
+Generating 68000 assembly: TestMath_generated.asm
 Running peephole optimization pass...
 
 Compilation completed successfully.

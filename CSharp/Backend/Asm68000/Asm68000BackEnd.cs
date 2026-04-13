@@ -199,7 +199,8 @@ namespace JumpCS.Backend.Asm68000
             var stack = new Asm68000StackSimulator(method.MaxLocals, adjustedMaxStack);
             _support = new Asm68000Support(iterator, method, stack, _labels, _asmWriter,
                 _floatConstants, _doubleConstants, ResolveMethodToken, TryResolveFrameworkMethod);
-            var translator = new Asm68000OpcodeTranslator(_support);
+            var branchTargets = Asm68000OpcodeTranslator.FindBranchTargets(method.Code, method);
+            var translator = new Asm68000OpcodeTranslator(_support, branchTargets);
 
             while (iterator.MoveNext())
             {

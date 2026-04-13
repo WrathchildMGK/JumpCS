@@ -121,39 +121,46 @@ public class CC65BackEnd : BackEndBase, IBackEnd
 
         if (method.Code != null && method.Code.Length > 0)
         {
-            // Declare eval stack temp variables
-            int maxTemps = Math.Max(method.MaxStack * 2, 4);
-            for (int i = 0; i < maxTemps; i++)
-            {
-                writer.WriteLine($"    {CC65TypeMapper.StackType} s{i} = 0;");
-            }
+            int adjustedMaxStack = method.MaxStack * 2;
 
-            // Declare locals
+            // Pass 1: dry run to count temps needed (no branch targets needed)
+            var dryStack = new CC65StackSimulator(method.MaxLocals, adjustedMaxStack);
+            var dryIterator = new MsilIterator(method.Code, method);
+            var drySupport = new CC65Support(
+                dryIterator, method, dryStack, StreamWriter.Null, _methodBank,
+                ResolveMethodToken, TryResolveFrameworkMethod);
+            var dryTranslator = new CC65OpcodeTranslator(drySupport);
+            while (dryIterator.MoveNext())
+                dryTranslator.TranslateCurrentOpcode();
+            int tempsNeeded = dryStack.TempCount;
+
+            // Scan branch targets
+            var branchTargets = CC65OpcodeTranslator.FindBranchTargets(method.Code, method);
+
+            // Pass 2: actual generation
+            var iterator = new MsilIterator(method.Code, method);
+            var stack = new CC65StackSimulator(method.MaxLocals, adjustedMaxStack);
+            var support = new CC65Support(
+                iterator, method, stack, writer, _methodBank,
+                ResolveMethodToken, TryResolveFrameworkMethod);
+            var translator = new CC65OpcodeTranslator(support, branchTargets);
+
+            // Pre-declare locals
             for (int i = 0; i < method.MaxLocals; i++)
-            {
                 writer.WriteLine($"    {CC65TypeMapper.StackType} local_{i} = 0;");
-            }
+            // Pre-declare eval stack temps
+            for (int i = 0; i < tempsNeeded; i++)
+                writer.WriteLine($"    {CC65TypeMapper.StackType} s{i} = 0;");
 
             writer.WriteLine();
 
             // Translate MSIL to C
-            var iterator = new MsilIterator(method.Code, method);
-            var stack = new CC65StackSimulator(method.MaxLocals, method.MaxStack * 2);
-            var support = new CC65Support(
-                iterator, method, stack, writer, _methodBank,
-                ResolveMethodToken, TryResolveFrameworkMethod);
-
             while (iterator.MoveNext())
-            {
-                var opcode = iterator.CurrentOpcode;
-                writer.WriteLine($"/* IL_{iterator.CurrentIndex:X4}: {opcode.Name} */");
-
-                // TODO: Delegate to CC65OpcodeTranslator when opcode classes are implemented
-            }
+                translator.TranslateCurrentOpcode();
         }
         else
         {
-            writer.WriteLine($"    /* TODO: No MSIL body for {method.Name} */");
+            writer.WriteLine($"    /* No MSIL body for {method.Name} */");
         }
 
         if (returnType != "void")

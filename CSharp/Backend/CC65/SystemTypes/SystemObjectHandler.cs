@@ -6,7 +6,7 @@ using JumpCS.Core;
 
 namespace JumpCS.Backend.CC65.SystemTypes
 {
-    /// <summary>Handler for System.Object type operations</summary>
+    /// <summary>Handler for System.Object type operations — CC65 C output</summary>
     public class SystemObjectHandler : SystemHandlerBase, ISystemObjectHandler
     {
         public SystemObjectHandler(
@@ -29,13 +29,12 @@ namespace JumpCS.Backend.CC65.SystemTypes
 
         public override void HandleMethodCall(MethodMetadata method, IBackendStackSimulator stack)
         {
-            AsmWriter?.WriteLine($"    ; System.Object.{method.Name}");
+            AsmWriter?.WriteLine($"    /* System.Object.{method.Name} */");
         }
 
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            AsmWriter?.WriteLine($"    ; System.Object.{methodName} (inline)");
 
             if (methodName == "Equals")
             {
@@ -59,7 +58,7 @@ namespace JumpCS.Backend.CC65.SystemTypes
             }
             else
             {
-                AsmWriter?.WriteLine($"    ; TODO: System.Object.{methodName}");
+                AsmWriter?.WriteLine($"    /* TODO: System.Object.{methodName} */");
                 var paramCount = methodInfo is MethodInfo mi ? mi.GetParameters().Length : 0;
                 for (int i = 0; i < paramCount; i++)
                 {
@@ -68,7 +67,7 @@ namespace JumpCS.Backend.CC65.SystemTypes
                 if (methodInfo is MethodInfo methodInfoTyped && methodInfoTyped.ReturnType != typeof(void))
                 {
                     string resultReg = GetAvailableRegister(stack);
-                    AsmWriter?.WriteLine($"    CLR.L {resultReg}");
+                    AsmWriter?.WriteLine($"    {resultReg} = 0; /* TODO: System.Object.{methodName} */");
                     stack.Push(resultReg);
                 }
             }
@@ -80,86 +79,58 @@ namespace JumpCS.Backend.CC65.SystemTypes
 
             if (parameters.Length == 2)
             {
-                // Static method: Equals(object a, object b)
+                // Static method: Object.Equals(object a, object b)
                 string objB = stack.Pop();
                 string objA = stack.Pop();
-
                 string resultReg = GetAvailableRegister(stack);
-                string label = GetUniqueLabel();
-
-                AsmWriter?.WriteLine($"    CMP.L {objB},{objA}");
-                AsmWriter?.WriteLine($"    BEQ {label}_eq");
-                AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-                AsmWriter?.WriteLine($"    BRA {label}_end");
-                AsmWriter?.WriteLine($"{label}_eq:");
-                AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-                AsmWriter?.WriteLine($"{label}_end:");
-
+                AsmWriter?.WriteLine($"    {resultReg} = ({objA} == {objB}) ? 1 : 0;");
                 stack.Push(resultReg);
             }
             else if (parameters.Length == 1)
             {
                 // Instance method: this.Equals(object obj)
                 string obj = stack.Pop();
-
+                string instance = stack.Pop();
                 string resultReg = GetAvailableRegister(stack);
-                AsmWriter?.WriteLine($"    ; Instance Equals({obj})");
-                AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Instance equals");
-
+                AsmWriter?.WriteLine($"    {resultReg} = ({instance} == {obj}) ? 1 : 0;");
                 stack.Push(resultReg);
             }
         }
 
         private void HandleGetHashCode(IBackendStackSimulator stack)
         {
+            // For integer types, the value itself is a reasonable hash
             string obj = stack.Pop();
-
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    ; GetHashCode({obj})");
-            AsmWriter?.WriteLine($"    MOVE.L {obj},{resultReg}");
-            AsmWriter?.WriteLine($"    ; TODO: Calculate hash code");
-
+            AsmWriter?.WriteLine($"    {resultReg} = {obj}; /* GetHashCode — identity for integers */");
             stack.Push(resultReg);
         }
 
         private void HandleGetType(IBackendStackSimulator stack)
         {
-            string obj = stack.Pop();
-
-            AsmWriter?.WriteLine($"    ; GetType({obj})");
+            if (stack.StackDepth > 0)
+                stack.Pop(); // pop 'this'
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Get type");
-
+            AsmWriter?.WriteLine($"    {resultReg} = 0; /* GetType — not supported on 6502 */");
             stack.Push(resultReg);
         }
 
         private void HandleToString(IBackendStackSimulator stack)
         {
-            string obj = stack.Pop();
-
-            AsmWriter?.WriteLine($"    ; ToString({obj})");
+            if (stack.StackDepth > 0)
+                stack.Pop(); // pop 'this'
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Convert to string");
-
+            AsmWriter?.WriteLine($"    {resultReg} = 0; /* ToString — not supported on 6502 */");
             stack.Push(resultReg);
         }
 
         private void HandleReferenceEquals(IBackendStackSimulator stack)
         {
+            // ReferenceEquals — same as Equals for value types
             string objB = stack.Pop();
             string objA = stack.Pop();
-
             string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-
-            AsmWriter?.WriteLine($"    CMP.L {objB},{objA}");
-            AsmWriter?.WriteLine($"    BEQ {label}_eq");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_eq:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-
+            AsmWriter?.WriteLine($"    {resultReg} = ({objA} == {objB}) ? 1 : 0;");
             stack.Push(resultReg);
         }
     }

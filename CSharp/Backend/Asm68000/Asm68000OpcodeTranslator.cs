@@ -1,6 +1,7 @@
 ﻿using System.Reflection.Emit;
 using JumpCS.Backend.Asm68000.Opcodes;
 using JumpCS.Backend.Interfaces;
+using JumpCS.Core;
 
 namespace JumpCS.Backend.Asm68000
 {
@@ -8,9 +9,12 @@ namespace JumpCS.Backend.Asm68000
     {
         private readonly Dictionary<OpCode, IOpcodeTranslation> opCodes;
         private readonly Asm68000Support _support;
-        public Asm68000OpcodeTranslator(Asm68000Support support)
+        private readonly HashSet<int> _branchTargets;
+
+        public Asm68000OpcodeTranslator(Asm68000Support support, HashSet<int>? branchTargets = null)
         {
             _support = support;
+            _branchTargets = branchTargets ?? new HashSet<int>();
 
             opCodes = new Dictionary<OpCode, IOpcodeTranslation>()
             {
@@ -101,11 +105,45 @@ namespace JumpCS.Backend.Asm68000
             };
         }
 
+        /// <summary>Scan MSIL bytecode to find all branch target offsets</summary>
+        public static HashSet<int> FindBranchTargets(byte[] code, MethodMetadata method)
+        {
+            var targets = new HashSet<int>();
+            var iterator = new MsilIterator(code, method);
+
+            while (iterator.MoveNext())
+            {
+                var opcode = iterator.CurrentOpcode;
+                var operand = iterator.CurrentOperand;
+
+                if (operand is int offset)
+                {
+                    if (opcode.OperandType == OperandType.ShortInlineBrTarget)
+                    {
+                        targets.Add(iterator.NextIndex + (sbyte)(offset & 0xFF));
+                    }
+                    else if (opcode.OperandType == OperandType.InlineBrTarget)
+                    {
+                        targets.Add(iterator.NextIndex + offset);
+                    }
+                }
+            }
+
+            return targets;
+        }
+
         /// <summary>Translate a single MSIL opcode to 68000 assembly</summary>
         public void TranslateCurrentOpcode()
         {
             OpCode opcode = _support.Iterator.CurrentOpcode;
             object? operand = _support.Iterator.CurrentOperand;
+            int currentOffset = _support.Iterator.CurrentIndex;
+
+            // Emit label only if this offset is a branch target
+            if (_branchTargets.Contains(currentOffset))
+            {
+                _support.AsmWriter.WriteLine($"L_{currentOffset:X4}:");
+            }
 
             // Add diagnostic output for problematic instructions
             if (Program.CodeOptions?.Verbosity >= 2)
@@ -114,10 +152,10 @@ namespace JumpCS.Backend.Asm68000
                 if (operand != null)
                     opInfo += $" ({operand})";
 
-                Console.WriteLine($"[OPCODE] {_support.Iterator.CurrentIndex:X4}: {opInfo}");
+                Console.WriteLine($"[OPCODE] {currentOffset:X4}: {opInfo}");
             }
 
-            _support.AsmWriter.WriteLine($"    ; Offset {_support.Iterator.CurrentIndex:X4}: {opcode.Name}");
+            _support.AsmWriter.WriteLine($"    ; Offset {currentOffset:X4}: {opcode.Name}");
 
             if (opCodes.ContainsKey(opcode))
             {

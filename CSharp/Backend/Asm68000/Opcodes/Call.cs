@@ -35,6 +35,10 @@ public class Call : IOpcodeTranslation
                     else if (support.DoubleHandler.TryHandleReflectionMethod(reflectionMethod, support.Stack)) { }
                     else if (support.FloatHandler.TryHandleReflectionMethod(reflectionMethod, support.Stack)) { }
                     else if (support.IntegerHandler.TryHandleReflectionMethod(reflectionMethod, support.Stack)) { }
+                    else if (support.ObjectHandler.IsReflectionMethod(reflectionMethod))
+                    {
+                        support.ObjectHandler.HandleReflectionMethodCall(reflectionMethod, support.Stack);
+                    }
                     else
                     {
                         support.AsmWriter.WriteLine($"    ; Framework method: {reflectionMethod.DeclaringType?.FullName}::{reflectionMethod.Name}");

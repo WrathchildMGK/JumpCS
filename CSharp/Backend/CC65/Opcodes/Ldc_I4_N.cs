@@ -9,7 +9,7 @@ public class Ldc_I4_N(int value) : IOpcodeTranslation
     {
         var s = (CC65Support)support;
         string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{CC65TypeMapper.StackType} {temp} = {value};");
+        s.Emit($"{temp} = {value};");
         s.Stack.Push(temp);
     }
 }

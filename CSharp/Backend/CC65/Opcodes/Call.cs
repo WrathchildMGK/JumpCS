@@ -1,5 +1,6 @@
 using System.Reflection;
 using JumpCS.Backend.Interfaces;
+using JumpCS.Core;
 
 namespace JumpCS.Backend.CC65.Opcodes;
 
@@ -30,7 +31,7 @@ public class Call : IOpcodeTranslation
                 else
                 {
                     string temp = s.Stack.AllocateDataRegister();
-                    s.Emit($"{CC65TypeMapper.StackType} {temp} = call_banked({assign.MethodId}); /* {funcName} */");
+                    s.Emit($"{temp} = call_banked({assign.MethodId}); /* {funcName} */");
                     s.Stack.Push(temp);
                 }
             }
@@ -45,17 +46,24 @@ public class Call : IOpcodeTranslation
 
             if (reflectionMethod != null)
             {
-                s.Emit($"/* TODO: framework call {reflectionMethod.DeclaringType?.Name}::{reflectionMethod.Name} */");
-
-                var paramCount = reflectionMethod is MethodInfo mi ? mi.GetParameters().Length : 0;
-                for (int i = 0; i < paramCount && s.Stack.StackDepth > 0; i++)
-                    s.Stack.Pop();
-
-                if (reflectionMethod is MethodInfo info && info.ReturnType != typeof(void))
+                if (s.ObjectHandler.IsReflectionMethod(reflectionMethod))
                 {
-                    string temp = s.Stack.AllocateDataRegister();
-                    s.Emit($"{CC65TypeMapper.StackType} {temp} = 0; /* TODO: framework return */");
-                    s.Stack.Push(temp);
+                    s.ObjectHandler.HandleReflectionMethodCall(reflectionMethod, s.Stack);
+                }
+                else
+                {
+                    s.Emit($"/* TODO: framework call {reflectionMethod.DeclaringType?.Name}::{reflectionMethod.Name} */");
+
+                    var paramCount = reflectionMethod is MethodInfo mi ? mi.GetParameters().Length : 0;
+                    for (int i = 0; i < paramCount && s.Stack.StackDepth > 0; i++)
+                        s.Stack.Pop();
+
+                    if (reflectionMethod is MethodInfo info && info.ReturnType != typeof(void))
+                    {
+                        string temp = s.Stack.AllocateDataRegister();
+                        s.Emit($"{temp} = 0; /* TODO: framework return */");
+                        s.Stack.Push(temp);
+                    }
                 }
             }
             else

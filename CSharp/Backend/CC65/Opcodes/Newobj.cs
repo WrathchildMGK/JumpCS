@@ -12,7 +12,7 @@ public class Newobj : IOpcodeTranslation
         {
             s.Emit($"/* TODO: newobj token 0x{methodToken:X8} */");
             string temp = s.Stack.AllocateDataRegister();
-            s.Emit($"{CC65TypeMapper.StackType} {temp} = 0; /* newobj placeholder */");
+            s.Emit($"{temp} = 0; /* newobj placeholder */");
             s.Stack.Push(temp);
         }
     }

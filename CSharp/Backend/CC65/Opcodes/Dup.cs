@@ -10,7 +10,7 @@ public class Dup : IOpcodeTranslation
         var s = (CC65Support)support;
         string top = s.Stack.Peek();
         string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{CC65TypeMapper.StackType} {temp} = {top};");
+        s.Emit($"{temp} = {top};");
         s.Stack.Push(temp);
     }
 }

@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path="err.txt" />
     <File Path="RunTests.cmd" />
+    <File Path="TestMath_cc65/bank_00.c" />
     <File Path="TestMath_generated.asm" />
   </Folder>
   <Project Path="CSharp.Tests/CSharp.Tests.csproj" />
