@@ -79,7 +79,7 @@ namespace JumpCS
                 }
 
                 // Initialize backend
-                string? outputBaseName = Path.GetFileNameWithoutExtension(mainAssemblyPath);
+                string outputBaseName = Path.GetFileNameWithoutExtension(mainAssemblyPath) ?? "JumpCS";
                 // Backend selection:
                 if (codeOptions.Target == TargetPlatform.AtariCC65)
                 {
@@ -210,10 +210,10 @@ namespace JumpCS
             }
 
             // Look for standard .NET entry point
-            var mainMethod = mainClass.FindMethod("<Main>$", null);
+            var mainMethod = mainClass.FindMethod("Main", "(LSystem/String[];)V");
             if (mainMethod != null)
             {
-                mainMethod.MarkNeeded("<Main>$");
+                mainMethod.MarkNeeded("Main");
             }
         }
 

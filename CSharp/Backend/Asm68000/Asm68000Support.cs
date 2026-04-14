@@ -1,4 +1,5 @@
 ﻿using JumpCS.Backend.Asm68000.SystemTypes;
+using JumpCS.Backend.Base;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
@@ -6,18 +7,11 @@ using System.Reflection;
 
 namespace JumpCS.Backend.Asm68000
 {
-    public class Asm68000Support : IBackendSupport
+    public class Asm68000Support : SupportBase
     {
         private readonly Dictionary<int, float> _floatConstants;
         private readonly Dictionary<int, double> _doubleConstants;
-
-        private HashSet<int> _doubleLocals = new();
-
-        private readonly Asm68000StackSimulator _stack;
-        private readonly StreamWriter _asmWriter;
-        private readonly MsilIterator _iterator;
-        private readonly MethodMetadata _method;
-        private readonly Asm68000LabelMapper _labels;
+        private readonly HashSet<int> _doubleLocals = new();
 
         private readonly SystemDecimalHandler _decimalHandler;
         private readonly SystemMathHandler _mathHandler;
@@ -26,90 +20,68 @@ namespace JumpCS.Backend.Asm68000
         private readonly SystemIntegerHandler _integerHandler;
         private readonly SystemObjectHandler _objectHandler;
 
-        // Method resolution delegates — injected from BackEnd
-        private readonly Func<ClassMetadata, int, MethodMetadata?> _resolveMethodToken;
-        private readonly Func<ClassMetadata, int, MethodBase?> _tryResolveFrameworkMethod;
-
         public Asm68000Support(
             MsilIterator iterator,
             MethodMetadata method,
             Asm68000StackSimulator stack,
             Asm68000LabelMapper labels,
-            StreamWriter asmWriter,
+            StreamWriter writer,
             Dictionary<int, float> floatConstants,
             Dictionary<int, double> doubleConstants,
             Func<ClassMetadata, int, MethodMetadata?> resolveMethodToken,
-            Func<ClassMetadata, int, MethodBase?> tryResolveFrameworkMethod)
+            Func<ClassMetadata, int, MethodBase?> tryResolveFrameworkMethod) :
+            base(iterator, method, stack, labels, writer, resolveMethodToken, tryResolveFrameworkMethod)
         {
-            _iterator = iterator;
-            _method = method;
-            _stack = stack;
-            _labels = labels;
-            _asmWriter = asmWriter;
             _floatConstants = floatConstants;
             _doubleConstants = doubleConstants;
-            _resolveMethodToken = resolveMethodToken;
-            _tryResolveFrameworkMethod = tryResolveFrameworkMethod;
 
             _mathHandler = new SystemMathHandler(
-                _asmWriter,
+                writer,
                 (stack) => stack.AllocateDataRegister()
             );
 
             _decimalHandler = new SystemDecimalHandler(
-                _asmWriter,
+                writer,
                 (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
+                () => labels.GetUniqueLabel()
             );
 
             _doubleHandler = new SystemDoubleHandler(
-                _asmWriter,
+                writer,
                 (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
+                () => labels.GetUniqueLabel()
             );
 
             _floatHandler = new SystemFloatHandler(
-                _asmWriter,
+                writer,
                 (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
+                () => labels.GetUniqueLabel()
             );
 
             _integerHandler = new SystemIntegerHandler(
-                _asmWriter,
+                writer,
                 (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
+                () => labels.GetUniqueLabel()
             );
 
             _objectHandler = new SystemObjectHandler(
-                _asmWriter,
+                writer,
                 (stack) => stack.AllocateDataRegister(),
-                () => _labels.GetUniqueLabel()
+                () => labels.GetUniqueLabel()
             );
 
             _doubleLocals.Clear();
         }
 
         // --- Existing properties (unchanged) ---
-        public Dictionary<int, float> FloatConstants { get { return _floatConstants; } }
-        public Dictionary<int, double> DoubleConstants { get { return _doubleConstants; } }
-        public HashSet<int> DoubleLocals { get { return _doubleLocals; } }
-        public IBackendStackSimulator Stack { get { return _stack; } }
-        public StreamWriter AsmWriter { get { return _asmWriter; } }
-        public MsilIterator Iterator { get { return _iterator; } }
-        public MethodMetadata Method { get { return _method; } }
-        public IBackendLabelMapper Labels { get { return _labels; } }
-        public ISystemDecimalHandler DecimalHandler { get { return _decimalHandler; } }
-        public ISystemMathHandler MathHandler { get { return _mathHandler; } }
-        public ISystemDoubleHandler DoubleHandler { get { return _doubleHandler; } }
-        public ISystemFloatHandler FloatHandler { get { return _floatHandler; } }
-        public ISystemIntegerHandler IntegerHandler { get { return _integerHandler; } }
-        public ISystemObjectHandler ObjectHandler { get { return _objectHandler; } }
-
-        // --- New: method resolution ---
-        public MethodMetadata? ResolveMethodToken(ClassMetadata callingClass, int methodToken)
-            => _resolveMethodToken(callingClass, methodToken);
-
-        public MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken)
-            => _tryResolveFrameworkMethod(callingClass, methodToken);
+        public override Dictionary<int, float> FloatConstants { get { return _floatConstants; } }
+        public override Dictionary<int, double> DoubleConstants { get { return _doubleConstants; } }
+        public override HashSet<int> DoubleLocals { get { return _doubleLocals; } }
+        public override ISystemDecimalHandler DecimalHandler { get { return _decimalHandler; } }
+        public override ISystemMathHandler MathHandler { get { return _mathHandler; } }
+        public override ISystemDoubleHandler DoubleHandler { get { return _doubleHandler; } }
+        public override ISystemFloatHandler FloatHandler { get { return _floatHandler; } }
+        public override ISystemIntegerHandler IntegerHandler { get { return _integerHandler; } }
+        public override ISystemObjectHandler ObjectHandler { get { return _objectHandler; } }
     }
 }

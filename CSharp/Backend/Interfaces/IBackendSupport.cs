@@ -23,5 +23,12 @@ namespace JumpCS.Backend.Interfaces
 
         MethodMetadata? ResolveMethodToken(ClassMetadata callingClass, int methodToken);
         MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken);
+
+        void Emit(string line);
+        void EmitComment(string comment);
+        void EmitLabel(string label);
+        void EmitBlank();
+        string EmitAssign(string expr, bool isWide = false);
+        void EmitReassign(string varName, string expr);
     }
 }

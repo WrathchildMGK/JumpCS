@@ -7,6 +7,6 @@ public class Ldloc_N(int index) : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        ((CC65Support)support).Stack.Push($"local_{index}");
+        support.Stack.Push($"local_{index}");
     }
 }

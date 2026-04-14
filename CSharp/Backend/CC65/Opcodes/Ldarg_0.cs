@@ -7,6 +7,6 @@ public class Ldarg_0 : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        ((CC65Support)support).Stack.Push("arg_0");
+        support.Stack.Push("arg_0");
     }
 }

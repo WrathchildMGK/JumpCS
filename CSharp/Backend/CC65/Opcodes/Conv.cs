@@ -7,10 +7,9 @@ public class Conv(string targetType) : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        string value = s.Stack.Pop();
-        string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{temp} = ({targetType}){value};");
-        s.Stack.Push(temp);
+        string value = support.Stack.Pop();
+        string temp = support.Stack.AllocateDataRegister();
+        support.Emit($"{temp} = ({targetType}){value};");
+        support.Stack.Push(temp);
     }
 }

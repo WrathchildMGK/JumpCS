@@ -7,11 +7,10 @@ public class CompareOp(string op) : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        string right = s.Stack.Pop();
-        string left = s.Stack.Pop();
-        string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{temp} = ({left} {op} {right}) ? 1 : 0;");
-        s.Stack.Push(temp);
+        string right = support.Stack.Pop();
+        string left = support.Stack.Pop();
+        string temp = support.Stack.AllocateDataRegister();
+        support.Emit($"{temp} = ({left} {op} {right}) ? 1 : 0;");
+        support.Stack.Push(temp);
     }
 }

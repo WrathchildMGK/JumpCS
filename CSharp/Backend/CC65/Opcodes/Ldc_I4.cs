@@ -7,12 +7,11 @@ public class Ldc_I4 : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
         if (operand is int val)
         {
-            string temp = s.Stack.AllocateDataRegister();
-            s.Emit($"{temp} = {val}L;");
-            s.Stack.Push(temp);
+            string temp = support.Stack.AllocateDataRegister();
+            support.Emit($"{temp} = {val}L;");
+            support.Stack.Push(temp);
         }
     }
 }

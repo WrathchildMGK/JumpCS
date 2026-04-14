@@ -7,8 +7,7 @@ public class Pop : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        if (s.Stack.StackDepth > 0)
-            s.Emit($"(void){s.Stack.Pop()}; /* pop */");
+        if (support.Stack.StackDepth > 0)
+            support.Emit($"(void){support.Stack.Pop()}; /* pop */");
     }
 }

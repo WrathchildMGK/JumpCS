@@ -1,7 +1,8 @@
-using System.Text;
-using JumpCS.Core;
-using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.Base;
+using JumpCS.Backend.Interfaces;
+using JumpCS.Core;
+using System.Reflection.Emit;
+using System.Text;
 
 namespace JumpCS.Backend.Asm68000
 {
@@ -12,15 +13,12 @@ namespace JumpCS.Backend.Asm68000
         private Dictionary<int, float> _floatConstants = new();
         private Dictionary<int, double> _doubleConstants = new();
 
-        private StreamWriter _asmWriter;
-        private Asm68000LabelMapper _labels;
-        private Asm68000Support _support;
+        private StreamWriter _asmWriter = StreamWriter.Null;
         private Dictionary<string, int> _methodOffsets = new();
         private int _currentOffset = 0;
 
         public Asm68000BackEnd(string outputBaseName) : base(outputBaseName)
         {
-            _labels = new Asm68000LabelMapper();
         }
 
         /// <summary>Update dependencies and calculate code sizes</summary>
@@ -197,10 +195,11 @@ namespace JumpCS.Backend.Asm68000
             // MSIL MaxStack counts 64-bit as 1 slot, but we use 2 registers per 64-bit value
             int adjustedMaxStack = method.MaxStack * 2;
             var stack = new Asm68000StackSimulator(method.MaxLocals, adjustedMaxStack);
-            _support = new Asm68000Support(iterator, method, stack, _labels, _asmWriter,
+            var labels = new Asm68000LabelMapper();
+            var support = new Asm68000Support(iterator, method, stack, labels, _asmWriter,
                 _floatConstants, _doubleConstants, ResolveMethodToken, TryResolveFrameworkMethod);
             var branchTargets = Asm68000OpcodeTranslator.FindBranchTargets(method.Code, method);
-            var translator = new Asm68000OpcodeTranslator(_support, branchTargets);
+            var translator = new Asm68000OpcodeTranslator(support, branchTargets);
 
             while (iterator.MoveNext())
             {

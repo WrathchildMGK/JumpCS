@@ -7,11 +7,10 @@ public class Shr_Un : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        string amount = s.Stack.Pop();
-        string value = s.Stack.Pop();
-        string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{temp} = (uint32_t){value} >> {amount};");
-        s.Stack.Push(temp);
+        string amount = support.Stack.Pop();
+        string value = support.Stack.Pop();
+        string temp = support.Stack.AllocateDataRegister();
+        support.Emit($"{temp} = (uint32_t){value} >> {amount};");
+        support.Stack.Push(temp);
     }
 }

@@ -7,5 +7,6 @@
   </Folder>
   <Project Path="CSharp.Tests/CSharp.Tests.csproj" />
   <Project Path="CSharp/JumpCS.csproj" />
+  <Project Path="SpeedConverter/SpeedConverter.csproj" Id="3bc75b4c-3291-4841-84f0-0368c92929a8" />
   <Project Path="TestMath/TestMath.csproj" />
 </Solution>

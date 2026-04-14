@@ -7,13 +7,12 @@ public class Newobj : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
         if (operand is int methodToken)
         {
-            s.Emit($"/* TODO: newobj token 0x{methodToken:X8} */");
-            string temp = s.Stack.AllocateDataRegister();
-            s.Emit($"{temp} = 0; /* newobj placeholder */");
-            s.Stack.Push(temp);
+            support.EmitComment($"TODO: newobj token 0x{methodToken:X8}");
+            string temp = support.Stack.AllocateDataRegister();
+            support.Emit($"{temp} = 0; /* newobj placeholder */");
+            support.Stack.Push(temp);
         }
     }
 }

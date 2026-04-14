@@ -7,9 +7,8 @@ public class Ldc_I4_N(int value) : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{temp} = {value};");
-        s.Stack.Push(temp);
+        string temp = support.Stack.AllocateDataRegister();
+        support.Emit($"{temp} = {value};");
+        support.Stack.Push(temp);
     }
 }

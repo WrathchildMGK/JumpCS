@@ -7,10 +7,9 @@ public class Dup : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        string top = s.Stack.Peek();
-        string temp = s.Stack.AllocateDataRegister();
-        s.Emit($"{temp} = {top};");
-        s.Stack.Push(temp);
+        string top = support.Stack.Peek();
+        string temp = support.Stack.AllocateDataRegister();
+        support.Emit($"{temp} = {top};");
+        support.Stack.Push(temp);
     }
 }

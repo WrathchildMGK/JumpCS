@@ -7,6 +7,6 @@ public class Box : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        ((CC65Support)support).Emit("/* box — passthrough (no heap allocation) */");
+        support.Emit("/* box — passthrough (no heap allocation) */");
     }
 }

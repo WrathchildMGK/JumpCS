@@ -7,9 +7,8 @@ public class ConvUnsupported(string typeName) : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        string value = s.Stack.Pop();
-        s.Emit($"/* WARNING: {typeName} conversion not supported on 6502 */");
-        s.Stack.Push(value);
+        string value = support.Stack.Pop();
+        support.EmitComment($"WARNING: {typeName} conversion not supported on 6502");
+        support.Stack.Push(value);
     }
 }

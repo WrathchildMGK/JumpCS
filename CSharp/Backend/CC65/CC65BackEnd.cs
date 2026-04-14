@@ -1,3 +1,4 @@
+using JumpCS.Backend.Asm68000;
 using JumpCS.Backend.Base;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Core;
@@ -124,10 +125,11 @@ public class CC65BackEnd : BackEndBase, IBackEnd
             int adjustedMaxStack = method.MaxStack * 2;
 
             // Pass 1: dry run to count temps needed (no branch targets needed)
-            var dryStack = new CC65StackSimulator(method.MaxLocals, adjustedMaxStack);
             var dryIterator = new MsilIterator(method.Code, method);
+            var dryStack = new CC65StackSimulator(method.MaxLocals, adjustedMaxStack);
+            var dryLabels = new CC65LabelMapper();
             var drySupport = new CC65Support(
-                dryIterator, method, dryStack, StreamWriter.Null, _methodBank,
+                dryIterator, method, dryStack, dryLabels, StreamWriter.Null, _methodBank,
                 ResolveMethodToken, TryResolveFrameworkMethod);
             var dryTranslator = new CC65OpcodeTranslator(drySupport);
             while (dryIterator.MoveNext())
@@ -140,8 +142,9 @@ public class CC65BackEnd : BackEndBase, IBackEnd
             // Pass 2: actual generation
             var iterator = new MsilIterator(method.Code, method);
             var stack = new CC65StackSimulator(method.MaxLocals, adjustedMaxStack);
+            var labels = new CC65LabelMapper();
             var support = new CC65Support(
-                iterator, method, stack, writer, _methodBank,
+                iterator, method, stack, labels, writer, _methodBank,
                 ResolveMethodToken, TryResolveFrameworkMethod);
             var translator = new CC65OpcodeTranslator(support, branchTargets);
 

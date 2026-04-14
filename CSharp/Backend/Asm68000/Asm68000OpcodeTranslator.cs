@@ -167,7 +167,7 @@ namespace JumpCS.Backend.Asm68000
 
                 // Attempt to infer _stack effects for common opcode patterns
                 // This helps maintain _stack balance when opcodes are not yet implemented
-                string opName = opcode.Name.ToLower();
+                string opName = opcode.Name?.ToLower() ?? "unk";
 
                 // Load opcodes typically push a value
                 if (opName.StartsWith("ld") && !opName.Contains("st"))

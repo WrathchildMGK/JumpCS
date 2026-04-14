@@ -7,10 +7,9 @@ public class Ret : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        if (s.Stack.StackDepth > 0)
-            s.Emit($"return {s.Stack.Pop()};");
+        if (support.Stack.StackDepth > 0)
+            support.Emit($"return {support.Stack.Pop()};");
         else
-            s.Emit("return;");
+            support.Emit("return;");
     }
 }

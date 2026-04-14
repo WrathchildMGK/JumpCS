@@ -8,11 +8,10 @@ public class Br : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        int offset = SignExtendOffset(operand, s.Iterator.CurrentOpcode);
-        int target = s.Iterator.NextIndex + offset;
-        s.Emit($"goto IL_{target:X4};");
-        s.Stack.Clear();
+        int offset = SignExtendOffset(operand, support.Iterator.CurrentOpcode);
+        int target = support.Iterator.NextIndex + offset;
+        support.Emit($"goto IL_{target:X4};");
+        support.Stack.Clear();
     }
 
     /// <summary>Sign-extend short-form branch offsets</summary>

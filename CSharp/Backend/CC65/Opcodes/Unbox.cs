@@ -7,6 +7,6 @@ public class Unbox : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        ((CC65Support)support).Emit("/* unbox — passthrough */");
+        support.Emit("/* unbox — passthrough */");
     }
 }

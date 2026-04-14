@@ -7,8 +7,7 @@ public class Stloc_N(int index) : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
-        string value = s.Stack.Pop();
-        s.Emit($"local_{index} = {value};");
+        string value = support.Stack.Pop();
+        support.Emit($"local_{index} = {value};");
     }
 }

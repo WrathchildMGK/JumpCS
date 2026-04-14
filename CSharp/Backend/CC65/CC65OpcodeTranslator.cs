@@ -164,7 +164,8 @@ public class CC65OpcodeTranslator
 
         if (Program.CodeOptions?.Verbosity >= 2)
         {
-            string opInfo = operand != null ? $"{opcode.Name} ({operand})" : opcode.Name;
+            string opName = opcode.Name ?? "unk";
+            string opInfo = operand != null ? $"{opName} ({operand})" : opName;
             Console.WriteLine($"[CC65 OPCODE] {currentOffset:X4}: {opInfo}");
         }
 
@@ -176,9 +177,9 @@ public class CC65OpcodeTranslator
         }
         else
         {
-            _support.Emit($"/* TODO: Unimplemented opcode {opcode.Name} */");
+            _support.EmitComment($"TODO: Unimplemented opcode {opcode.Name}");
 
-            string opName = opcode.Name.ToLower();
+            string opName = opcode.Name?.ToLower() ?? "unk";
             if (opName.StartsWith("ld") && !opName.Contains("st"))
             {
                 string temp = _support.Stack.AllocateDataRegister();

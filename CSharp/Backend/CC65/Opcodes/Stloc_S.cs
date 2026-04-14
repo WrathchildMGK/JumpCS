@@ -7,11 +7,10 @@ public class Stloc_S : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
-        var s = (CC65Support)support;
         if (operand is int idx)
         {
-            string value = s.Stack.Pop();
-            s.Emit($"local_{idx} = {value};");
+            string value = support.Stack.Pop();
+            support.Emit($"local_{idx} = {value};");
         }
     }
 }

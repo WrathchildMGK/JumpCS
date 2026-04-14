@@ -417,13 +417,14 @@ namespace JumpCS.Core
         /// <summary>Report statistics for this class</summary>
         public void Report()
         {
-            Console.WriteLine($"Class: {FullName} (index={ClassIndex}, dataSize={DataSize})");
+            Console.WriteLine($"Class: {FullName} ({_majorVersion}.{_minorVersion}.{_magicNumber})");
+            Console.WriteLine($"  Index={ClassIndex}, DataSize={DataSize}");
             Console.WriteLine($"  Fields: {Fields.Count}, Methods: {Methods.Count}");
         }
 
         public string GetMethodLabel(MethodMetadata method)
         {
-            return $"{this.FullName}_{method.Name}";
+            return $"{this.FullName.Replace('.','_')}_{method.Name}";
         }
 
         /// <summary>Update dependencies when this class is marked as needed</summary>
