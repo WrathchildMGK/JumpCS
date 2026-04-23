@@ -77,6 +77,11 @@ namespace JumpCS.Backend.Asm68000
                 { OpCodes.Call, new Call() },
                 { OpCodes.Callvirt, new Callvirt() },
                 { OpCodes.Ldarg_0, new Ldarg_0() },
+                { OpCodes.Ldarg_1, new Ldarg_1() },  // ← NEW
+                { OpCodes.Ldarg_2, new Ldarg_2() },  // ← NEW
+                { OpCodes.Ldarg_3, new Ldarg_3() },  // ← NEW
+                { OpCodes.Ldarg, new Ldarg() },      // ← NEW
+                { OpCodes.Ldstr, new Ldstr() },      // ← NEW
                 { OpCodes.Newobj, new Newobj() },
                 { OpCodes.Ret, new Ret() },
                 { OpCodes.Pop, new Pop() },
@@ -135,50 +140,68 @@ namespace JumpCS.Backend.Asm68000
         /// <summary>Translate a single MSIL opcode to 68000 assembly</summary>
         public void TranslateCurrentOpcode()
         {
-            OpCode opcode = _support.Iterator.CurrentOpcode;
-            object? operand = _support.Iterator.CurrentOperand;
-            int currentOffset = _support.Iterator.CurrentIndex;
-
-            // Emit label only if this offset is a branch target
-            if (_branchTargets.Contains(currentOffset))
+            try
             {
-                _support.AsmWriter.WriteLine($"L_{currentOffset:X4}:");
+                OpCode opcode = _support.Iterator.CurrentOpcode;
+                object? operand = _support.Iterator.CurrentOperand;
+                int currentOffset = _support.Iterator.CurrentIndex;
+
+                // Emit label only if this offset is a branch target
+                if (_branchTargets.Contains(currentOffset))
+                {
+                    _support.AsmWriter.WriteLine($"L_{currentOffset:X4}:");
+                }
+
+                // Add diagnostic output for problematic instructions
+                if (Program.CodeOptions?.Verbosity >= 2)
+                {
+                    string opInfo = $"{opcode.Name}";
+                    if (operand != null)
+                        opInfo += $" ({operand})";
+
+                    Console.WriteLine($"[OPCODE] {currentOffset:X4}: {opInfo}");
+                }
+
+                _support.AsmWriter.WriteLine($"    ; Offset {currentOffset:X4}: {opcode.Name}");
+
+                if (opCodes.ContainsKey(opcode))
+                {
+                    opCodes[opcode].Translate(operand, _support);
+                }
+                else
+                {
+                    HandleUnimplementedOpcode(opcode);
+                }
             }
-
-            // Add diagnostic output for problematic instructions
-            if (Program.CodeOptions?.Verbosity >= 2)
+            catch (Exception ex)
             {
-                string opInfo = $"{opcode.Name}";
-                if (operand != null)
-                    opInfo += $" ({operand})";
-
-                Console.WriteLine($"[OPCODE] {currentOffset:X4}: {opInfo}");
+                // Log exception but continue generation
+                int currentOffset = _support.Iterator.CurrentIndex;
+                string opcodeName = _support.Iterator.CurrentOpcode.Name;
+                _support.AsmWriter.WriteLine($"    ; ERROR: Exception processing {opcodeName} at offset {currentOffset:X4}");
+                _support.AsmWriter.WriteLine($"    ; {ex.Message}");
+                Console.Error.WriteLine($"[ERROR] {opcodeName} at {currentOffset:X4}: {ex.Message}");
+                if (Program.CodeOptions?.Verbosity > 1)
+                    Console.Error.WriteLine(ex.StackTrace);
             }
+        }
 
-            _support.AsmWriter.WriteLine($"    ; Offset {currentOffset:X4}: {opcode.Name}");
+        private void HandleUnimplementedOpcode(OpCode opcode)
+        {
+            _support.AsmWriter.WriteLine($"    ; TODO: Unimplemented opcode {opcode.Name}");
 
-            if (opCodes.ContainsKey(opcode))
+            // Attempt to infer stack effects for common opcode patterns
+            // This helps maintain stack balance when opcodes are not yet implemented
+            string opName = opcode.Name?.ToLower() ?? "unk";
+
+            try
             {
-                opCodes[opcode].Translate(operand, _support);
-            }
-            else
-            {
-                _support.AsmWriter.WriteLine($"    ; TODO: Unimplemented opcode {opcode.Name}");
-
-                // Attempt to infer _stack effects for common opcode patterns
-                // This helps maintain _stack balance when opcodes are not yet implemented
-                string opName = opcode.Name?.ToLower() ?? "unk";
-
                 // Load opcodes typically push a value
                 if (opName.StartsWith("ld") && !opName.Contains("st"))
                 {
-                    try
-                    {
-                        string reg = _support.Stack.AllocateDataRegister();
-                        _support.AsmWriter.WriteLine($"    CLR.L {reg}  ; TODO: Placeholder value");
-                        _support.Stack.Push(reg);
-                    }
-                    catch { }
+                    string reg = _support.Stack.AllocateDataRegister();
+                    _support.AsmWriter.WriteLine($"    CLR.L {reg}  ; TODO: Placeholder value");
+                    _support.Stack.Push(reg);
                 }
                 // Store opcodes typically pop a value
                 else if (opName.StartsWith("st"))
@@ -198,13 +221,11 @@ namespace JumpCS.Backend.Asm68000
                         catch { break; }
                     }
                     // May push return value (conservative)
-                    try
-                    {
-                        string reg = _support.Stack.AllocateDataRegister();
-                        _support.Stack.Push(reg);
-                    }
-                    catch { }
                 }
+            }
+            catch (Exception ex)
+            {
+                _support.AsmWriter.WriteLine($"    ; Exception inferring stack effects: {ex.Message}");
             }
         }
     }

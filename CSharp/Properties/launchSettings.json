@@ -1,8 +1,27 @@
 {
   "profiles": {
-    "CSharp": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "TestMath (6502)": {
+      "commandName": "Project",
+      "commandLineArgs": "-V -T6502 TestMath\\bin\\Debug\\net10.0\\TestMath > err.txt",
+      "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
+    },
+    "TestMath (68000)": {
       "commandName": "Project",
       "commandLineArgs": "-V TestMath\\bin\\Debug\\net10.0\\TestMath > err.txt",
+      "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
+    },
+    "SpeedConverter (6502)": {
+      "commandName": "Project",
+      "commandLineArgs": "-V -T6502 SpeedConverter\\bin\\Release\\net10.0\\SpeedConverter > err.txt",
+      "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
+    },
+    "SpeedConverter (68000)": {
+      "commandName": "Project",
+      "commandLineArgs": "-V SpeedConverter\\bin\\Release\\net10.0\\SpeedConverter > err.txt",
       "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
     }
   }

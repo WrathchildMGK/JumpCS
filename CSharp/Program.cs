@@ -1,9 +1,8 @@
-﻿using JumpCS.Backend.Asm68000;
-using JumpCS.Backend.CC65;
+﻿using JumpCS.Backend;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Core;
-using JumpCS.Optimization;
 using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
 namespace JumpCS
 {
@@ -16,8 +15,10 @@ namespace JumpCS
         private static string? mainAssemblyPath;
         private static AssemblyMetadata? mainAssembly;
         private static ClassMetadata? mainClass;
-        private static IBackEnd? backEnd;
+        public static CodeOptions? CodeOptions => codeOptions;
         private static bool newNeeds;
+
+        public static void SetNeedsNewIteration() => newNeeds = true;
 
         static int Main(string[] args)
         {
@@ -78,17 +79,9 @@ namespace JumpCS
                     ClassMetadata.ForName(cls.FullName);
                 }
 
-                // Initialize backend
+                // Initialize backend using factory
                 string outputBaseName = Path.GetFileNameWithoutExtension(mainAssemblyPath) ?? "JumpCS";
-                // Backend selection:
-                if (codeOptions.Target == TargetPlatform.AtariCC65)
-                {
-                    backEnd = new CC65BackEnd(outputBaseName, codeOptions.MemoryModel);
-                }
-                else
-                {
-                    backEnd = new Asm68000BackEnd(outputBaseName);
-                }
+                IBackEnd backEnd = BackendFactory.CreateBackend(codeOptions.Target, outputBaseName, codeOptions.MemoryModel);
 
                 // Mark entry points as needed
                 MarkEntryPoints();
@@ -127,10 +120,11 @@ namespace JumpCS
                 // Code generation
                 backEnd.Generate();
 
-                // Optional optimization passes
+                // Optional optimization passes using factory
                 if (codeOptions.UsePeephole)
                 {
-                    Peephole.Process(outputBaseName);
+                    var peephole = BackendFactory.CreatePeepholeOptimizer(codeOptions.Target);
+                    peephole.Process(outputBaseName, codeOptions.Target);
                 }
 
                 Console.WriteLine("\nCompilation completed successfully.");
@@ -217,10 +211,5 @@ namespace JumpCS
                 mainMethod.MarkNeeded("Main");
             }
         }
-
-        public static bool NeedsNewIteration => newNeeds;
-        public static void SetNeedsNewIteration() => newNeeds = true;
-        public static CodeOptions? CodeOptions => codeOptions;
-        public static IConfiguration? Configuration => configuration;
     }
 }

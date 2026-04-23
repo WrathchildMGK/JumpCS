@@ -43,24 +43,60 @@ namespace JumpCS.Backend.Asm68000
         /// <summary>Generate 68000 assembly output</summary>
         public override void Generate()
         {
-            string outputPath = $"{OutputBaseName}_generated.asm";
+            string outputDir = $"{OutputBaseName}_68000";
+            Directory.CreateDirectory(outputDir);
+            
+            string outputPath = Path.Combine(outputDir, $"{OutputBaseName}.asm");
             Console.WriteLine($"Generating 68000 assembly: {outputPath}");
 
-            using (_asmWriter = new StreamWriter(outputPath, false, Encoding.ASCII))
+            try
             {
-                _floatConstants.Clear();
-                _doubleConstants.Clear();
+                using (_asmWriter = new StreamWriter(outputPath, false, Encoding.ASCII))
+                {
+                    _floatConstants.Clear();
+                    _doubleConstants.Clear();
 
-                WriteHeader();
-                WriteClassDefinitions();
-                WriteClassTable();
-                WriteMethodImplementations();
-                WriteConstantsSection();
-                WriteDataSection();
-                WriteFooter();
+                    WriteHeader();
+                    WriteClassDefinitions();
+                    WriteClassTable();
+                    
+                    try
+                    {
+                        WriteMethodImplementations();
+                    }
+                    catch (Exception ex)
+                    {
+                        _asmWriter.WriteLine();
+                        _asmWriter.WriteLine($"    ; ERROR: Exception during method generation: {ex.Message}");
+                        Console.Error.WriteLine($"[ERROR] Exception during method generation: {ex.Message}");
+                        if (Program.CodeOptions?.Verbosity > 1)
+                        {
+                            _asmWriter.WriteLine($"    ; {ex.StackTrace}");
+                            Console.Error.WriteLine(ex.StackTrace);
+                        }
+                    }
+                    
+                    try
+                    {
+                        WriteConstantsSection();
+                        WriteDataSection();
+                        WriteFooter();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"[ERROR] Exception during footer generation: {ex.Message}");
+                    }
+                }
+
+                AddGeneratedFile(outputPath);
+                Console.WriteLine($"✓ Assembly generation completed: {outputPath}");
             }
-
-            AddGeneratedFile(outputPath);
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[FATAL] Failed to generate assembly: {ex.Message}");
+                Console.Error.WriteLine(ex.StackTrace);
+                throw;
+            }
         }
 
         private void WriteHeader()
