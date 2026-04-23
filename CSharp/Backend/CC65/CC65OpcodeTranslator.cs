@@ -32,6 +32,9 @@ public class CC65OpcodeTranslator
             { OpCodes.Ldc_I4_M1, new Ldc_I4_N(-1) },
             { OpCodes.Ldc_I4, new Ldc_I4() },
             { OpCodes.Ldc_I4_S, new Ldc_I4_S() },
+            { OpCodes.Ldc_I8, new Ldc_I8() },
+            { OpCodes.Ldc_R4, new Ldc_R4() },
+            { OpCodes.Ldc_R8, new Ldc_R8() },
 
             // Arithmetic
             { OpCodes.Add, new BinaryOp("+") },
@@ -78,22 +81,34 @@ public class CC65OpcodeTranslator
             { OpCodes.Ble_Un_S, new BranchCmpUnsigned("<=") },
             { OpCodes.Bgt_Un, new BranchCmpUnsigned(">") },
             { OpCodes.Bgt_Un_S, new BranchCmpUnsigned(">") },
+            { OpCodes.Brfalse, new Brfalse() },
+            { OpCodes.Brfalse_S, new Brfalse() },
 
             // Locals
             { OpCodes.Ldloc_0, new Ldloc_N(0) },
-            { OpCodes.Ldloc_1, new Ldloc_N(1) },
-            { OpCodes.Ldloc_2, new Ldloc_N(2) },
-            { OpCodes.Ldloc_3, new Ldloc_N(3) },
+            { OpCodes.Ldloc_1, new Ldloc_1() },
+            { OpCodes.Ldloc_2, new Ldloc_2() },
+            { OpCodes.Ldloc_3, new Ldloc_3() },
             { OpCodes.Ldloc_S, new Ldloc_S() },
             { OpCodes.Ldloc, new Ldloc() },
+            { OpCodes.Ldloca_S, new Ldloca_S() },
             { OpCodes.Stloc_0, new Stloc_N(0) },
-            { OpCodes.Stloc_1, new Stloc_N(1) },
-            { OpCodes.Stloc_2, new Stloc_N(2) },
-            { OpCodes.Stloc_3, new Stloc_N(3) },
+            { OpCodes.Stloc_1, new Stloc_1() },
+            { OpCodes.Stloc_2, new Stloc_2() },
+            { OpCodes.Stloc_3, new Stloc_3() },
             { OpCodes.Stloc_S, new Stloc_S() },
 
             // Arguments
             { OpCodes.Ldarg_0, new Ldarg_0() },
+            { OpCodes.Ldarg_1, new Ldarg_1() },
+            { OpCodes.Ldarg_2, new Ldarg_2() },
+            { OpCodes.Ldarg_3, new Ldarg_3() },
+            { OpCodes.Ldarg, new Ldarg() },
+
+            // String/Field
+            { OpCodes.Ldstr, new Ldstr() },
+            { OpCodes.Ldfld, new Ldfld() },
+            { OpCodes.Ldsfld, new Ldsfld() },
 
             // Conversions
             { OpCodes.Conv_I4, new Conv("int32_t") },
@@ -114,10 +129,11 @@ public class CC65OpcodeTranslator
             { OpCodes.Nop, new Nop() },
             { OpCodes.Leave, new Br() },
             { OpCodes.Leave_S, new Br() },
+            { OpCodes.Endfinally, new Endfinally() },
 
             // Calls
             { OpCodes.Call, new Call() },
-            { OpCodes.Callvirt, new Call() },
+            { OpCodes.Callvirt, new Callvirt() },
             { OpCodes.Newobj, new Newobj() },
         };
     }

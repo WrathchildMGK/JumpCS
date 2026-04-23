@@ -1,6 +1,6 @@
 ; Generated 68000 Assembly Code
 ; Converted from C# MSIL
-; Generated: 2026-04-23 17:11:45
+; Generated: 2026-04-23 20:25:19
 
     ; --- Code Section ---
     SECTION CODE
@@ -57,8 +57,8 @@ SpeedConverter_Program_RunTest:
     ; Offset 000D: ldc.i4.3
     MOVE.L #3,D5         ; Load 3
     ; Offset 000E: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor
-    ; DefaultInterpolatedStringHandler..ctor - initialize struct
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor
+    ; Not in FrameworkMethodRegistry
     ; Offset 0013: ldloca.s
     LEA -8(A6),A0  ; Load address of local.1
     MOVE.L A0,D6
@@ -66,61 +66,68 @@ SpeedConverter_Program_RunTest:
     LEA STRING_70000001,A0  ; Load string literal
     MOVE.L A0,D7
     ; Offset 001A: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral
-    ; DefaultInterpolatedStringHandler.AppendLiteral - append literal
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral
+    ; Not in FrameworkMethodRegistry
     ; Offset 001F: ldloca.s
     LEA -8(A6),A0  ; Load address of local.1
     MOVE.L A0,D7
     ; Offset 0021: ldarg.1
-    MOVE.L 12(A6),D6  ; Load arg.1 (second param)
+    MOVE.L 12(A6),D2  ; Load arg.1 (second param)
     ; Offset 0022: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted
-    ; DefaultInterpolatedStringHandler.AppendFormatted - append formatted value
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted
+    ; Not in FrameworkMethodRegistry
     ; Offset 0027: ldloca.s
     LEA -8(A6),A0  ; Load address of local.1
-    MOVE.L A0,D2
+    MOVE.L A0,D1
     ; Offset 0029: ldstr
     LEA STRING_7000000D,A0  ; Load string literal
-    MOVE.L A0,D1
+    MOVE.L A0,D0
     ; Offset 002E: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral
-    ; DefaultInterpolatedStringHandler.AppendLiteral - append literal
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral
+    ; Not in FrameworkMethodRegistry
     ; Offset 0033: ldloca.s
     LEA -8(A6),A0  ; Load address of local.1
-    MOVE.L A0,D0
+    MOVE.L A0,D2
     ; Offset 0035: ldarg.2
-    MOVE.L 16(A6),D7  ; Load arg.2 (third param)
+    MOVE.L 16(A6),D0  ; Load arg.2 (third param)
+    ; ERROR: Exception processing ldarg.2 at offset 0035
+    ; Evaluation stack overflow
     ; Offset 0036: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted
-    ; DefaultInterpolatedStringHandler.AppendFormatted - append formatted value
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted
+    ; Not in FrameworkMethodRegistry
     ; Offset 003B: ldloca.s
     LEA -8(A6),A0  ; Load address of local.1
-    MOVE.L A0,D6
+    MOVE.L A0,D2
     ; Offset 003D: ldstr
     LEA STRING_70000021,A0  ; Load string literal
-    MOVE.L A0,D2
+    MOVE.L A0,D0
+    ; ERROR: Exception processing ldstr at offset 003D
+    ; Evaluation stack overflow
     ; Offset 0042: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral
-    ; DefaultInterpolatedStringHandler.AppendLiteral - append literal
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral
+    ; Not in FrameworkMethodRegistry
     ; Offset 0047: ldloca.s
     LEA -8(A6),A0  ; Load address of local.1
-    MOVE.L A0,D1
+    MOVE.L A0,D2
     ; Offset 0049: ldloc.0
-    MOVE.L -4(A6),D7  ; Load local.0
+    MOVE.L -4(A6),D0  ; Load local.0
+    ; ERROR: Exception processing ldloc.0 at offset 0049
+    ; Evaluation stack overflow
     ; Offset 004A: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted
-    ; DefaultInterpolatedStringHandler.AppendFormatted - append formatted value
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted
+    ; Not in FrameworkMethodRegistry
     ; Offset 004F: ldloca.s
     LEA -8(A6),A0  ; Load address of local.1
-    MOVE.L A0,D6
+    MOVE.L A0,D2
     ; Offset 0051: call
-    ; Framework call: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear
-    MOVE.L #0,D2  ; TODO: Return interpolated string result
+    ; ERROR: Unsupported framework method: System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear
+    ; Not in FrameworkMethodRegistry
     ; Offset 0056: call
     ; Framework call: System.Console::WriteLine
-    JSR __console_writeline  ; Console.WriteLine
+    ; System.Console.WriteLine - 1 parameters
+    JSR __console_writeline  ; Console.WriteLine(string)
     ; Offset 005B: ret
-    MOVE.L D2,D0  ; Move return value to D0
+    MOVE.L D1,D0  ; Move return value to D0
 
     ; Method epilogue
     MOVEM.L (A7)+,A6     ; Restore frame
@@ -244,11 +251,11 @@ SpeedConverter_Code_SpeedConversionService_ConvertToMilesPerHour:
     JSR __muldf3          ; IEEE 754 double multiply
     ; Offset 000C: call
     ; Framework call: System.Math::Round
-    JSR __round  ; Math.Round - result in D0/D1
+    JSR __round
     ; Offset 0011: conv.i4
-    MOVE.L D3,D2  ; Convert to I4
+    MOVE.L D3,D1  ; Convert to I4
     ; Offset 0012: ret
-    MOVE.L D2,D0  ; Move return value to D0
+    MOVE.L D1,D0  ; Move return value to D0
 
     ; Method epilogue
     MOVEM.L (A7)+,A6     ; Restore frame

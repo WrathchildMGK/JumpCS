@@ -5,7 +5,7 @@ Copyright (c) 2026 by .NET Port Contributors
 Please see the file COPYING (GPL v2) for distribution rights.
 
 Compiling assembly: SpeedConverter\bin\Release\net10.0\SpeedConverter
-Options: Model=Small, Target=Motorola68000, Optimization=Medium, CheckBounds=True, CheckNull=True, CheckDivideByZero=True, StackSize=8192
+Options: Model=Small, Target=AtariCC65, Optimization=Medium, CheckBounds=True, CheckNull=True, CheckDivideByZero=True, StackSize=8192
   Method RunTest: CodeLength=92, MaxStack=3, MaxLocals=2
   Method Main: CodeLength=47, MaxStack=3, MaxLocals=1
   Method GetType: CodeLength=18, MaxStack=8, MaxLocals=0
@@ -73,227 +73,306 @@ Methods:  24
 Fields:   1
 ==============================
 
-Generating 68000 assembly: SpeedConverter_68000\SpeedConverter.asm
-[OPCODE] 0000: ldarg.0
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
-[PUSH] D0 | Stack depth: 1 (D0)
-[OPCODE] 0001: ldarg.1
-[ALLOC] Allocated D1 | Stack depth: 1 | Available: 6
-[PUSH] D1 | Stack depth: 2 (D0, D1)
-[OPCODE] 0002: ldarg.2
-[ALLOC] Allocated D2 | Stack depth: 2 | Available: 5
-[PUSH] D2 | Stack depth: 3 (D0, D1, D2)
-[OPCODE] 0003: callvirt (100663301)
-[POP] D2 | Stack depth: 2 (D0, D1)
-[POP] D1 | Stack depth: 1 (D0)
-[POP] D0 | Stack depth: 0 ()
-[ALLOC] Allocated D3 | Stack depth: 0 | Available: 4
-[PUSH] D3 | Stack depth: 1 (D3)
-[OPCODE] 0008: stloc.0
-[POP] D3 | Stack depth: 0 ()
-[OPCODE] 0009: ldloca.s (1)
-[ALLOC] Allocated D3 | Stack depth: 0 | Available: 4
-[PUSH] D3 | Stack depth: 1 (D3)
-[OPCODE] 000B: ldc.i4.s (17)
-[ALLOC] Allocated D4 | Stack depth: 1 | Available: 3
-[PUSH] D4 | Stack depth: 2 (D3, D4)
-[OPCODE] 000D: ldc.i4.3
-[ALLOC] Allocated D5 | Stack depth: 2 | Available: 2
-[PUSH] D5 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 000E: call (167772174)
-[OPCODE] 0013: ldloca.s (1)
-[ALLOC] Allocated D6 | Stack depth: 3 | Available: 1
-[PUSH] D6 | Stack depth: 4 (D3, D4, D5, D6)
-[OPCODE] 0015: ldstr (1879048193)
-[ALLOC] Allocated D7 | Stack depth: 4 | Available: 0
-[PUSH] D7 | Stack depth: 5 (D3, D4, D5, D6, D7)
-[OPCODE] 001A: call (167772175)
-[POP] D7 | Stack depth: 4 (D3, D4, D5, D6)
-[POP] D6 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 001F: ldloca.s (1)
-[ALLOC] Allocated D7 | Stack depth: 3 | Available: 4
-[PUSH] D7 | Stack depth: 4 (D3, D4, D5, D7)
-[OPCODE] 0021: ldarg.1
-[ALLOC] Allocated D6 | Stack depth: 4 | Available: 3
-[PUSH] D6 | Stack depth: 5 (D3, D4, D5, D7, D6)
-[OPCODE] 0022: call (721420289)
-[POP] D6 | Stack depth: 4 (D3, D4, D5, D7)
-[POP] D7 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 0027: ldloca.s (1)
-[ALLOC] Allocated D2 | Stack depth: 3 | Available: 2
-[PUSH] D2 | Stack depth: 4 (D3, D4, D5, D2)
-[OPCODE] 0029: ldstr (1879048205)
-[ALLOC] Allocated D1 | Stack depth: 4 | Available: 1
-[PUSH] D1 | Stack depth: 5 (D3, D4, D5, D2, D1)
-[OPCODE] 002E: call (167772175)
-[POP] D1 | Stack depth: 4 (D3, D4, D5, D2)
-[POP] D2 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 0033: ldloca.s (1)
-[ALLOC] Allocated D0 | Stack depth: 3 | Available: 0
-[PUSH] D0 | Stack depth: 4 (D3, D4, D5, D0)
-[OPCODE] 0035: ldarg.2
-[ALLOC] Allocated D7 | Stack depth: 4 | Available: 3
-[PUSH] D7 | Stack depth: 5 (D3, D4, D5, D0, D7)
-[OPCODE] 0036: call (721420289)
-[POP] D7 | Stack depth: 4 (D3, D4, D5, D0)
-[POP] D0 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 003B: ldloca.s (1)
-[ALLOC] Allocated D6 | Stack depth: 3 | Available: 2
-[PUSH] D6 | Stack depth: 4 (D3, D4, D5, D6)
-[OPCODE] 003D: ldstr (1879048225)
-[ALLOC] Allocated D2 | Stack depth: 4 | Available: 1
-[PUSH] D2 | Stack depth: 5 (D3, D4, D5, D6, D2)
-[OPCODE] 0042: call (167772175)
-[POP] D2 | Stack depth: 4 (D3, D4, D5, D6)
-[POP] D6 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 0047: ldloca.s (1)
-[ALLOC] Allocated D1 | Stack depth: 3 | Available: 0
-[PUSH] D1 | Stack depth: 4 (D3, D4, D5, D1)
-[OPCODE] 0049: ldloc.0
-[ALLOC] Allocated D7 | Stack depth: 4 | Available: 3
-[PUSH] D7 | Stack depth: 5 (D3, D4, D5, D1, D7)
-[OPCODE] 004A: call (721420290)
-[POP] D7 | Stack depth: 4 (D3, D4, D5, D1)
-[POP] D1 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 004F: ldloca.s (1)
-[ALLOC] Allocated D6 | Stack depth: 3 | Available: 2
-[PUSH] D6 | Stack depth: 4 (D3, D4, D5, D6)
-[OPCODE] 0051: call (167772177)
-[POP] D6 | Stack depth: 3 (D3, D4, D5)
-[ALLOC] Allocated D2 | Stack depth: 3 | Available: 1
-[PUSH] D2 | Stack depth: 4 (D3, D4, D5, D2)
-[ALLOC] Allocated D0 | Stack depth: 4 | Available: 0
-[PUSH] D0 | Stack depth: 5 (D3, D4, D5, D2, D0)
-[OPCODE] 0056: call (167772178)
-[POP] D0 | Stack depth: 4 (D3, D4, D5, D2)
-[OPCODE] 005B: ret
-[POP] D2 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 0000: newobj (100663300)
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
-[PUSH] D0 | Stack depth: 1 (D0)
-[OPCODE] 0005: stloc.0
-[POP] D0 | Stack depth: 0 ()
-[OPCODE] 0006: ldloc.0
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
-[PUSH] D0 | Stack depth: 1 (D0)
-[OPCODE] 0007: ldc.i4.s (10)
-[ALLOC] Allocated D1 | Stack depth: 1 | Available: 6
-[PUSH] D1 | Stack depth: 2 (D0, D1)
-[OPCODE] 0009: ldc.i4.6
-[ALLOC] Allocated D2 | Stack depth: 2 | Available: 5
-[PUSH] D2 | Stack depth: 3 (D0, D1, D2)
-[OPCODE] 000A: call (100663297)
-[POP] D2 | Stack depth: 2 (D0, D1)
-[POP] D1 | Stack depth: 1 (D0)
-[POP] D0 | Stack depth: 0 ()
-[OPCODE] 000F: ldloc.0
-[ALLOC] Allocated D3 | Stack depth: 0 | Available: 4
-[PUSH] D3 | Stack depth: 1 (D3)
-[OPCODE] 0010: ldc.i4.s (11)
-[ALLOC] Allocated D4 | Stack depth: 1 | Available: 3
-[PUSH] D4 | Stack depth: 2 (D3, D4)
-[OPCODE] 0012: ldc.i4.7
-[ALLOC] Allocated D5 | Stack depth: 2 | Available: 2
-[PUSH] D5 | Stack depth: 3 (D3, D4, D5)
-[OPCODE] 0013: call (100663297)
-[POP] D5 | Stack depth: 2 (D3, D4)
-[POP] D4 | Stack depth: 1 (D3)
-[POP] D3 | Stack depth: 0 ()
-[OPCODE] 0018: ldloc.0
-[ALLOC] Allocated D6 | Stack depth: 0 | Available: 1
-[PUSH] D6 | Stack depth: 1 (D6)
-[OPCODE] 0019: ldc.i4.s (20)
-[ALLOC] Allocated D7 | Stack depth: 1 | Available: 0
-[PUSH] D7 | Stack depth: 2 (D6, D7)
-[OPCODE] 001B: ldc.i4.s (12)
-[ALLOC] Allocated D5 | Stack depth: 2 | Available: 5
-[PUSH] D5 | Stack depth: 3 (D6, D7, D5)
-[OPCODE] 001D: call (100663297)
-[POP] D5 | Stack depth: 2 (D6, D7)
-[POP] D7 | Stack depth: 1 (D6)
-[POP] D6 | Stack depth: 0 ()
-[OPCODE] 0022: leave.s (10)
-[OPCODE] 0024: ldloc.0
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
-[PUSH] D0 | Stack depth: 1 (D0)
-[OPCODE] 0025: brfalse.s (6)
-[POP] D0 | Stack depth: 0 ()
-[OPCODE] 0027: ldloc.0
-[ALLOC] Allocated D1 | Stack depth: 0 | Available: 6
-[PUSH] D1 | Stack depth: 1 (D1)
-[OPCODE] 0028: callvirt (167772179)
-[POP] D1 | Stack depth: 0 ()
-[OPCODE] 002D: endfinally
-[OPCODE] 002E: ret
-[OPCODE] 0000: ldarg.0
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
-[PUSH] D0 | Stack depth: 1 (D0)
-[OPCODE] 0001: ldfld (67108865)
-[POP] D0 | Stack depth: 0 ()
-[ALLOC] Allocated D1 | Stack depth: 0 | Available: 6
-[PUSH] D1 | Stack depth: 1 (D1)
-[OPCODE] 0006: ldarg.1
-[ALLOC] Allocated D2 | Stack depth: 1 | Available: 5
-[PUSH] D2 | Stack depth: 2 (D1, D2)
-[OPCODE] 0007: callvirt (100663303)
-[POP] D2 | Stack depth: 1 (D1)
-[POP] D1 | Stack depth: 0 ()
-[ALLOC] Allocated D3 | Stack depth: 0 | Available: 4
-[PUSH] D3 | Stack depth: 1 (D3)
-[OPCODE] 000C: stloc.0
-[POP] D3 | Stack depth: 0 ()
-[OPCODE] 000D: ldarg.2
-[ALLOC] Allocated D3 | Stack depth: 0 | Available: 4
-[PUSH] D3 | Stack depth: 1 (D3)
-[OPCODE] 000E: ldloc.0
-[ALLOC] Allocated D4 | Stack depth: 1 | Available: 3
-[PUSH] D4 | Stack depth: 2 (D3, D4)
-[OPCODE] 000F: nop
-[OPCODE] 0011: ret
-[POP] D4 | Stack depth: 1 (D3)
+Generating CC65 output for Atari XEGS (SMALL (32KB)): SpeedConverter_cc65/
+  Banks used: 1 of 3 switchable + 1 fixed
+[CC65 OPCODE] 0000: ldarg.0
+[CC65 PUSH] arg_0 | depth: 1
+[CC65 OPCODE] 0001: ldarg.1
+[CC65 PUSH] arg_1 | depth: 2
+[CC65 OPCODE] 0002: ldarg.2
+[CC65 PUSH] arg_2 | depth: 3
+[CC65 OPCODE] 0003: callvirt (100663301)
+[CC65 POP] arg_2 | depth: 2
+[CC65 POP] arg_1 | depth: 1
+[CC65 POP] arg_0 | depth: 0
+[CC65 PUSH] s0 | depth: 1
+[CC65 OPCODE] 0008: stloc.0
+[CC65 POP] s0 | depth: 0
+[CC65 OPCODE] 0009: ldloca.s (1)
+[CC65 OPCODE] 000B: ldc.i4.s (17)
+[CC65 PUSH] s1 | depth: 1
+[CC65 OPCODE] 000D: ldc.i4.3
+[CC65 PUSH] s2 | depth: 2
+[CC65 OPCODE] 000E: call (167772174)
+[CC65 OPCODE] 0013: ldloca.s (1)
+[CC65 OPCODE] 0015: ldstr (1879048193)
+[CC65 PUSH] s3 | depth: 3
+[CC65 OPCODE] 001A: call (167772175)
+[CC65 POP] s3 | depth: 2
+[CC65 OPCODE] 001F: ldloca.s (1)
+[CC65 OPCODE] 0021: ldarg.1
+[CC65 PUSH] arg_1 | depth: 3
+[CC65 OPCODE] 0022: call (721420289)
+[CC65 POP] arg_1 | depth: 2
+[CC65 OPCODE] 0027: ldloca.s (1)
+[CC65 OPCODE] 0029: ldstr (1879048205)
+[CC65 PUSH] s4 | depth: 3
+[CC65 OPCODE] 002E: call (167772175)
+[CC65 POP] s4 | depth: 2
+[CC65 OPCODE] 0033: ldloca.s (1)
+[CC65 OPCODE] 0035: ldarg.2
+[CC65 PUSH] arg_2 | depth: 3
+[CC65 OPCODE] 0036: call (721420289)
+[CC65 POP] arg_2 | depth: 2
+[CC65 OPCODE] 003B: ldloca.s (1)
+[CC65 OPCODE] 003D: ldstr (1879048225)
+[CC65 PUSH] s5 | depth: 3
+[CC65 OPCODE] 0042: call (167772175)
+[CC65 POP] s5 | depth: 2
+[CC65 OPCODE] 0047: ldloca.s (1)
+[CC65 OPCODE] 0049: ldloc.0
+[CC65 PUSH] local_0 | depth: 3
+[CC65 OPCODE] 004A: call (721420290)
+[CC65 POP] local_0 | depth: 2
+[CC65 OPCODE] 004F: ldloca.s (1)
+[CC65 OPCODE] 0051: call (167772177)
+[CC65 OPCODE] 0056: call (167772178)
+[CC65 OPCODE] 005B: ret
+[CC65 POP] s2 | depth: 1
+[CC65 OPCODE] 0000: ldarg.0
+[CC65 PUSH] arg_0 | depth: 1
+[CC65 OPCODE] 0001: ldarg.1
+[CC65 PUSH] arg_1 | depth: 2
+[CC65 OPCODE] 0002: ldarg.2
+[CC65 PUSH] arg_2 | depth: 3
+[CC65 OPCODE] 0003: callvirt (100663301)
+[CC65 POP] arg_2 | depth: 2
+[CC65 POP] arg_1 | depth: 1
+[CC65 POP] arg_0 | depth: 0
+[CC65 PUSH] s0 | depth: 1
+[CC65 OPCODE] 0008: stloc.0
+[CC65 POP] s0 | depth: 0
+[CC65 OPCODE] 0009: ldloca.s (1)
+[CC65 OPCODE] 000B: ldc.i4.s (17)
+[CC65 PUSH] s1 | depth: 1
+[CC65 OPCODE] 000D: ldc.i4.3
+[CC65 PUSH] s2 | depth: 2
+[CC65 OPCODE] 000E: call (167772174)
+[CC65 OPCODE] 0013: ldloca.s (1)
+[CC65 OPCODE] 0015: ldstr (1879048193)
+[CC65 PUSH] s3 | depth: 3
+[CC65 OPCODE] 001A: call (167772175)
+[CC65 POP] s3 | depth: 2
+[CC65 OPCODE] 001F: ldloca.s (1)
+[CC65 OPCODE] 0021: ldarg.1
+[CC65 PUSH] arg_1 | depth: 3
+[CC65 OPCODE] 0022: call (721420289)
+[CC65 POP] arg_1 | depth: 2
+[CC65 OPCODE] 0027: ldloca.s (1)
+[CC65 OPCODE] 0029: ldstr (1879048205)
+[CC65 PUSH] s4 | depth: 3
+[CC65 OPCODE] 002E: call (167772175)
+[CC65 POP] s4 | depth: 2
+[CC65 OPCODE] 0033: ldloca.s (1)
+[CC65 OPCODE] 0035: ldarg.2
+[CC65 PUSH] arg_2 | depth: 3
+[CC65 OPCODE] 0036: call (721420289)
+[CC65 POP] arg_2 | depth: 2
+[CC65 OPCODE] 003B: ldloca.s (1)
+[CC65 OPCODE] 003D: ldstr (1879048225)
+[CC65 PUSH] s5 | depth: 3
+[CC65 OPCODE] 0042: call (167772175)
+[CC65 POP] s5 | depth: 2
+[CC65 OPCODE] 0047: ldloca.s (1)
+[CC65 OPCODE] 0049: ldloc.0
+[CC65 PUSH] local_0 | depth: 3
+[CC65 OPCODE] 004A: call (721420290)
+[CC65 POP] local_0 | depth: 2
+[CC65 OPCODE] 004F: ldloca.s (1)
+[CC65 OPCODE] 0051: call (167772177)
+[CC65 OPCODE] 0056: call (167772178)
+[CC65 OPCODE] 005B: ret
+[CC65 POP] s2 | depth: 1
+[CC65 OPCODE] 0000: newobj (100663300)
+[CC65 PUSH] s0 | depth: 1
+[CC65 OPCODE] 0005: stloc.0
+[CC65 POP] s0 | depth: 0
+[CC65 OPCODE] 0006: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0007: ldc.i4.s (10)
+[CC65 PUSH] s1 | depth: 2
+[CC65 OPCODE] 0009: ldc.i4.6
+[CC65 PUSH] s2 | depth: 3
+[CC65 OPCODE] 000A: call (100663297)
+[CC65 POP] s2 | depth: 2
+[CC65 POP] s1 | depth: 1
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 000F: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0010: ldc.i4.s (11)
+[CC65 PUSH] s3 | depth: 2
+[CC65 OPCODE] 0012: ldc.i4.7
+[CC65 PUSH] s4 | depth: 3
+[CC65 OPCODE] 0013: call (100663297)
+[CC65 POP] s4 | depth: 2
+[CC65 POP] s3 | depth: 1
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 0018: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0019: ldc.i4.s (20)
+[CC65 PUSH] s5 | depth: 2
+[CC65 OPCODE] 001B: ldc.i4.s (12)
+[CC65 PUSH] s6 | depth: 3
+[CC65 OPCODE] 001D: call (100663297)
+[CC65 POP] s6 | depth: 2
+[CC65 POP] s5 | depth: 1
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 0022: leave.s (10)
+[CC65] Stack cleared
+[CC65 OPCODE] 0024: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0025: brfalse.s (6)
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 0027: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0028: callvirt (167772179)
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 002D: endfinally
+[CC65 OPCODE] 002E: ret
+[CC65 OPCODE] 0000: newobj (100663300)
+[CC65 PUSH] s0 | depth: 1
+[CC65 OPCODE] 0005: stloc.0
+[CC65 POP] s0 | depth: 0
+[CC65 OPCODE] 0006: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0007: ldc.i4.s (10)
+[CC65 PUSH] s1 | depth: 2
+[CC65 OPCODE] 0009: ldc.i4.6
+[CC65 PUSH] s2 | depth: 3
+[CC65 OPCODE] 000A: call (100663297)
+[CC65 POP] s2 | depth: 2
+[CC65 POP] s1 | depth: 1
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 000F: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0010: ldc.i4.s (11)
+[CC65 PUSH] s3 | depth: 2
+[CC65 OPCODE] 0012: ldc.i4.7
+[CC65 PUSH] s4 | depth: 3
+[CC65 OPCODE] 0013: call (100663297)
+[CC65 POP] s4 | depth: 2
+[CC65 POP] s3 | depth: 1
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 0018: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0019: ldc.i4.s (20)
+[CC65 PUSH] s5 | depth: 2
+[CC65 OPCODE] 001B: ldc.i4.s (12)
+[CC65 PUSH] s6 | depth: 3
+[CC65 OPCODE] 001D: call (100663297)
+[CC65 POP] s6 | depth: 2
+[CC65 POP] s5 | depth: 1
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 0022: leave.s (10)
+[CC65] Stack cleared
+[CC65 OPCODE] 0024: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0025: brfalse.s (6)
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 0027: ldloc.0
+[CC65 PUSH] local_0 | depth: 1
+[CC65 OPCODE] 0028: callvirt (167772179)
+[CC65 POP] local_0 | depth: 0
+[CC65 OPCODE] 002D: endfinally
+[CC65 OPCODE] 002E: ret
+[CC65 OPCODE] 0000: ldarg.0
+[CC65 PUSH] arg_0 | depth: 1
+[CC65 OPCODE] 0001: ldfld (67108865)
+[CC65 POP] arg_0 | depth: 0
+[CC65 PUSH] s0 | depth: 1
+[CC65 OPCODE] 0006: ldarg.1
+[CC65 PUSH] arg_1 | depth: 2
+[CC65 OPCODE] 0007: callvirt (100663303)
+[CC65 POP] arg_1 | depth: 1
+[CC65 POP] s0 | depth: 0
+[CC65 PUSH] s1 | depth: 1
+[CC65 OPCODE] 000C: stloc.0
+[CC65 POP] s1 | depth: 0
+[CC65 OPCODE] 000D: ldarg.2
+[CC65 PUSH] arg_2 | depth: 1
+[CC65 OPCODE] 000E: ldloc.0
+[CC65 PUSH] local_0 | depth: 2
+[CC65 OPCODE] 000F: nop
+[CC65 OPCODE] 0011: ret
+[CC65 POP] local_0 | depth: 1
+[CC65 OPCODE] 0000: ldarg.0
+[CC65 PUSH] arg_0 | depth: 1
+[CC65 OPCODE] 0001: ldfld (67108865)
+[CC65 POP] arg_0 | depth: 0
+[CC65 PUSH] s0 | depth: 1
+[CC65 OPCODE] 0006: ldarg.1
+[CC65 PUSH] arg_1 | depth: 2
+[CC65 OPCODE] 0007: callvirt (100663303)
+[CC65 POP] arg_1 | depth: 1
+[CC65 POP] s0 | depth: 0
+[CC65 PUSH] s1 | depth: 1
+[CC65 OPCODE] 000C: stloc.0
+[CC65 POP] s1 | depth: 0
+[CC65 OPCODE] 000D: ldarg.2
+[CC65 PUSH] arg_2 | depth: 1
+[CC65 OPCODE] 000E: ldloc.0
+[CC65 PUSH] local_0 | depth: 2
+[CC65 OPCODE] 000F: nop
+[CC65 OPCODE] 0011: ret
+[CC65 POP] local_0 | depth: 1
+[CC65 OPCODE] 0000: ldarg.1
+[CC65 PUSH] arg_1 | depth: 1
+[CC65 OPCODE] 0001: conv.r8
+[CC65 POP] arg_1 | depth: 0
+[CC65 PUSH] arg_1 | depth: 1
 [DEBUG] ldc.r8 at offset 0002:
   OperandType: InlineR
   Result type: Double
   Result value: 0.62137
   Hex bytes: 8A E5 96 56 43 E2 E3 3F
-[OPCODE] 0000: ldarg.1
-[ALLOC] Allocated D0 | Stack depth: 0 | Available: 7
-[PUSH] D0 | Stack depth: 1 (D0)
-[OPCODE] 0001: conv.r8
-[POP] D0 | Stack depth: 0 ()
-[ALLOC] Allocated D1 | Stack depth: 0 | Available: 6
-[ALLOC] Allocated D2 | Stack depth: 0 | Available: 5
-[PUSH] D1 (dbl) | Stack depth: 1 (D1)
-[PUSH] D2 (dbl) | Stack depth: 2 (D1, D2)
+[CC65 OPCODE] 0002: ldc.r8 (0.62137)
+[CC65 PUSH] s0 | depth: 2
+[CC65 OPCODE] 000B: mul
+[CC65 POP] s0 | depth: 1
+[CC65 POP] arg_1 | depth: 0
+[CC65 PUSH] s1 | depth: 1
+[CC65 OPCODE] 000C: call (167772181)
+[CC65 POP] s1 | depth: 0
+[CC65 PUSH] s2 | depth: 1
+[CC65 OPCODE] 0011: conv.i4
+[CC65 POP] s2 | depth: 0
+[CC65 PUSH] s3 | depth: 1
+[CC65 OPCODE] 0012: ret
+[CC65 POP] s3 | depth: 0
 [DEBUG] ldc.r8 at offset 0002:
   OperandType: InlineR
   Result type: Double
   Result value: 0.62137
   Hex bytes: 8A E5 96 56 43 E2 E3 3F
-[OPCODE] 0002: ldc.r8 (0.62137)
-[ALLOC] Allocated D0 | Stack depth: 2 | Available: 5
-[ALLOC] Allocated D3 | Stack depth: 2 | Available: 4
-[PUSH] D0 (dbl) | Stack depth: 3 (D1, D2, D0)
-[PUSH] D3 (dbl) | Stack depth: 4 (D1, D2, D0, D3)
-[OPCODE] 000B: mul
-[POP] D3 | Stack depth: 3 (D1, D2, D0)
-[POP] D0 | Stack depth: 2 (D1, D2)
-[POP] D2 | Stack depth: 1 (D1)
-[POP] D1 | Stack depth: 0 ()
-[PUSH] D0 (dbl) | Stack depth: 1 (D0)
-[PUSH] D1 (dbl) | Stack depth: 2 (D0, D1)
-[OPCODE] 000C: call (167772181)
-[ALLOC] Allocated D3 | Stack depth: 2 | Available: 7
-[PUSH] D3 | Stack depth: 3 (D0, D1, D3)
-[OPCODE] 0011: conv.i4
-[POP] D3 | Stack depth: 2 (D0, D1)
-[ALLOC] Allocated D2 (fallback, queue had D0 which was on stack) | Stack depth: 2
-[PUSH] D2 | Stack depth: 3 (D0, D1, D2)
-[OPCODE] 0012: ret
-[POP] D2 | Stack depth: 2 (D0, D1)
-V Assembly generation completed: SpeedConverter_68000\SpeedConverter.asm
+[CC65 OPCODE] 0000: ldarg.1
+[CC65 PUSH] arg_1 | depth: 1
+[CC65 OPCODE] 0001: conv.r8
+[CC65 POP] arg_1 | depth: 0
+[CC65 PUSH] arg_1 | depth: 1
+[DEBUG] ldc.r8 at offset 0002:
+  OperandType: InlineR
+  Result type: Double
+  Result value: 0.62137
+  Hex bytes: 8A E5 96 56 43 E2 E3 3F
+[CC65 OPCODE] 0002: ldc.r8 (0.62137)
+[CC65 PUSH] s0 | depth: 2
+[CC65 OPCODE] 000B: mul
+[CC65 POP] s0 | depth: 1
+[CC65 POP] arg_1 | depth: 0
+[CC65 PUSH] s1 | depth: 1
+[CC65 OPCODE] 000C: call (167772181)
+[CC65 POP] s1 | depth: 0
+[CC65 PUSH] s2 | depth: 1
+[CC65 OPCODE] 0011: conv.i4
+[CC65 POP] s2 | depth: 0
+[CC65 PUSH] s3 | depth: 1
+[CC65 OPCODE] 0012: ret
+[CC65 POP] s3 | depth: 0
+  Written to: SpeedConverter_cc65
 Running peephole optimization pass...
-Processing: SpeedConverter_68000\SpeedConverter.asm
-Motorola 68000 peephole optimization not yet implemented.
+Warning: Assembly file not found for: SpeedConverter
+  Searched for:
+    SpeedConverter_cc65\SpeedConverter.c
+    SpeedConverter_generated.asm (legacy)
 
 Compilation completed successfully.

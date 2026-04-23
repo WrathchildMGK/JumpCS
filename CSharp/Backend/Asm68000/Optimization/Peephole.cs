@@ -8,7 +8,7 @@ namespace JumpCS.Backend.Asm68000.Optimization
     {
         protected override string FileExtension => ".asm";
         protected override string FolderSuffix => "_68000";
-        protected override TargetPlatform TargetPlatform => Core.TargetPlatform.Motorola68000;
+        protected override TargetPlatform TargetPlatform => TargetPlatform.Motorola68000;
         protected override string TargetName => "Motorola 68000";
 
         /// <summary>

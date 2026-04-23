@@ -5,8 +5,8 @@ using JumpCS.Core;
 
 namespace JumpCS.Backend.CC65.Opcodes;
 
-/// <summary>call / callvirt — invoke a method</summary>
-public class Call : IOpcodeTranslation
+/// <summary>callvirt — invoke a virtual method</summary>
+public class Callvirt : IOpcodeTranslation
 {
     public void Translate(object? operand, IBackendSupport support)
     {
@@ -33,28 +33,29 @@ public class Call : IOpcodeTranslation
 
     private void HandleUserMethod(MethodMetadata method, IBackendSupport support)
     {
-        bool isVoid = method.Signature.EndsWith(")V");
-        var paramCount = ExtractParameterCount(method.Signature);
+        // For callvirt, we have 'this' + parameters
+        int paramCount = ExtractParameterCount(method.Signature) + 1;  // +1 for this
 
-        support.EmitComment($"call {method.OwningClass.FullName}.{method.Name}");
+        support.EmitComment($"callvirt {method.OwningClass.FullName}.{method.Name}");
 
         string methodKey = CC65MethodBank.GetMethodKey(method.OwningClass, method);
         CC65MethodBank methodBank = ((CC65Support)support).MethodBank;
-        
+
         if (methodBank.Assignments.TryGetValue(methodKey, out var assign))
         {
-            // Pop parameters from stack
+            // Pop this + parameters from stack
             for (int i = 0; i < paramCount && support.Stack.StackDepth > 0; i++)
                 support.Stack.Pop();
 
+            bool isVoid = method.Signature.EndsWith(")V");
             if (isVoid)
             {
-                support.Emit($"call_banked({assign.MethodId}); /* {method.Name} */");
+                support.Emit($"call_banked({assign.MethodId}); /* virtual {method.Name} */");
             }
             else
             {
                 string temp = support.Stack.AllocateDataRegister();
-                support.Emit($"{temp} = call_banked({assign.MethodId}); /* {method.Name} */");
+                support.Emit($"{temp} = call_banked({assign.MethodId}); /* virtual {method.Name} */");
                 support.Stack.Push(temp);
             }
         }
@@ -74,26 +75,26 @@ public class Call : IOpcodeTranslation
             support.EmitComment($"ERROR: Unsupported framework method: {fullName}");
             support.EmitComment($"Not in FrameworkMethodRegistry");
 
-            var paramCount = (method as MethodInfo)?.GetParameters().Length ?? 0;
+            // Pop this + parameters
+            var paramCount = ((method as MethodInfo)?.GetParameters().Length ?? 0) + 1;
             for (int i = 0; i < paramCount && support.Stack.StackDepth > 0; i++)
                 support.Stack.Pop();
             return;
         }
 
-        support.EmitComment($"Framework call: {fullName}");
+        support.EmitComment($"Virtual framework call: {fullName}");
 
         // Try direct library function implementation first
         if (FrameworkMethodRegistry.TryGetDirectImplementation(method, out var implInfo))
         {
-            var paramCount = (method as MethodInfo)?.GetParameters().Length ?? 0;
+            // Pop this + parameters
+            var paramCount = ((method as MethodInfo)?.GetParameters().Length ?? 0) + 1;
             for (int i = 0; i < paramCount && support.Stack.StackDepth > 0; i++)
                 support.Stack.Pop();
 
-            // For CC65: emit a C function call via the banked calling convention
-            // The library function name needs to be registered in the method bank
             support.Emit($"/* Direct library call: {implInfo.LibraryFunction} */");
             // TODO: CC65 needs to resolve library function to method ID and use call_banked
-            
+
             if (implInfo.HasReturnValue)
             {
                 string temp = support.Stack.AllocateDataRegister();

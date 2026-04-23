@@ -1,5 +1,6 @@
 using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
+using JumpCS.Core;
 using System.Reflection;
 
 namespace JumpCS.Backend.Base
@@ -22,19 +23,19 @@ namespace JumpCS.Backend.Base
         }
 
         /// <summary>Check if a method is for this type</summary>
-        public abstract bool IsMethod(Core.MethodMetadata method);
+        public abstract bool IsMethod(MethodMetadata method);
 
         /// <summary>Check if a reflection method is for this type</summary>
         public abstract bool IsReflectionMethod(MethodBase method);
 
         /// <summary>Handle method call from compiled metadata</summary>
-        public abstract void HandleMethodCall(Core.MethodMetadata method, IBackendStackSimulator stack);
+        public abstract void HandleMethodCall(MethodMetadata method, IBackendStackSimulator stack);
 
         /// <summary>Handle method call from reflection</summary>
         public abstract void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack);
 
         /// <summary>Try to handle method - returns true if handled</summary>
-        public virtual bool TryHandleMethod(Core.MethodMetadata method, IBackendStackSimulator stack)
+        public virtual bool TryHandleMethod(MethodMetadata method, IBackendStackSimulator stack)
         {
             if (!IsMethod(method))
                 return false;

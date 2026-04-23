@@ -2,6 +2,7 @@ using System.Reflection;
 using JumpCS.Backend.Base;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
+using JumpCS.Core;
 
 namespace JumpCS.Backend.Asm68000.SystemTypes
 {
@@ -19,7 +20,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             _getUniqueLabel = getUniqueLabel ?? (() => $"L_{Guid.NewGuid().ToString("N").Substring(0, 8)}");
         }
 
-        public override bool IsMethod(Core.MethodMetadata method)
+        public override bool IsMethod(MethodMetadata method)
         {
             return method.OwningClass.FullName == "System.Math";
         }
@@ -29,7 +30,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             return method.DeclaringType?.FullName == "System.Math";
         }
 
-        public override void HandleMethodCall(Core.MethodMetadata method, IBackendStackSimulator stack)
+        public override void HandleMethodCall(MethodMetadata method, IBackendStackSimulator stack)
         {
             // System.Math methods typically come from reflection, not compiled metadata
             AsmWriter?.WriteLine($"    ; TODO: System.Math.{method.Name}");

@@ -4,9 +4,9 @@ using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
 
-namespace JumpCS.Backend.Asm68000.SystemTypes
+namespace JumpCS.Backend.CC65.SystemTypes
 {
-    /// <summary>Handler for System.Console type operations</summary>
+    /// <summary>Handler for System.Console type operations in CC65 backend</summary>
     public class SystemConsoleHandler : SystemHandlerBase, ISystemConsoleHandler
     {
         public SystemConsoleHandler(
@@ -29,7 +29,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
         public override void HandleMethodCall(MethodMetadata method, IBackendStackSimulator stack)
         {
             // Console methods typically come from reflection, not compiled metadata
-            AsmWriter?.WriteLine($"    ; TODO: System.Console.{method.Name}");
+            AsmWriter?.WriteLine($"    /* TODO: System.Console.{method.Name} */");
         }
 
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
@@ -38,7 +38,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             var parameters = ((MethodInfo)methodInfo).GetParameters();
             int paramCount = parameters.Length;
 
-            AsmWriter?.WriteLine($"    ; System.Console.{methodName} - {paramCount} parameters");
+            AsmWriter?.WriteLine($"    /* System.Console.{methodName} - {paramCount} parameters */");
 
             // Pop all parameters from stack
             for (int i = 0; i < paramCount; i++)
@@ -49,7 +49,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
                 }
                 catch (Exception ex)
                 {
-                    AsmWriter?.WriteLine($"    ; WARNING: Could not pop parameter {i}: {ex.Message}");
+                    AsmWriter?.WriteLine($"    /* WARNING: Could not pop parameter {i}: {ex.Message} */");
                 }
             }
 
@@ -72,7 +72,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             }
             else
             {
-                AsmWriter?.WriteLine($"    ; TODO: Console.{methodName}");
+                AsmWriter?.WriteLine($"    /* TODO: Console.{methodName} */");
             }
         }
 
@@ -81,36 +81,36 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             if (parameters.Length == 0)
             {
                 // WriteLine() - no args, just newline
-                AsmWriter?.WriteLine($"    JSR __console_writeline_empty  ; Console.WriteLine()");
+                AsmWriter?.WriteLine($"    __console_writeline_empty();  /* Console.WriteLine() */");
             }
             else if (parameters.Length == 1)
             {
                 if (parameters[0].ParameterType == typeof(string))
                 {
                     // WriteLine(string) - most common
-                    AsmWriter?.WriteLine($"    JSR __console_writeline  ; Console.WriteLine(string)");
+                    AsmWriter?.WriteLine($"    __console_writeline(s0);  /* Console.WriteLine(string) */");
                 }
                 else if (parameters[0].ParameterType == typeof(int))
                 {
-                    AsmWriter?.WriteLine($"    JSR __console_writeline_int  ; Console.WriteLine(int)");
+                    AsmWriter?.WriteLine($"    __console_writeline_int(s0);  /* Console.WriteLine(int) */");
                 }
                 else if (parameters[0].ParameterType == typeof(double))
                 {
-                    AsmWriter?.WriteLine($"    JSR __console_writeline_double  ; Console.WriteLine(double)");
+                    AsmWriter?.WriteLine($"    __console_writeline_double(s0);  /* Console.WriteLine(double) */");
                 }
                 else
                 {
-                    AsmWriter?.WriteLine($"    JSR __console_writeline  ; Console.WriteLine(object)");
+                    AsmWriter?.WriteLine($"    __console_writeline(s0);  /* Console.WriteLine(object) */");
                 }
             }
             else if (parameters.Length == 2 && parameters[0].ParameterType == typeof(string))
             {
                 // WriteLine(string format, object arg0)
-                AsmWriter?.WriteLine($"    JSR __console_writeline_format  ; Console.WriteLine(string, object)");
+                AsmWriter?.WriteLine($"    __console_writeline_format(s1, s0);  /* Console.WriteLine(string, object) */");
             }
             else
             {
-                AsmWriter?.WriteLine($"    JSR __console_writeline  ; Console.WriteLine (generic)");
+                AsmWriter?.WriteLine($"    __console_writeline(s0);  /* Console.WriteLine (generic) */");
             }
         }
 
@@ -120,42 +120,40 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             {
                 if (parameters[0].ParameterType == typeof(string))
                 {
-                    AsmWriter?.WriteLine($"    JSR __console_write  ; Console.Write(string)");
+                    AsmWriter?.WriteLine($"    __console_write(s0);  /* Console.Write(string) */");
                 }
                 else if (parameters[0].ParameterType == typeof(int))
                 {
-                    AsmWriter?.WriteLine($"    JSR __console_write_int  ; Console.Write(int)");
+                    AsmWriter?.WriteLine($"    __console_write_int(s0);  /* Console.Write(int) */");
                 }
                 else if (parameters[0].ParameterType == typeof(double))
                 {
-                    AsmWriter?.WriteLine($"    JSR __console_write_double  ; Console.Write(double)");
+                    AsmWriter?.WriteLine($"    __console_write_double(s0);  /* Console.Write(double) */");
                 }
                 else
                 {
-                    AsmWriter?.WriteLine($"    JSR __console_write  ; Console.Write(object)");
+                    AsmWriter?.WriteLine($"    __console_write(s0);  /* Console.Write(object) */");
                 }
             }
             else
             {
-                AsmWriter?.WriteLine($"    JSR __console_write  ; Console.Write (generic)");
+                AsmWriter?.WriteLine($"    __console_write(s0);  /* Console.Write (generic) */");
             }
         }
 
         private void HandleReadLine(IBackendStackSimulator stack)
         {
             // ReadLine() -> string
-            AsmWriter?.WriteLine($"    JSR __console_readline  ; Console.ReadLine()");
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}  ; Store returned string");
+            AsmWriter?.WriteLine($"    {resultReg} = __console_readline();  /* Console.ReadLine() */");
             stack.Push(resultReg);
         }
 
         private void HandleRead(IBackendStackSimulator stack)
         {
             // Read() -> int
-            AsmWriter?.WriteLine($"    JSR __console_read  ; Console.Read()");
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}  ; Store returned int");
+            AsmWriter?.WriteLine($"    {resultReg} = __console_read();  /* Console.Read() */");
             stack.Push(resultReg);
         }
     }

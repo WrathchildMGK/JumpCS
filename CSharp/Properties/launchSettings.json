@@ -6,7 +6,7 @@
     },
     "TestMath (6502)": {
       "commandName": "Project",
-      "commandLineArgs": "-V -T6502 TestMath\\bin\\Debug\\net10.0\\TestMath > err.txt",
+      "commandLineArgs": "-V -TCC65 TestMath\\bin\\Debug\\net10.0\\TestMath > err.txt",
       "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
     },
     "TestMath (68000)": {
@@ -16,7 +16,7 @@
     },
     "SpeedConverter (6502)": {
       "commandName": "Project",
-      "commandLineArgs": "-V -T6502 SpeedConverter\\bin\\Release\\net10.0\\SpeedConverter > err.txt",
+      "commandLineArgs": "-V -TAtariCC65 SpeedConverter\\bin\\Release\\net10.0\\SpeedConverter > err.txt",
       "workingDirectory": "C:\\Users\\stefan\\source\\repos\\JumpCS"
     },
     "SpeedConverter (68000)": {

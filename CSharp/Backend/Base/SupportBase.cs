@@ -56,6 +56,7 @@ namespace JumpCS.Backend.Base
         public virtual ISystemMathHandler MathHandler => throw new NotImplementedException();
 
         public virtual ISystemObjectHandler ObjectHandler => throw new NotImplementedException();
+        public virtual ISystemConsoleHandler ConsoleHandler => throw new NotImplementedException();
 
         // --- Method resolution ---
 

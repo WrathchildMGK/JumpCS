@@ -8,7 +8,7 @@ namespace JumpCS.Backend.CC65.Optimization
     {
         protected override string FileExtension => ".c";
         protected override string FolderSuffix => "_cc65";
-        protected override TargetPlatform TargetPlatform => Core.TargetPlatform.AtariCC65;
+        protected override TargetPlatform TargetPlatform => TargetPlatform.AtariCC65;
         protected override string TargetName => "CC65 (6502)";
 
         /// <summary>

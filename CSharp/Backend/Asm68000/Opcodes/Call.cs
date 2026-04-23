@@ -1,4 +1,5 @@
 using System.Reflection;
+using JumpCS.Backend.Core;
 using JumpCS.Backend.Interfaces;
 using JumpCS.Backend.SystemTypes;
 using JumpCS.Core;
@@ -15,10 +16,8 @@ namespace JumpCS.Backend.Asm68000.Opcodes
                 return;
             }
 
-            // Get the calling class from the current method
             var callingClass = support.Method.OwningClass;
 
-            // Try to resolve user method first
             var userMethod = support.ResolveMethodToken(callingClass, methodToken);
             if (userMethod != null)
             {
@@ -26,7 +25,6 @@ namespace JumpCS.Backend.Asm68000.Opcodes
                 return;
             }
 
-            // Try framework method
             var frameworkMethod = support.TryResolveFrameworkMethod(callingClass, methodToken);
             if (frameworkMethod != null)
             {
@@ -34,7 +32,6 @@ namespace JumpCS.Backend.Asm68000.Opcodes
                 return;
             }
 
-            // Unknown method
             HandleUnknownMethod(methodToken, support);
         }
 
@@ -42,10 +39,8 @@ namespace JumpCS.Backend.Asm68000.Opcodes
         {
             string methodLabel = $"{method.OwningClass.FullName}_{method.Name}";
             
-            // Parse signature to get parameter count
             int paramCount = ExtractParameterCount(method.Signature);
             
-            // Pop parameters from stack
             for (int i = 0; i < paramCount; i++)
             {
                 try { support.Stack.Pop(); }
@@ -55,7 +50,6 @@ namespace JumpCS.Backend.Asm68000.Opcodes
             support.AsmWriter.WriteLine($"    ; Call {method.OwningClass.FullName}::{method.Name}");
             support.AsmWriter.WriteLine($"    JSR {methodLabel}");
 
-            // Push return value if method is non-void
             if (!IsVoidSignature(method.Signature))
             {
                 try
@@ -72,77 +66,91 @@ namespace JumpCS.Backend.Asm68000.Opcodes
         {
             string fullName = $"{method.DeclaringType?.FullName}::{method.Name}";
             
-            support.AsmWriter.WriteLine($"    ; Framework call: {fullName}");
-            
-            // Cast support to Asm68000Support to access console and DIH handlers
-            if (support is Asm68000.Asm68000Support asm68kSupport)
+            // Check if framework method is supported
+            if (!FrameworkMethodRegistry.IsSupported(method))
             {
-                // Delegate to appropriate system handler based on type
-                if (method.DeclaringType?.FullName == "System.Console")
-                {
-                    asm68kSupport.ConsoleHandler.HandleReflectionMethodCall(method, support.Stack);
-                    return;
-                }
-                else if (method.DeclaringType?.FullName == "System.Runtime.CompilerServices.DefaultInterpolatedStringHandler")
-                {
-                    asm68kSupport.DefaultInterpolatedStringHandlerHandler.HandleReflectionMethodCall(method, support.Stack);
-                    return;
-                }
-            }
-
-            // Fall back to existing handlers
-            if (method.DeclaringType?.Name == "Math")
-            {
-                support.MathHandler.HandleReflectionMethodCall(method, support.Stack);
-            }
-            else if (method.DeclaringType?.Name == "Decimal")
-            {
-                support.DecimalHandler.HandleReflectionMethodCall(method, support.Stack);
-            }
-            else if (method.DeclaringType?.Name == "Double")
-            {
-                support.DoubleHandler.HandleReflectionMethodCall(method, support.Stack);
-            }
-            else if (method.DeclaringType?.Name == "Single")
-            {
-                support.FloatHandler.HandleReflectionMethodCall(method, support.Stack);
-            }
-            else if (method.DeclaringType?.Name == "Int32" || method.DeclaringType?.Name == "Int64")
-            {
-                support.IntegerHandler.HandleReflectionMethodCall(method, support.Stack);
-            }
-            else if (method.DeclaringType?.Name == "IDisposable")
-            {
-                support.AsmWriter.WriteLine($"    ; TODO: IDisposable.{method.Name}");
-            }
-            else
-            {
-                support.AsmWriter.WriteLine($"    ; TODO: {fullName}");
-                // Pop parameters conservatively
+                support.AsmWriter.WriteLine($"    ; ERROR: Unsupported framework method: {fullName}");
+                support.AsmWriter.WriteLine($"    ; Not in FrameworkMethodRegistry");
+                
                 var paramCount = (method as MethodInfo)?.GetParameters().Length ?? 0;
                 for (int i = 0; i < paramCount; i++)
                 {
                     try { support.Stack.Pop(); }
                     catch { break; }
                 }
+                return;
             }
-            
-            // Push return value if method is non-void
-            var returnType = (method as MethodInfo)?.ReturnType;
-            if (returnType != null && returnType != typeof(void))
+
+            support.AsmWriter.WriteLine($"    ; Framework call: {fullName}");
+
+            // Try direct library function implementation first
+            if (FrameworkMethodRegistry.TryGetDirectImplementation(method, out var implInfo))
             {
-                try
+                // Pop parameters
+                for (int i = 0; i < implInfo.ParameterCount; i++)
                 {
-                    string resultReg = support.Stack.AllocateDataRegister();
-                    support.Stack.Push(resultReg);
+                    try { support.Stack.Pop(); }
+                    catch { }
                 }
-                catch { }
+                
+                // Emit library call
+                support.AsmWriter.WriteLine($"    JSR {implInfo.LibraryFunction}");
+                
+                // Push return value if applicable
+                if (implInfo.HasReturnValue)
+                {
+                    try
+                    {
+                        string resultReg = support.Stack.AllocateDataRegister();
+                        support.Stack.Push(resultReg);
+                    }
+                    catch { }
+                }
+            }
+            else
+            {
+                // Handled by system type handler - delegate to appropriate one
+                if (support is Asm68000.Asm68000Support asm68kSupport)
+                {
+                    if (method.DeclaringType?.FullName == "System.Console")
+                    {
+                        asm68kSupport.ConsoleHandler.HandleReflectionMethodCall(method, support.Stack);
+                    }
+                    else if (method.DeclaringType?.Name == "Decimal")
+                    {
+                        support.DecimalHandler.HandleReflectionMethodCall(method, support.Stack);
+                    }
+                    else if (method.DeclaringType?.Name == "Double")
+                    {
+                        support.DoubleHandler.HandleReflectionMethodCall(method, support.Stack);
+                    }
+                    else if (method.DeclaringType?.Name == "Single")
+                    {
+                        support.FloatHandler.HandleReflectionMethodCall(method, support.Stack);
+                    }
+                    else if (method.DeclaringType?.Name == "Int32" || method.DeclaringType?.Name == "Int64")
+                    {
+                        support.IntegerHandler.HandleReflectionMethodCall(method, support.Stack);
+                    }
+                    else if (method.DeclaringType?.Name == "Object")
+                    {
+                        support.ObjectHandler.HandleReflectionMethodCall(method, support.Stack);
+                    }
+                    else if (method.DeclaringType?.Name == "Math")
+                    {
+                        support.MathHandler.HandleReflectionMethodCall(method, support.Stack);
+                    }
+                    else
+                    {
+                        support.AsmWriter.WriteLine($"    ; TODO: {fullName}");
+                    }
+                }
             }
         }
 
         private void HandleUnknownMethod(int methodToken, IBackendSupport support)
         {
-            support.AsmWriter.WriteLine($"    ; TODO: Unknown method token {methodToken:X8}");
+            support.AsmWriter.WriteLine($"    ; ERROR: Unknown method token {methodToken:X8}");
             
             for (int i = 0; i < 2; i++)
             {

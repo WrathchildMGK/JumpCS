@@ -20,6 +20,7 @@ namespace JumpCS.Backend.Interfaces
         MethodMetadata Method { get; }
         IBackendStackSimulator Stack { get; }
         ISystemObjectHandler ObjectHandler { get; }
+        ISystemConsoleHandler ConsoleHandler { get; }
 
         MethodMetadata? ResolveMethodToken(ClassMetadata callingClass, int methodToken);
         MethodBase? TryResolveFrameworkMethod(ClassMetadata callingClass, int methodToken);
