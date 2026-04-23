@@ -106,7 +106,11 @@ namespace JumpCS.Backend.Asm68000
                 { OpCodes.Stloc_1, new Stloc_1() },
                 { OpCodes.Stloc_2, new Stloc_2() },
                 { OpCodes.Stloc_3, new Stloc_3() },
-                { OpCodes.Stloc_S, new Stloc_S() }
+                { OpCodes.Stloc_S, new Stloc_S() },
+                { OpCodes.Brfalse, new Brfalse() },
+                { OpCodes.Brfalse_S, new Brfalse_S() },
+                { OpCodes.Ldfld, new Ldfld() },
+                { OpCodes.Endfinally, new Endfinally() }
             };
         }
 

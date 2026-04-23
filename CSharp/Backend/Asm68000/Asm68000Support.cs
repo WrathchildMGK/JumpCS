@@ -19,6 +19,8 @@ namespace JumpCS.Backend.Asm68000
         private readonly SystemFloatHandler _floatHandler;
         private readonly SystemIntegerHandler _integerHandler;
         private readonly SystemObjectHandler _objectHandler;
+        private readonly SystemConsoleHandler _consoleHandler;
+        private readonly SystemDefaultInterpolatedStringHandlerHandler _dihHandler;
 
         public Asm68000Support(
             MsilIterator iterator,
@@ -38,7 +40,7 @@ namespace JumpCS.Backend.Asm68000
             _mathHandler = new SystemMathHandler(
                 writer,
                 (stack) => stack.AllocateDataRegister(),
-                () => labels.GetUniqueLabel()  // ADD THIS LINE
+                () => labels.GetUniqueLabel()
             );
 
             _decimalHandler = new SystemDecimalHandler(
@@ -71,6 +73,16 @@ namespace JumpCS.Backend.Asm68000
                 () => labels.GetUniqueLabel()
             );
 
+            _consoleHandler = new SystemConsoleHandler(
+                writer,
+                (stack) => stack.AllocateDataRegister()
+            );
+
+            _dihHandler = new SystemDefaultInterpolatedStringHandlerHandler(
+                writer,
+                (stack) => stack.AllocateDataRegister()
+            );
+
             _doubleLocals.Clear();
         }
 
@@ -84,5 +96,7 @@ namespace JumpCS.Backend.Asm68000
         public override ISystemFloatHandler FloatHandler { get { return _floatHandler; } }
         public override ISystemIntegerHandler IntegerHandler { get { return _integerHandler; } }
         public override ISystemObjectHandler ObjectHandler { get { return _objectHandler; } }
+        public ISystemConsoleHandler ConsoleHandler { get { return _consoleHandler; } }
+        public ISystemDefaultInterpolatedStringHandlerHandler DefaultInterpolatedStringHandlerHandler { get { return _dihHandler; } }
     }
 }

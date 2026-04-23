@@ -240,7 +240,7 @@ namespace JumpCS.Backend.Base
         {
             try
             {
-                if (callingClass.ReflectionType?.Module is null)
+                if (callingClass?.ReflectionType?.Module is null)
                     return null;
 
                 var resolved = MyGetMethodInfo(callingClass, methodToken);
