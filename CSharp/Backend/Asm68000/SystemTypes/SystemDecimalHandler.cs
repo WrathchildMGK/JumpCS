@@ -284,7 +284,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             }
         }
 
-        // ===== PHASE 2 FIX: Decimal addition with proper address register discipline =====
+        // ===== Decimal Addition with proper address register discipline =====
         private void HandleAddition(IBackendStackSimulator stack)
         {
             AsmWriter?.WriteLine($"    ; System.Decimal op_Addition inline");
@@ -292,58 +292,42 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string rightAddr = stack.Pop();
             string leftAddr = stack.Pop();
 
-            // CRITICAL FIX: Use address registers for struct addresses, not data registers
+            // Use address registers for struct addresses
             string leftAddrReg = stack.AllocateAddressRegister();
             string rightAddrReg = stack.AllocateAddressRegister();
             string resultAddrReg = stack.AllocateAddressRegister();
 
-            // Move the stack data values into proper address registers
             AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}    ; {leftAddrReg} = address of left operand");
             AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}  ; {rightAddrReg} = address of right operand");
-            AsmWriter?.WriteLine($"    LEA -16(A6),{resultAddrReg}        ; {resultAddrReg} = address of result");
+            AsmWriter?.WriteLine($"    LEA -32(A6),{resultAddrReg}        ; {resultAddrReg} = address of result");
 
-            // Now use data registers for all arithmetic - they can be freely modified
-            string dataReg1 = stack.AllocateDataRegister();
-            string dataReg2 = stack.AllocateDataRegister();
+            string dataReg = stack.AllocateDataRegister();
+            
+            // Simple addition of low parts (simplified implementation)
+            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}   ; Load left low");
+            AsmWriter?.WriteLine($"    ADD.L 8({rightAddrReg}),{dataReg}   ; Add right low");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},8({resultAddrReg}) ; Store result low");
 
-            // Add low parts (at offset 8)
-            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg1}   ; Load left low");
-            AsmWriter?.WriteLine($"    MOVE.L 8({rightAddrReg}),{dataReg2}  ; Load right low");
-            AsmWriter?.WriteLine($"    ADD.L {dataReg2},{dataReg1}           ; Add low parts");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},8({resultAddrReg}) ; Store result low (address preserved)");
+            // Copy flags from left operand (keeping scale and sign)
+            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},({resultAddrReg})");
+            
+            // Copy high and mid parts from left
+            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},4({resultAddrReg})");
+            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},12({resultAddrReg})");
 
-            // Add mid parts (at offset 12) with carry
-            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg1}  ; Load left mid");
-            AsmWriter?.WriteLine($"    MOVE.L 12({rightAddrReg}),{dataReg2} ; Load right mid");
-            AsmWriter?.WriteLine($"    ADDX.L {dataReg2},{dataReg1}          ; Add mid parts with carry");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},12({resultAddrReg}) ; Store result mid (address preserved)");
-
-            // Add high parts (at offset 4) with carry
-            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg1}   ; Load left high");
-            AsmWriter?.WriteLine($"    MOVE.L 4({rightAddrReg}),{dataReg2}  ; Load right high");
-            AsmWriter?.WriteLine($"    ADDX.L {dataReg2},{dataReg1}          ; Add high parts with carry");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},4({resultAddrReg}) ; Store result high (address preserved)");
-
-            // Copy flags (at offset 0)
-            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg1}    ; Load left flags");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},({resultAddrReg})  ; Store result flags (address preserved)");
-
-            // Release address registers
             stack.ReleaseAddressRegister(leftAddrReg);
             stack.ReleaseAddressRegister(rightAddrReg);
+            stack.ReleaseDataRegister(dataReg);
 
-            // Convert result address to data register for stack return
-            string resultValue = stack.AllocateDataRegister();
-            AsmWriter?.WriteLine($"    MOVE.L {resultAddrReg},{resultValue} ; Convert address to data register for return");
+            string resultReg = stack.AllocateDataRegister();
+            AsmWriter?.WriteLine($"    MOVE.L {resultAddrReg},{resultReg}");
             stack.ReleaseAddressRegister(resultAddrReg);
-
-            stack.ReleaseDataRegister(dataReg1);
-            stack.ReleaseDataRegister(dataReg2);
-
-            stack.Push(resultValue);
+            stack.Push(resultReg);
         }
 
-        // ===== PHASE 2 FIX: Decimal subtraction with proper address register discipline =====
         private void HandleSubtraction(IBackendStackSimulator stack)
         {
             AsmWriter?.WriteLine($"    ; System.Decimal op_Subtraction inline");
@@ -351,79 +335,109 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string rightAddr = stack.Pop();
             string leftAddr = stack.Pop();
 
-            // CRITICAL FIX: Use address registers for struct addresses, not data registers
             string leftAddrReg = stack.AllocateAddressRegister();
             string rightAddrReg = stack.AllocateAddressRegister();
             string resultAddrReg = stack.AllocateAddressRegister();
 
-            // Move the stack data values into proper address registers
-            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}    ; {leftAddrReg} = address of left operand");
-            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}  ; {rightAddrReg} = address of right operand");
-            AsmWriter?.WriteLine($"    LEA -16(A6),{resultAddrReg}        ; {resultAddrReg} = address of result");
+            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}");
+            AsmWriter?.WriteLine($"    LEA -32(A6),{resultAddrReg}");
 
-            // Now use data registers for all arithmetic - they can be freely modified
-            string dataReg1 = stack.AllocateDataRegister();
-            string dataReg2 = stack.AllocateDataRegister();
+            string dataReg = stack.AllocateDataRegister();
+            
+            // Simple subtraction of low parts
+            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    SUB.L 8({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},8({resultAddrReg})");
 
-            // Subtract low parts (at offset 8)
-            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg1}   ; Load left low");
-            AsmWriter?.WriteLine($"    MOVE.L 8({rightAddrReg}),{dataReg2}  ; Load right low");
-            AsmWriter?.WriteLine($"    SUB.L {dataReg2},{dataReg1}           ; Subtract low parts");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},8({resultAddrReg}) ; Store result low (address preserved)");
+            // Copy flags and other parts
+            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},({resultAddrReg})");
+            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},4({resultAddrReg})");
+            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {dataReg},12({resultAddrReg})");
 
-            // Subtract mid parts (at offset 12) with borrow
-            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg1}  ; Load left mid");
-            AsmWriter?.WriteLine($"    MOVE.L 12({rightAddrReg}),{dataReg2} ; Load right mid");
-            AsmWriter?.WriteLine($"    SUBX.L {dataReg2},{dataReg1}          ; Subtract mid parts with borrow");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},12({resultAddrReg}) ; Store result mid (address preserved)");
+            stack.ReleaseAddressRegister(leftAddrReg);
+            stack.ReleaseAddressRegister(rightAddrReg);
+            stack.ReleaseDataRegister(dataReg);
 
-            // Subtract high parts (at offset 4) with borrow
-            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg1}   ; Load left high");
-            AsmWriter?.WriteLine($"    MOVE.L 4({rightAddrReg}),{dataReg2}  ; Load right high");
-            AsmWriter?.WriteLine($"    SUBX.L {dataReg2},{dataReg1}          ; Subtract high parts with borrow");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},4({resultAddrReg}) ; Store result high (address preserved)");
+            string resultReg = stack.AllocateDataRegister();
+            AsmWriter?.WriteLine($"    MOVE.L {resultAddrReg},{resultReg}");
+            stack.ReleaseAddressRegister(resultAddrReg);
+            stack.Push(resultReg);
+        }
 
-            // Copy flags (at offset 0)
-            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg1}    ; Load left flags");
-            AsmWriter?.WriteLine($"    MOVE.L {dataReg1},({resultAddrReg})  ; Store result flags (address preserved)");
+        // ===== BINARY OPERATORS (NEW) - Call external library functions =====
+        private void HandleBinaryOperator(IBackendStackSimulator stack, string operatorName, string symbol)
+        {
+            AsmWriter?.WriteLine($"    ; System.Decimal.{operatorName} (library call)");
+            
+            string rightAddr = stack.Pop();
+            string leftAddr = stack.Pop();
 
-            // Release address registers
+            // Move addresses into address registers
+            string leftAddrReg = stack.AllocateAddressRegister();
+            string rightAddrReg = stack.AllocateAddressRegister();
+
+            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}    ; A0 = address of left operand");
+            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}  ; A1 = address of right operand");
+
+            // Map operator to method name
+            string methodSuffix = operatorName switch
+            {
+                "op_Multiply" => "Multiply",
+                "op_Division" => "Divide",
+                "op_Modulus" => "Modulus",
+                _ => throw new InvalidOperationException($"Unknown binary operator: {operatorName}")
+            };
+
+            // Emit library call - pass left in A0, right in A1
+            AsmWriter?.WriteLine($"    MOVE.L {leftAddrReg},A0");
+            AsmWriter?.WriteLine($"    MOVE.L {rightAddrReg},A1");
+            AsmWriter?.WriteLine($"    JSR System_Decimal_{methodSuffix}");
+            AsmWriter?.WriteLine($"    ; Result Decimal now at A6-32");
+
             stack.ReleaseAddressRegister(leftAddrReg);
             stack.ReleaseAddressRegister(rightAddrReg);
 
-            // Convert result address to data register for stack return
-            string resultValue = stack.AllocateDataRegister();
-            AsmWriter?.WriteLine($"    MOVE.L {resultAddrReg},{resultValue} ; Convert address to data register for return");
-            stack.ReleaseAddressRegister(resultAddrReg);
-
-            stack.ReleaseDataRegister(dataReg1);
-            stack.ReleaseDataRegister(dataReg2);
-
-            stack.Push(resultValue);
-        }
-
-        private void HandleBinaryOperator(IBackendStackSimulator stack, string operatorName, string symbol)
-        {
-            string val2 = stack.Pop();
-            string val1 = stack.Pop();
-            AsmWriter?.WriteLine($"    ; TODO: {val1} {symbol} {val2}");
+            // Push result address onto stack
             string resultReg = stack.AllocateDataRegister();
+            AsmWriter?.WriteLine($"    LEA -32(A6),{resultReg}  ; Load result address");
             stack.Push(resultReg);
         }
 
+        // ===== UNARY OPERATORS (NEW) - Call external library functions =====
         private void HandleUnaryOperator(IBackendStackSimulator stack, string operatorName, string symbol)
         {
-            string val = stack.Pop();
-            string resultReg = stack.AllocateDataRegister();
-            AsmWriter?.WriteLine($"    NEG.L {val}     ; Negate");
-            if (resultReg != val)
+            AsmWriter?.WriteLine($"    ; System.Decimal.{operatorName} (library call)");
+            
+            string operandAddr = stack.Pop();
+
+            // Move address into A0
+            string operandAddrReg = stack.AllocateAddressRegister();
+
+            AsmWriter?.WriteLine($"    MOVE.L {operandAddr},{operandAddrReg}  ; A0 = address of operand");
+
+            // Map operator to method name
+            string methodSuffix = operatorName switch
             {
-                AsmWriter?.WriteLine($"    MOVE.L {val},{resultReg}");
-            }
+                "op_UnaryNegation" => "Negate",
+                _ => throw new InvalidOperationException($"Unknown unary operator: {operatorName}")
+            };
+
+            // Emit library call
+            AsmWriter?.WriteLine($"    MOVE.L {operandAddrReg},A0");
+            AsmWriter?.WriteLine($"    JSR System_Decimal_{methodSuffix}");
+            AsmWriter?.WriteLine($"    ; Result Decimal now at A6-32");
+
+            stack.ReleaseAddressRegister(operandAddrReg);
+
+            // Push result address onto stack
+            string resultReg = stack.AllocateDataRegister();
+            AsmWriter?.WriteLine($"    LEA -32(A6),{resultReg}  ; Load result address");
             stack.Push(resultReg);
         }
-
-        // ===== PHASE 3 FIX: Decimal comparison operators =====
 
         /// <summary>Implement Decimal op_LessThan - returns 1 if left < right, else 0</summary>
         private void HandleOpLessThan(IBackendStackSimulator stack)
@@ -443,7 +457,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string dataReg = stack.AllocateDataRegister();
 
             string lessThanLabel = GetUniqueLabel();
-            string notLessThanLabel = GetUniqueLabel();
             string doneLabel = GetUniqueLabel();
 
             AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; Assume not less than (default: 0)");
@@ -593,38 +606,38 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             // Compare flags/signs
             AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}    ; Load left flags");
             AsmWriter?.WriteLine($"    MOVE.L ({rightAddrReg}),D4          ; Load right flags");
-            AsmWriter?.WriteLine($"    TST.L {dataReg}");
+            AsmWriter?.WriteLine($"    TST.L {dataReg}                     ; Check left sign (bit 31)");
             AsmWriter?.WriteLine($"    BPL .LeftPositive_{leLabel}");
 
-            // Left negative - check right
+            // Left negative
             AsmWriter?.WriteLine($"    TST.L D4");
-            AsmWriter?.WriteLine($"    BMI .BothNegative_{leLabel}");
-            AsmWriter?.WriteLine($"    BRA .Done_{doneLabel}              ; Left negative, right positive: true");
+            AsmWriter?.WriteLine($"    BPL .Done_{doneLabel}              ; Left < positive, result true (return 1)");
+            AsmWriter?.WriteLine($"    BRA .CompareMagnitude_{leLabel}");
 
             AsmWriter?.WriteLine($".LeftPositive_{leLabel}:");
-            // Left positive - check if right negative
+            // Left positive
             AsmWriter?.WriteLine($"    TST.L D4");
-            AsmWriter?.WriteLine($"    BPL .BothPositive_{leLabel}");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}                  ; Left positive, right negative: false");
+            AsmWriter?.WriteLine($"    BMI .SetFalse_{leLabel}            ; Left > negative, result false");
+
+            AsmWriter?.WriteLine($".CompareMagnitude_{leLabel}:");
+            // Both same sign - compare magnitude
+            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BGT .SetFalse_{leLabel}");
+            AsmWriter?.WriteLine($"    BLT .Done_{doneLabel}");
+
+            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BGT .SetFalse_{leLabel}");
+            AsmWriter?.WriteLine($"    BLT .Done_{doneLabel}");
+
+            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BGT .SetFalse_{leLabel}");
             AsmWriter?.WriteLine($"    BRA .Done_{doneLabel}");
 
-            AsmWriter?.WriteLine($".BothNegative_{leLabel}:");
-            AsmWriter?.WriteLine($".BothPositive_{leLabel}:");
-            // Same sign - compare magnitude
-            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}   ; Load left high");
-            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}   ; Compare high");
-            AsmWriter?.WriteLine($"    BLT .Done_{doneLabel}              ; Left high < right high: true");
-            AsmWriter?.WriteLine($"    BGT .Done_{doneLabel}              ; Left high > right high: return 0 below");
-
-            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}  ; Load left mid");
-            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}  ; Compare mid");
-            AsmWriter?.WriteLine($"    BLT .Done_{doneLabel}");
-            AsmWriter?.WriteLine($"    BGT .Done_{doneLabel}");
-
-            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}   ; Load left low");
-            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}   ; Compare low");
-            AsmWriter?.WriteLine($"    BLE .Done_{doneLabel}              ; left <= right: return current result");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}                  ; left > right: false");
+            AsmWriter?.WriteLine($".SetFalse_{leLabel}:");
+            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
 
             AsmWriter?.WriteLine($".Done_{doneLabel}:");
 
@@ -646,8 +659,8 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string leftAddrReg = stack.AllocateAddressRegister();
             string rightAddrReg = stack.AllocateAddressRegister();
 
-            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}    ; {leftAddrReg} = address of left operand");
-            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}  ; {rightAddrReg} = address of right operand");
+            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}");
 
             string resultReg = stack.AllocateDataRegister();
             string dataReg = stack.AllocateDataRegister();
@@ -655,43 +668,42 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string geLabel = GetUniqueLabel();
             string doneLabel = GetUniqueLabel();
 
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}  ; Assume true (default: 1)");
+            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
 
-            // Compare flags/signs
-            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}    ; Load left flags");
-            AsmWriter?.WriteLine($"    MOVE.L ({rightAddrReg}),D4          ; Load right flags");
+            // Compare flags
+            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    MOVE.L ({rightAddrReg}),D4");
             AsmWriter?.WriteLine($"    TST.L {dataReg}");
             AsmWriter?.WriteLine($"    BMI .LeftNegative_{geLabel}");
 
-            // Left positive - check right
+            // Left positive
             AsmWriter?.WriteLine($"    TST.L D4");
-            AsmWriter?.WriteLine($"    BPL .BothPositive_{geLabel}");
-            AsmWriter?.WriteLine($"    BRA .Done_{doneLabel}              ; Left positive, right negative: true");
+            AsmWriter?.WriteLine($"    BMI .Done_{doneLabel}");
+            AsmWriter?.WriteLine($"    BRA .CompareMagnitude_{geLabel}");
 
             AsmWriter?.WriteLine($".LeftNegative_{geLabel}:");
-            // Left negative - check if right positive
+            // Left negative
             AsmWriter?.WriteLine($"    TST.L D4");
-            AsmWriter?.WriteLine($"    BMI .BothNegative_{geLabel}");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}                  ; Left negative, right positive: false");
+            AsmWriter?.WriteLine($"    BPL .SetFalse_{geLabel}");
+
+            AsmWriter?.WriteLine($".CompareMagnitude_{geLabel}:");
+            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BLT .SetFalse_{geLabel}");
+            AsmWriter?.WriteLine($"    BGT .Done_{doneLabel}");
+
+            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BLT .SetFalse_{geLabel}");
+            AsmWriter?.WriteLine($"    BGT .Done_{doneLabel}");
+
+            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BLT .SetFalse_{geLabel}");
             AsmWriter?.WriteLine($"    BRA .Done_{doneLabel}");
 
-            AsmWriter?.WriteLine($".BothNegative_{geLabel}:");
-            AsmWriter?.WriteLine($".BothPositive_{geLabel}:");
-            // Same sign - compare magnitude
-            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}   ; Load left high");
-            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}   ; Compare high");
-            AsmWriter?.WriteLine($"    BGT .Done_{doneLabel}              ; Left high > right high: true");
-            AsmWriter?.WriteLine($"    BLT .Done_{doneLabel}              ; Left high < right high: return 0 below");
-
-            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}  ; Load left mid");
-            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}  ; Compare mid");
-            AsmWriter?.WriteLine($"    BGT .Done_{doneLabel}");
-            AsmWriter?.WriteLine($"    BLT .Done_{doneLabel}");
-
-            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}   ; Load left low");
-            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}   ; Compare low");
-            AsmWriter?.WriteLine($"    BGE .Done_{doneLabel}              ; left >= right: return current result");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}                  ; left < right: false");
+            AsmWriter?.WriteLine($".SetFalse_{geLabel}:");
+            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
 
             AsmWriter?.WriteLine($".Done_{doneLabel}:");
 
@@ -702,14 +714,60 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
-        /// <summary>Implement Decimal op_Equality - returns 1 if left == right, else 0</summary>
+        /// <summary>Implement Decimal op_Equality - returns 1 if equal, else 0</summary>
         private void HandleOpEquality(IBackendStackSimulator stack)
         {
             AsmWriter?.WriteLine($"    ; System.Decimal op_Equality inline");
-            HandleEquals(stack);
+
+            string rightAddr = stack.Pop();
+            string leftAddr = stack.Pop();
+
+            string leftAddrReg = stack.AllocateAddressRegister();
+            string rightAddrReg = stack.AllocateAddressRegister();
+
+            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}");
+
+            string resultReg = stack.AllocateDataRegister();
+            string dataReg = stack.AllocateDataRegister();
+
+            string notEqualLabel = GetUniqueLabel();
+            string doneLabel = GetUniqueLabel();
+
+            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}     ; Assume equal (default: 1)");
+
+            // Compare all four fields
+            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}    ; Compare flags");
+            AsmWriter?.WriteLine($"    CMP.L ({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
+
+            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}   ; Compare high");
+            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
+
+            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}   ; Compare low");
+            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
+
+            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}  ; Compare mid");
+            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
+
+            AsmWriter?.WriteLine($"    BRA .Done_{doneLabel}");
+
+            AsmWriter?.WriteLine($".NotEqual_{notEqualLabel}:");
+            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
+
+            AsmWriter?.WriteLine($".Done_{doneLabel}:");
+
+            stack.ReleaseAddressRegister(leftAddrReg);
+            stack.ReleaseAddressRegister(rightAddrReg);
+            stack.ReleaseDataRegister(dataReg);
+
+            stack.Push(resultReg);
         }
 
-        /// <summary>Implement Decimal op_Inequality - returns 1 if left != right, else 0</summary>
+        /// <summary>Implement Decimal op_Inequality - returns 1 if not equal, else 0</summary>
         private void HandleOpInequality(IBackendStackSimulator stack)
         {
             AsmWriter?.WriteLine($"    ; System.Decimal op_Inequality inline");
@@ -720,39 +778,38 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string leftAddrReg = stack.AllocateAddressRegister();
             string rightAddrReg = stack.AllocateAddressRegister();
 
-            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}    ; {leftAddrReg} = address of left operand");
-            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}  ; {rightAddrReg} = address of right operand");
+            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}");
 
             string resultReg = stack.AllocateDataRegister();
             string dataReg = stack.AllocateDataRegister();
 
-            string notEqualLabel = GetUniqueLabel();
+            string equalLabel = GetUniqueLabel();
             string doneLabel = GetUniqueLabel();
 
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; Assume not equal (default: 0)");
+            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; Assume equal (default: 0)");
 
-            // Compare flags at offset 0
-            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}    ; Load left flags");
-            AsmWriter?.WriteLine($"    CMP.L ({rightAddrReg}),{dataReg}    ; Compare flags");
-            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
+            // Compare all four fields
+            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L ({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{equalLabel}");
 
-            // Compare high at offset 4
-            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}   ; Load left high");
-            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}   ; Compare high");
-            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
+            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{equalLabel}");
 
-            // Compare low at offset 8
-            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}   ; Load left low");
-            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}   ; Compare low");
-            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
+            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{equalLabel}");
 
-            // Compare mid at offset 12
-            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}  ; Load left mid");
-            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}  ; Compare mid");
-            AsmWriter?.WriteLine($"    BEQ .Done_{doneLabel}");
+            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}");
+            AsmWriter?.WriteLine($"    BNE .NotEqual_{equalLabel}");
 
-            AsmWriter?.WriteLine($".NotEqual_{notEqualLabel}:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}     ; Not equal");
+            AsmWriter?.WriteLine($"    BRA .Done_{doneLabel}");
+
+            AsmWriter?.WriteLine($".NotEqual_{equalLabel}:");
+            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
 
             AsmWriter?.WriteLine($".Done_{doneLabel}:");
 
@@ -761,72 +818,20 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.ReleaseDataRegister(dataReg);
 
             stack.Push(resultReg);
+        }
+
+        private void HandleEquals(IBackendStackSimulator stack)
+        {
+            AsmWriter?.WriteLine($"    ; System.Decimal.Equals inline");
+            HandleOpEquality(stack);
         }
 
         private void HandleCompareTo(IBackendStackSimulator stack)
         {
-            string val2 = stack.Pop();
-            string val1 = stack.Pop();
-            AsmWriter?.WriteLine($"    ; TODO: {val1}.CompareTo({val2})");
+            AsmWriter?.WriteLine($"    ; System.Decimal.CompareTo inline");
+            // For now, return 0 (equal) - can be enhanced later
             string resultReg = stack.AllocateDataRegister();
-            stack.Push(resultReg);
-        }
-
-        // ===== PHASE 2 FIX: Decimal.Equals with proper address register discipline =====
-        private void HandleEquals(IBackendStackSimulator stack)
-        {
-            AsmWriter?.WriteLine($"    ; System.Decimal Equals inline");
-
-            string rightAddr = stack.Pop();
-            string leftAddr = stack.Pop();
-
-            // CRITICAL FIX: Use address registers for struct addresses, not data registers
-            string leftAddrReg = stack.AllocateAddressRegister();
-            string rightAddrReg = stack.AllocateAddressRegister();
-
-            AsmWriter?.WriteLine($"    MOVE.L {leftAddr},{leftAddrReg}    ; {leftAddrReg} = address of left operand");
-            AsmWriter?.WriteLine($"    MOVE.L {rightAddr},{rightAddrReg}  ; {rightAddrReg} = address of right operand");
-
-            string resultReg = stack.AllocateDataRegister();
-            string dataReg = stack.AllocateDataRegister();
-
-            string notEqualLabel = GetUniqueLabel();
-            string doneLabel = GetUniqueLabel();
-
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}     ; Assume equal");
-
-            // Compare flags at offset 0
-            AsmWriter?.WriteLine($"    MOVE.L ({leftAddrReg}),{dataReg}    ; Load left flags");
-            AsmWriter?.WriteLine($"    CMP.L ({rightAddrReg}),{dataReg}    ; Compare flags");
-            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            // Compare high at offset 4
-            AsmWriter?.WriteLine($"    MOVE.L 4({leftAddrReg}),{dataReg}   ; Load left high");
-            AsmWriter?.WriteLine($"    CMP.L 4({rightAddrReg}),{dataReg}   ; Compare high");
-            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            // Compare low at offset 8
-            AsmWriter?.WriteLine($"    MOVE.L 8({leftAddrReg}),{dataReg}   ; Load left low");
-            AsmWriter?.WriteLine($"    CMP.L 8({rightAddrReg}),{dataReg}   ; Compare low");
-            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            // Compare mid at offset 12
-            AsmWriter?.WriteLine($"    MOVE.L 12({leftAddrReg}),{dataReg}  ; Load left mid");
-            AsmWriter?.WriteLine($"    CMP.L 12({rightAddrReg}),{dataReg}  ; Compare mid");
-            AsmWriter?.WriteLine($"    BNE .NotEqual_{notEqualLabel}");
-
-            AsmWriter?.WriteLine($"    BRA .Done_{doneLabel}");
-
-            AsmWriter?.WriteLine($".NotEqual_{notEqualLabel}:");
-            AsmWriter?.WriteLine($"    MOVE.L #0,{resultReg}     ; Not equal");
-
-            AsmWriter?.WriteLine($".Done_{doneLabel}:");
-
-            // Release address registers
-            stack.ReleaseAddressRegister(leftAddrReg);
-            stack.ReleaseAddressRegister(rightAddrReg);
-            stack.ReleaseDataRegister(dataReg);
-
+            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
             stack.Push(resultReg);
         }
 

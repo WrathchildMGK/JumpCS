@@ -8,11 +8,15 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
     /// <summary>Handler for System.Math type operations</summary>
     public class SystemMathHandler : SystemHandlerBase, ISystemMathHandler
     {
+        private readonly Func<string> _getUniqueLabel;
+
         public SystemMathHandler(
             StreamWriter asmWriter,
-            Func<IBackendStackSimulator, string> getAvailableRegister)
+            Func<IBackendStackSimulator, string> getAvailableRegister,
+            Func<string> getUniqueLabel = null)
             : base(asmWriter, getAvailableRegister)
         {
+            _getUniqueLabel = getUniqueLabel ?? (() => $"L_{Guid.NewGuid().ToString("N").Substring(0, 8)}");
         }
 
         public override bool IsMethod(Core.MethodMetadata method)
@@ -112,7 +116,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
         {
             var parameterType = parameters.Length > 0 ? parameters[0].ParameterType : null;
 
-            AsmWriter?.WriteLine($"    ; System.Math.Round (inline) - {parameters.Length} parameters");
+            AsmWriter?.WriteLine($"    ; System.Math.Round (library call) - {parameters.Length} parameters");
 
             if (parameterType == typeof(double) && parameters.Length == 2 && parameters[1].ParameterType == typeof(int))
             {
@@ -152,7 +156,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             }
         }
 
-        /// <summary>Round(double value, int digits) - most common case in tests</summary>
+        /// <summary>Round(double value, int digits) - Library call version</summary>
         private void HandleRoundDoubleWithDigits(IBackendStackSimulator stack)
         {
             // Pop arguments (in reverse order for stack)
@@ -161,19 +165,19 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string doubleLowReg = stack.Pop();
             string doubleHighReg = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Round({doubleHighReg}:{doubleLowReg}, {digitsReg}) - double precision rounding");
-            AsmWriter?.WriteLine($"    ; TODO: Implement IEEE double rounding to {digitsReg} decimal places");
-            AsmWriter?.WriteLine($"    ; For now: return double value unchanged");
-            AsmWriter?.WriteLine($"    ; (Proper implementation requires FPU or fixed-point conversion)");
+            AsmWriter?.WriteLine($"    ; Round(double, {digitsReg}) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {doubleHighReg},D0   ; Double high word to D0");
+            AsmWriter?.WriteLine($"    MOVE.L {doubleLowReg},D1    ; Double low word to D1");
+            AsmWriter?.WriteLine($"    MOVE.L {digitsReg},D2       ; Digits parameter to D2");
+            AsmWriter?.WriteLine($"    JSR Math_RoundDouble");
+            AsmWriter?.WriteLine($"    ; Result in D0:D1");
 
-            // Return the double value (unchanged for now)
-            string resultHigh = GetAvailableRegister(stack);
-            string resultLow = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {doubleHighReg},{resultHigh}  ; Copy high word");
-            AsmWriter?.WriteLine($"    MOVE.L {doubleLowReg},{resultLow}    ; Copy low word");
+            stack.ReleaseDataRegister(doubleHighReg);
+            stack.ReleaseDataRegister(doubleLowReg);
+            stack.ReleaseDataRegister(digitsReg);
 
-            stack.Push(resultHigh);
-            stack.Push(resultLow);
+            stack.Push("D0");
+            stack.Push("D1");
         }
 
         /// <summary>Round(double value) - round to nearest integer</summary>
@@ -183,17 +187,17 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string doubleLowReg = stack.Pop();
             string doubleHighReg = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Round({doubleHighReg}:{doubleLowReg}) - round to integer");
-            AsmWriter?.WriteLine($"    ; TODO: Implement rounding to nearest integer");
+            AsmWriter?.WriteLine($"    ; Round(double) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {doubleHighReg},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {doubleLowReg},D1");
+            AsmWriter?.WriteLine($"    JSR Math_RoundDouble_NoDigits");
+            AsmWriter?.WriteLine($"    ; Result in D0:D1");
 
-            // Return the double value (unchanged for now)
-            string resultHigh = GetAvailableRegister(stack);
-            string resultLow = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {doubleHighReg},{resultHigh}");
-            AsmWriter?.WriteLine($"    MOVE.L {doubleLowReg},{resultLow}");
+            stack.ReleaseDataRegister(doubleHighReg);
+            stack.ReleaseDataRegister(doubleLowReg);
 
-            stack.Push(resultHigh);
-            stack.Push(resultLow);
+            stack.Push("D0");
+            stack.Push("D1");
         }
 
         /// <summary>Round(decimal value) - round decimal to integer</summary>
@@ -201,13 +205,16 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
         {
             string decimalAddrReg = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; Round(decimal @ {decimalAddrReg}) - round to integer");
-            AsmWriter?.WriteLine($"    ; TODO: Implement decimal rounding");
+            AsmWriter?.WriteLine($"    ; Round(decimal) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},A0");
+            AsmWriter?.WriteLine($"    LEA -32(A6),A1              ; Result buffer");
+            AsmWriter?.WriteLine($"    JSR Math_RoundDecimal_NoDigits");
+            AsmWriter?.WriteLine($"    ; Result in A1 (A6-32)");
 
-            // Return the decimal address (unchanged for now)
+            stack.ReleaseDataRegister(decimalAddrReg);
+
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},{resultReg}");
-
+            AsmWriter?.WriteLine($"    LEA -32(A6),{resultReg}");
             stack.Push(resultReg);
         }
 
@@ -217,14 +224,18 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string digitsReg = stack.Pop();    // digits parameter
             string decimalAddrReg = stack.Pop(); // decimal address
 
-            AsmWriter?.WriteLine($"    ; System.Decimal.Round({decimalAddrReg}, {digitsReg}) - round to {digitsReg} places");
-            AsmWriter?.WriteLine($"    ; Stub implementation: return decimal unchanged");
-            AsmWriter?.WriteLine($"    ; (Proper rounding would require scale adjustment in flags word)");
+            AsmWriter?.WriteLine($"    ; Round(decimal, {digitsReg}) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},A0   ; Decimal address to A0");
+            AsmWriter?.WriteLine($"    MOVE.L {digitsReg},D0        ; Digits to D0");
+            AsmWriter?.WriteLine($"    LEA -32(A6),A1              ; Result buffer to A1");
+            AsmWriter?.WriteLine($"    JSR Math_RoundDecimal_WithDigits");
+            AsmWriter?.WriteLine($"    ; Result in A1 (A6-32)");
 
-            // For now: just return the decimal address unchanged
+            stack.ReleaseDataRegister(decimalAddrReg);
+            stack.ReleaseDataRegister(digitsReg);
+
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},{resultReg}");
-
+            AsmWriter?.WriteLine($"    LEA -32(A6),{resultReg}");
             stack.Push(resultReg);
         }
 
@@ -235,37 +246,191 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string digitsReg = stack.Pop();      // digits parameter
             string decimalAddrReg = stack.Pop(); // decimal address
 
-            AsmWriter?.WriteLine($"    ; System.Decimal.Round({decimalAddrReg}, {digitsReg}, mode={modeReg})");
-            AsmWriter?.WriteLine($"    ; Stub: return decimal unchanged");
+            AsmWriter?.WriteLine($"    ; Round(decimal, {digitsReg}, mode) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},A0");
+            AsmWriter?.WriteLine($"    MOVE.L {digitsReg},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {modeReg},D1");
+            AsmWriter?.WriteLine($"    LEA -32(A6),A1");
+            AsmWriter?.WriteLine($"    JSR Math_RoundDecimal_WithMode");
+
+            stack.ReleaseDataRegister(decimalAddrReg);
+            stack.ReleaseDataRegister(digitsReg);
+            stack.ReleaseDataRegister(modeReg);
 
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},{resultReg}");
-
+            AsmWriter?.WriteLine($"    LEA -32(A6),{resultReg}");
             stack.Push(resultReg);
+        }
+
+        /// <summary>Handle System.Math.Abs with multiple signatures</summary>
+        private void HandleAbs(MethodBase methodInfo, ParameterInfo[] parameters, IBackendStackSimulator stack)
+        {
+            if (parameters.Length == 0)
+            {
+                AsmWriter?.WriteLine($"    ; Math.Abs - no parameters (error)");
+                return;
+            }
+
+            var paramType = parameters[0].ParameterType;
+
+            if (paramType == typeof(int))
+            {
+                HandleAbsInt(stack);
+            }
+            else if (paramType == typeof(long))
+            {
+                HandleAbsLong(stack);
+            }
+            else if (paramType == typeof(float))
+            {
+                HandleAbsFloat(stack);
+            }
+            else if (paramType == typeof(double))
+            {
+                HandleAbsDouble(stack);
+            }
+            else if (paramType == typeof(decimal))
+            {
+                HandleAbsDecimal(stack);
+            }
+            else
+            {
+                AsmWriter?.WriteLine($"    ; Math.Abs - unknown type");
+                string val = stack.Pop();
+                stack.Push(val);
+            }
+        }
+
+        private void HandleAbsInt(IBackendStackSimulator stack)
+        {
+            string valueReg = stack.Pop();
+            AsmWriter?.WriteLine($"    ; Math.Abs(int) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {valueReg},D0");
+            AsmWriter?.WriteLine($"    JSR Math_Abs_Int");
+            AsmWriter?.WriteLine($"    ; Result in D0");
+            stack.Push("D0");
+        }
+
+        private void HandleAbsLong(IBackendStackSimulator stack)
+        {
+            string lowReg = stack.Pop();
+            string highReg = stack.Pop();
+            AsmWriter?.WriteLine($"    ; Math.Abs(long) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {highReg},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {lowReg},D1");
+            AsmWriter?.WriteLine($"    JSR Math_Abs_Long");
+            AsmWriter?.WriteLine($"    ; Result in D0:D1");
+            stack.Push("D0");
+            stack.Push("D1");
+        }
+
+        private void HandleAbsFloat(IBackendStackSimulator stack)
+        {
+            string valueReg = stack.Pop();
+            AsmWriter?.WriteLine($"    ; Math.Abs(float) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {valueReg},D0");
+            AsmWriter?.WriteLine($"    JSR Math_Abs_Float");
+            stack.Push("D0");
+        }
+
+        private void HandleAbsDouble(IBackendStackSimulator stack)
+        {
+            string lowReg = stack.Pop();
+            string highReg = stack.Pop();
+            AsmWriter?.WriteLine($"    ; Math.Abs(double) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {highReg},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {lowReg},D1");
+            AsmWriter?.WriteLine($"    JSR Math_Abs_Double");
+            AsmWriter?.WriteLine($"    ; Result in D0:D1");
+            stack.Push("D0");
+            stack.Push("D1");
+        }
+
+        private void HandleAbsDecimal(IBackendStackSimulator stack)
+        {
+            string decimalAddrReg = stack.Pop();
+            AsmWriter?.WriteLine($"    ; Math.Abs(decimal) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},A0");
+            AsmWriter?.WriteLine($"    LEA -32(A6),A1");
+            AsmWriter?.WriteLine($"    JSR System_Decimal_Abs");
+            stack.Push("D0");
         }
 
         /// <summary>Handle System.Math.Truncate</summary>
         private void HandleMathTruncate(MethodBase methodInfo, ParameterInfo[] parameters, IBackendStackSimulator stack)
         {
-            string valueReg = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Truncate - stub (return value unchanged)");
-            stack.Push(valueReg);
+            if (parameters.Length == 0 || parameters[0].ParameterType == typeof(double))
+            {
+                // Double truncate
+                string lowReg = stack.Pop();
+                string highReg = stack.Pop();
+                AsmWriter?.WriteLine($"    ; Truncate(double) - Library call");
+                AsmWriter?.WriteLine($"    MOVE.L {highReg},D0");
+                AsmWriter?.WriteLine($"    MOVE.L {lowReg},D1");
+                AsmWriter?.WriteLine($"    JSR Math_Truncate_Double");
+                stack.Push("D0");
+                stack.Push("D1");
+            }
+            else
+            {
+                // Decimal truncate
+                string decimalAddrReg = stack.Pop();
+                AsmWriter?.WriteLine($"    ; Truncate(decimal) - Library call");
+                AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},A0");
+                AsmWriter?.WriteLine($"    LEA -32(A6),A1");
+                AsmWriter?.WriteLine($"    JSR Math_Truncate_Decimal");
+                stack.Push("D0");
+            }
         }
 
         /// <summary>Handle System.Math.Floor</summary>
         private void HandleMathFloor(MethodBase methodInfo, ParameterInfo[] parameters, IBackendStackSimulator stack)
         {
-            string valueReg = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Floor - stub (return value unchanged)");
-            stack.Push(valueReg);
+            if (parameters.Length == 0 || parameters[0].ParameterType == typeof(double))
+            {
+                string lowReg = stack.Pop();
+                string highReg = stack.Pop();
+                AsmWriter?.WriteLine($"    ; Floor(double) - Library call");
+                AsmWriter?.WriteLine($"    MOVE.L {highReg},D0");
+                AsmWriter?.WriteLine($"    MOVE.L {lowReg},D1");
+                AsmWriter?.WriteLine($"    JSR Math_Floor_Double");
+                stack.Push("D0");
+                stack.Push("D1");
+            }
+            else
+            {
+                string decimalAddrReg = stack.Pop();
+                AsmWriter?.WriteLine($"    ; Floor(decimal) - Library call");
+                AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},A0");
+                AsmWriter?.WriteLine($"    LEA -32(A6),A1");
+                AsmWriter?.WriteLine($"    JSR Math_Floor_Decimal");
+                stack.Push("D0");
+            }
         }
 
         /// <summary>Handle System.Math.Ceiling</summary>
         private void HandleMathCeiling(MethodBase methodInfo, ParameterInfo[] parameters, IBackendStackSimulator stack)
         {
-            string valueReg = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Ceiling - stub (return value unchanged)");
-            stack.Push(valueReg);
+            if (parameters.Length == 0 || parameters[0].ParameterType == typeof(double))
+            {
+                string lowReg = stack.Pop();
+                string highReg = stack.Pop();
+                AsmWriter?.WriteLine($"    ; Ceiling(double) - Library call");
+                AsmWriter?.WriteLine($"    MOVE.L {highReg},D0");
+                AsmWriter?.WriteLine($"    MOVE.L {lowReg},D1");
+                AsmWriter?.WriteLine($"    JSR Math_Ceiling_Double");
+                stack.Push("D0");
+                stack.Push("D1");
+            }
+            else
+            {
+                string decimalAddrReg = stack.Pop();
+                AsmWriter?.WriteLine($"    ; Ceiling(decimal) - Library call");
+                AsmWriter?.WriteLine($"    MOVE.L {decimalAddrReg},A0");
+                AsmWriter?.WriteLine($"    LEA -32(A6),A1");
+                AsmWriter?.WriteLine($"    JSR Math_Ceiling_Decimal");
+                stack.Push("D0");
+            }
         }
 
         /// <summary>Handle System.Math.Sqrt</summary>
@@ -274,13 +439,14 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             // Math.Sqrt(double) → double
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0   ; Sqrt: input high");
-            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1   ; Sqrt: input low");
-            AsmWriter?.WriteLine($"    JSR __sqrt            ; IEEE 754 double square root");
+            AsmWriter?.WriteLine($"    ; Sqrt(double) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Math_Sqrt");
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
-            stack.Push("D0", isDoubleWord: true);
-            stack.Push("D1", isDoubleWord: true);
+            stack.Push("D0");
+            stack.Push("D1");
         }
 
         /// <summary>Handle System.Math.Pow</summary>
@@ -291,32 +457,34 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             string exp_hi = stack.Pop();
             string base_lo = stack.Pop();
             string base_hi = stack.Pop();
-            AsmWriter?.WriteLine($"    MOVE.L {base_hi},D0  ; Pow: base high");
-            AsmWriter?.WriteLine($"    MOVE.L {base_lo},D1  ; Pow: base low");
-            AsmWriter?.WriteLine($"    MOVE.L {exp_hi},D2   ; Pow: exponent high");
-            AsmWriter?.WriteLine($"    MOVE.L {exp_lo},D3   ; Pow: exponent low");
-            AsmWriter?.WriteLine($"    JSR __pow             ; IEEE 754 double power");
+            AsmWriter?.WriteLine($"    ; Pow(double, double) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {base_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {base_lo},D1");
+            AsmWriter?.WriteLine($"    MOVE.L {exp_hi},D2");
+            AsmWriter?.WriteLine($"    MOVE.L {exp_lo},D3");
+            AsmWriter?.WriteLine($"    JSR Math_Pow");
             stack.ReleaseDataRegister(base_hi);
             stack.ReleaseDataRegister(base_lo);
             stack.ReleaseDataRegister(exp_hi);
             stack.ReleaseDataRegister(exp_lo);
-            stack.Push("D0", isDoubleWord: true);
-            stack.Push("D1", isDoubleWord: true);
+            stack.Push("D0");
+            stack.Push("D1");
         }
 
         /// <summary>Handle System.Math.Log</summary>
         private void HandleLog(IBackendStackSimulator stack)
         {
-            // Math.Log(double) → double (natural log)
+            // Math.Log(double) → double
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0   ; Log: input high");
-            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1   ; Log: input low");
-            AsmWriter?.WriteLine($"    JSR __log             ; IEEE 754 double natural log");
+            AsmWriter?.WriteLine($"    ; Log(double) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Math_Log");
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
-            stack.Push("D0", isDoubleWord: true);
-            stack.Push("D1", isDoubleWord: true);
+            stack.Push("D0");
+            stack.Push("D1");
         }
 
         /// <summary>Handle System.Math.Sin</summary>
@@ -325,13 +493,14 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             // Math.Sin(double) → double
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0   ; Sin: input high");
-            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1   ; Sin: input low");
-            AsmWriter?.WriteLine($"    JSR __sin             ; IEEE 754 double sine");
+            AsmWriter?.WriteLine($"    ; Sin(double) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Math_Sin");
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
-            stack.Push("D0", isDoubleWord: true);
-            stack.Push("D1", isDoubleWord: true);
+            stack.Push("D0");
+            stack.Push("D1");
         }
 
         /// <summary>Handle System.Math.Cos</summary>
@@ -340,72 +509,14 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             // Math.Cos(double) → double
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0   ; Cos: input high");
-            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1   ; Cos: input low");
-            AsmWriter?.WriteLine($"    JSR __cos             ; IEEE 754 double cosine");
+            AsmWriter?.WriteLine($"    ; Cos(double) - Library call");
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Math_Cos");
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
-            stack.Push("D0", isDoubleWord: true);
-            stack.Push("D1", isDoubleWord: true);
-        }
-
-        /// <summary>Handle System.Math.Abs</summary>
-        private void HandleAbs(MethodBase methodInfo, ParameterInfo[] parameters, IBackendStackSimulator stack)
-        {
-            if (parameters.Length == 0)
-            {
-                AsmWriter?.WriteLine($"    ; Abs() - no parameters (error)");
-                string resultReg = GetAvailableRegister(stack);
-                stack.Push(resultReg);
-                return;
-            }
-
-            var paramType = parameters[0].ParameterType;
-
-            if (paramType == typeof(decimal))
-            {
-                string decimalAddr = stack.Pop();
-                AsmWriter?.WriteLine($"    ; Decimal.Abs({decimalAddr})");
-                AsmWriter?.WriteLine($"    ; TODO: Implement decimal absolute value");
-                string resultReg = GetAvailableRegister(stack);
-                AsmWriter?.WriteLine($"    MOVE.L {decimalAddr},{resultReg}");
-                stack.ReleaseDataRegister(decimalAddr);
-                stack.Push(resultReg);
-            }
-            else if (paramType == typeof(double))
-            {
-                string val_lo = stack.Pop();
-                string val_hi = stack.Pop();
-                AsmWriter?.WriteLine($"    ; Double precision absolute value");
-                AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
-                AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
-                AsmWriter?.WriteLine($"    ANDI.L #$7FFFFFFF,D0 ; Clear sign bit (IEEE 754 abs)");
-                stack.ReleaseDataRegister(val_hi);
-                stack.ReleaseDataRegister(val_lo);
-                stack.Push("D0", isDoubleWord: true);
-                stack.Push("D1", isDoubleWord: true);
-            }
-            else if (paramType == typeof(float))
-            {
-                string valueReg = stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                AsmWriter?.WriteLine($"    MOVE.L {valueReg},{resultReg}");
-                AsmWriter?.WriteLine($"    ANDI.L #$7FFFFFFF,{resultReg} ; Clear sign bit (IEEE 754 float abs)");
-                stack.ReleaseDataRegister(valueReg);
-                stack.Push(resultReg);
-            }
-            else
-            {
-                // Integer types
-                string valueReg = stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                AsmWriter?.WriteLine($"    MOVE.L {valueReg},{resultReg}");
-                AsmWriter?.WriteLine($"    TST.L {resultReg}");
-                AsmWriter?.WriteLine($"    BPL .+4");
-                AsmWriter?.WriteLine($"    NEG.L {resultReg}    ; Integer abs");
-                stack.ReleaseDataRegister(valueReg);
-                stack.Push(resultReg);
-            }
+            stack.Push("D0");
+            stack.Push("D1");
         }
     }
 }

@@ -14,6 +14,7 @@ namespace JumpCS.Core
         public bool CheckBounds { get; set; } = true;
         public bool CheckNull { get; set; } = true;
         public bool CheckStack { get; set; } = true;
+        public bool CheckDivideByZero { get; set; } = true;  // NEW: Divide-by-zero protection
         public bool InlineNullCheck { get; set; } = false;
         public bool IncludeClassNames { get; set; } = true;
         public bool IncludeDebugSymbols { get; set; } = false;
@@ -58,6 +59,9 @@ namespace JumpCS.Core
 
                 if (bool.TryParse(section["CheckNull"], out var checkNull))
                     CheckNull = checkNull;
+
+                if (bool.TryParse(section["CheckDivideByZero"], out var checkDivideByZero))
+                    CheckDivideByZero = checkDivideByZero;
             }
         }
 
@@ -82,6 +86,7 @@ namespace JumpCS.Core
                     case "-a": CheckBounds = false; break;
                     case "-n": CheckNull = false; break;
                     case "-S": CheckStack = false; break;
+                    case "-Z": CheckDivideByZero = false; break;  // NEW: Disable divide-by-zero checks
                     case "-N": InlineNullCheck = true; break;
                     case "-A": InitializeStaticArrays = true; break;
                     case "-P": UsePeephole = !UsePeephole; break;
@@ -126,6 +131,7 @@ namespace JumpCS.Core
                 $"Optimization={Optimization}",
                 $"CheckBounds={CheckBounds}",
                 $"CheckNull={CheckNull}",
+                $"CheckDivideByZero={CheckDivideByZero}",
                 $"StackSize={StackSize}"
             };
             return string.Join(", ", parts);

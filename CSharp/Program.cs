@@ -188,6 +188,7 @@ namespace JumpCS
             Console.WriteLine("         -a         disable array bound checking *** DANGEROUS ***");
             Console.WriteLine("         -n         disable null checking *** DANGEROUS ***");
             Console.WriteLine("         -S         disable stack checking *** DANGEROUS ***");
+            Console.WriteLine("         -Z         disable divide-by-zero checking *** DANGEROUS ***");
             Console.WriteLine("         -N         inline null checking, faster but more code");
             Console.WriteLine("         -A         initialize static array data");
             Console.WriteLine("         -P         enable/disable peephole optimization phase");

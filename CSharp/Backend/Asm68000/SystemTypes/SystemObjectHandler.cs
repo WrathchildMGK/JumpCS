@@ -35,7 +35,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            AsmWriter?.WriteLine($"    ; System.Object.{methodName} (inline)");
+            AsmWriter?.WriteLine($"    ; System.Object.{methodName} (library call)");
 
             if (methodName == "Equals")
             {
@@ -74,92 +74,92 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             }
         }
 
+        /// <summary>Object.Equals - instance or static comparison</summary>
         private void HandleEquals(IBackendStackSimulator stack, MethodBase methodInfo)
         {
             var parameters = (methodInfo as MethodInfo)?.GetParameters() ?? Array.Empty<ParameterInfo>();
 
             if (parameters.Length == 2)
             {
-                // Static method: Equals(object a, object b)
+                // Static method: Object.Equals(object a, object b)
                 string objB = stack.Pop();
                 string objA = stack.Pop();
 
+                AsmWriter?.WriteLine($"    MOVE.L {objA},D0");
+                AsmWriter?.WriteLine($"    MOVE.L {objB},D1");
+                AsmWriter?.WriteLine($"    JSR Object_Equals_Static  ; Library function");
+
                 string resultReg = GetAvailableRegister(stack);
-                string label = GetUniqueLabel();
-
-                AsmWriter?.WriteLine($"    CMP.L {objB},{objA}");
-                AsmWriter?.WriteLine($"    BEQ {label}_eq");
-                AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-                AsmWriter?.WriteLine($"    BRA {label}_end");
-                AsmWriter?.WriteLine($"{label}_eq:");
-                AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-                AsmWriter?.WriteLine($"{label}_end:");
-
+                AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}");
                 stack.Push(resultReg);
             }
             else if (parameters.Length == 1)
             {
                 // Instance method: this.Equals(object obj)
                 string obj = stack.Pop();
+                string self = stack.Pop();
+
+                AsmWriter?.WriteLine($"    MOVE.L {self},D0");
+                AsmWriter?.WriteLine($"    MOVE.L {obj},D1");
+                AsmWriter?.WriteLine($"    JSR Object_Equals_Instance  ; Library function");
 
                 string resultReg = GetAvailableRegister(stack);
-                AsmWriter?.WriteLine($"    ; Instance Equals({obj})");
-                AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Instance equals");
-
+                AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}");
                 stack.Push(resultReg);
             }
         }
 
+        /// <summary>Object.GetHashCode - returns hash code for object</summary>
         private void HandleGetHashCode(IBackendStackSimulator stack)
         {
             string obj = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    ; GetHashCode({obj})");
-            AsmWriter?.WriteLine($"    MOVE.L {obj},{resultReg}");
-            AsmWriter?.WriteLine($"    ; TODO: Calculate hash code");
+            AsmWriter?.WriteLine($"    MOVE.L {obj},D0");
+            AsmWriter?.WriteLine($"    JSR Object_GetHashCode     ; Library function");
 
+            string resultReg = GetAvailableRegister(stack);
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}");
             stack.Push(resultReg);
         }
 
+        /// <summary>Object.GetType - returns type information for object</summary>
         private void HandleGetType(IBackendStackSimulator stack)
         {
             string obj = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; GetType({obj})");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Get type");
+            AsmWriter?.WriteLine($"    MOVE.L {obj},D0");
+            AsmWriter?.WriteLine($"    JSR Object_GetType         ; Library function");
 
+            string resultReg = GetAvailableRegister(stack);
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}      ; Type object address");
             stack.Push(resultReg);
         }
 
+        /// <summary>Object.ToString - converts object to string representation</summary>
         private void HandleToString(IBackendStackSimulator stack)
         {
             string obj = stack.Pop();
 
-            AsmWriter?.WriteLine($"    ; ToString({obj})");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Convert to string");
+            AsmWriter?.WriteLine($"    MOVE.L {obj},D0");
+            AsmWriter?.WriteLine($"    JSR Object_ToString        ; Library function");
 
+            string resultReg = GetAvailableRegister(stack);
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}      ; String object address");
             stack.Push(resultReg);
         }
 
+        /// <summary>Object.ReferenceEquals - compares object references for equality</summary>
         private void HandleReferenceEquals(IBackendStackSimulator stack)
         {
             string objB = stack.Pop();
             string objA = stack.Pop();
 
+            AsmWriter?.WriteLine($"    MOVE.L {objA},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {objB},D1");
+            AsmWriter?.WriteLine($"    JSR Object_ReferenceEquals ; Library function");
+
             string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-
-            AsmWriter?.WriteLine($"    CMP.L {objB},{objA}");
-            AsmWriter?.WriteLine($"    BEQ {label}_eq");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_eq:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}");
             stack.Push(resultReg);
         }
     }

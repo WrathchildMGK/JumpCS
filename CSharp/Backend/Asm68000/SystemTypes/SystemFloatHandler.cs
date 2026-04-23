@@ -43,7 +43,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            AsmWriter?.WriteLine($"    ; System.Single.{methodName} (inline)");
+            AsmWriter?.WriteLine($"    ; System.Single.{methodName} (library call)");
 
             if (methodName == "op_Addition")
             {
@@ -126,26 +126,23 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             }
         }
 
+        /// <summary>Float addition - delegates to LIBGCC</summary>
         private void HandleAddition(IBackendStackSimulator stack)
         {
-            // Float addition: pop two floats (2 regs total), call __addsf3
             string right = stack.Pop();   // Second float
             string left = stack.Pop();    // First float
 
-            // Setup arguments: left in D0, right in D1
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
-            // Call library function for float addition
             AsmWriter?.WriteLine($"    JSR __addsf3          ; IEEE 754 float addition");
 
-            // Result is in D0
             stack.ReleaseDataRegister(left);
             stack.ReleaseDataRegister(right);
 
             stack.Push("D0");
         }
 
+        /// <summary>Float subtraction - delegates to LIBGCC</summary>
         private void HandleSubtraction(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -153,7 +150,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __subsf3          ; IEEE 754 float subtraction");
 
             stack.ReleaseDataRegister(left);
@@ -162,6 +158,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float multiplication - delegates to LIBGCC</summary>
         private void HandleMultiply(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -169,7 +166,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __mulsf3          ; IEEE 754 float multiply");
 
             stack.ReleaseDataRegister(left);
@@ -178,6 +174,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float division - delegates to LIBGCC</summary>
         private void HandleDivision(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -185,7 +182,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __divsf3          ; IEEE 754 float division");
 
             stack.ReleaseDataRegister(left);
@@ -194,12 +190,12 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float negation - flip sign bit</summary>
         private void HandleUnaryNegation(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
 
-            // Flip the sign bit (bit 31 of the IEEE 754 float)
-            AsmWriter?.WriteLine($"    MOVE.L {val},D0       ; Value");
+            AsmWriter?.WriteLine($"    MOVE.L {val},D0");
             AsmWriter?.WriteLine($"    EORI.L #$80000000,D0  ; Flip sign bit");
 
             stack.ReleaseDataRegister(val);
@@ -207,6 +203,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float equality - delegates to LIBGCC</summary>
         private void HandleEquality(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -214,9 +211,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __eqsf2           ; IEEE 754 float equality");
-            // Result: D0 = 0 if not equal, non-zero if equal
 
             stack.ReleaseDataRegister(left);
             stack.ReleaseDataRegister(right);
@@ -224,6 +219,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float inequality - delegates to LIBGCC</summary>
         private void HandleInequality(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -231,9 +227,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __nesf2           ; IEEE 754 float inequality");
-            // Result: D0 = 0 if equal, non-zero if not equal
 
             stack.ReleaseDataRegister(left);
             stack.ReleaseDataRegister(right);
@@ -241,6 +235,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float less-than - delegates to LIBGCC</summary>
         private void HandleLessThan(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -248,9 +243,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __ltsf2           ; IEEE 754 float less-than");
-            // Result: D0 = 0 if not less, 1 if less
 
             stack.ReleaseDataRegister(left);
             stack.ReleaseDataRegister(right);
@@ -258,6 +251,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float greater-than - delegates to LIBGCC</summary>
         private void HandleGreaterThan(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -265,9 +259,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __gtsf2           ; IEEE 754 float greater-than");
-            // Result: D0 = 0 if not greater, 1 if greater
 
             stack.ReleaseDataRegister(left);
             stack.ReleaseDataRegister(right);
@@ -275,6 +267,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float less-than-or-equal - delegates to LIBGCC</summary>
         private void HandleLessThanOrEqual(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -282,7 +275,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __lesf2           ; IEEE 754 float less-than-or-equal");
 
             stack.ReleaseDataRegister(left);
@@ -291,6 +283,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float greater-than-or-equal - delegates to LIBGCC</summary>
         private void HandleGreaterThanOrEqual(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -298,7 +291,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {left},D0      ; Left operand");
             AsmWriter?.WriteLine($"    MOVE.L {right},D1     ; Right operand");
-
             AsmWriter?.WriteLine($"    JSR __gesf2           ; IEEE 754 float greater-than-or-equal");
 
             stack.ReleaseDataRegister(left);
@@ -307,6 +299,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Float Equals - check if two float values are equal</summary>
         private void HandleEquals(IBackendStackSimulator stack)
         {
             // Object.Equals(other) - compare the float values
@@ -315,7 +308,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
 
             AsmWriter?.WriteLine($"    MOVE.L {self},D0      ; Self");
             AsmWriter?.WriteLine($"    MOVE.L {other},D1     ; Other");
-
             AsmWriter?.WriteLine($"    JSR __eqsf2           ; IEEE 754 float equality");
 
             stack.ReleaseDataRegister(self);
@@ -324,71 +316,55 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D0");
         }
 
+        /// <summary>Check if float is NaN - library call</summary>
         private void HandleIsNaN(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
-            string label = GetUniqueLabel();
+
             AsmWriter?.WriteLine($"    MOVE.L {val},D0");
-            AsmWriter?.WriteLine($"    ANDI.L #$7F800000,D0  ; Isolate exponent");
-            AsmWriter?.WriteLine($"    CMPI.L #$7F800000,D0");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L {val},D0");
-            AsmWriter?.WriteLine($"    ANDI.L #$007FFFFF,D0  ; Isolate mantissa");
-            AsmWriter?.WriteLine($"    TST.L D0");
-            AsmWriter?.WriteLine($"    BEQ {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+            AsmWriter?.WriteLine($"    JSR Single_IsNaN      ; Library function checks NaN");
+
             stack.ReleaseDataRegister(val);
+
             stack.Push("D0");
         }
 
+        /// <summary>Check if float is positive or negative infinity - library call</summary>
         private void HandleIsInfinity(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
-            string label = GetUniqueLabel();
+
             AsmWriter?.WriteLine($"    MOVE.L {val},D0");
-            AsmWriter?.WriteLine($"    ANDI.L #$7FFFFFFF,D0  ; Clear sign bit");
-            AsmWriter?.WriteLine($"    CMPI.L #$7F800000,D0");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+            AsmWriter?.WriteLine($"    JSR Single_IsInfinity ; Library function checks infinity");
+
             stack.ReleaseDataRegister(val);
+
             stack.Push("D0");
         }
 
+        /// <summary>Check if float is positive infinity - library call</summary>
         private void HandleIsPositiveInfinity(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMPI.L #$7F800000,{val}");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+
+            AsmWriter?.WriteLine($"    MOVE.L {val},D0");
+            AsmWriter?.WriteLine($"    JSR Single_IsPositiveInfinity");
+
             stack.ReleaseDataRegister(val);
+
             stack.Push("D0");
         }
 
+        /// <summary>Check if float is negative infinity - library call</summary>
         private void HandleIsNegativeInfinity(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMPI.L #$FF800000,{val}");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+
+            AsmWriter?.WriteLine($"    MOVE.L {val},D0");
+            AsmWriter?.WriteLine($"    JSR Single_IsNegativeInfinity");
+
             stack.ReleaseDataRegister(val);
+
             stack.Push("D0");
         }
     }

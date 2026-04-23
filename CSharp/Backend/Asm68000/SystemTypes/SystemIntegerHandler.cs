@@ -45,7 +45,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            AsmWriter?.WriteLine($"    ; System.Int32.{methodName} (inline)");
+            AsmWriter?.WriteLine($"    ; System.Int32.{methodName} (inline/library call)");
 
             if (methodName == "op_Addition")
             {
@@ -144,6 +144,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             }
         }
 
+        /// <summary>Integer addition - inline (very simple)</summary>
         private void HandleAddition(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -155,6 +156,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Integer subtraction - inline</summary>
         private void HandleSubtraction(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -166,6 +168,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Integer multiplication - inline (uses MULS.L)</summary>
         private void HandleMultiply(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -177,6 +180,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Integer division - inline (uses DIVS.L)</summary>
         private void HandleDivision(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -188,19 +192,22 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Integer modulus - delegates to library function</summary>
         private void HandleModulus(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
             AsmWriter?.WriteLine($"    MOVE.L {left},D0");
-            AsmWriter?.WriteLine($"    DIVS.L {right},D0");
-            AsmWriter?.WriteLine($"    ; TODO: Modulus calculation (use remainder from division)");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
+            AsmWriter?.WriteLine($"    MOVE.L {right},D1");
+            AsmWriter?.WriteLine($"    JSR Int32_Modulus        ; Library function handles modulo");
+
+            string resultReg = GetAvailableRegister(stack);
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}    ; Result in D0");
             stack.Push(resultReg);
         }
 
+        /// <summary>Bitwise AND - inline</summary>
         private void HandleBitwiseAnd(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -212,6 +219,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Bitwise OR - inline</summary>
         private void HandleBitwiseOr(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -223,6 +231,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Bitwise XOR - inline</summary>
         private void HandleExclusiveOr(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -234,28 +243,37 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Left shift - delegates to library (variable shift amount)</summary>
         private void HandleLeftShift(IBackendStackSimulator stack)
         {
             string shiftAmount = stack.Pop();
             string value = stack.Pop();
 
+            AsmWriter?.WriteLine($"    MOVE.L {value},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {shiftAmount},D1");
+            AsmWriter?.WriteLine($"    JSR Int32_ShiftLeft      ; Library handles variable shift");
+
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-            AsmWriter?.WriteLine($"    ; TODO: Left shift by {shiftAmount}");
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}");
             stack.Push(resultReg);
         }
 
+        /// <summary>Right shift (arithmetic) - delegates to library (variable shift amount)</summary>
         private void HandleRightShift(IBackendStackSimulator stack)
         {
             string shiftAmount = stack.Pop();
             string value = stack.Pop();
 
+            AsmWriter?.WriteLine($"    MOVE.L {value},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {shiftAmount},D1");
+            AsmWriter?.WriteLine($"    JSR Int32_ShiftRight     ; Library handles variable shift");
+
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-            AsmWriter?.WriteLine($"    ; TODO: Right shift by {shiftAmount}");
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}");
             stack.Push(resultReg);
         }
 
+        /// <summary>Unary negation (two's complement) - inline</summary>
         private void HandleUnaryNegation(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
@@ -266,6 +284,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>One's complement (bitwise NOT) - inline</summary>
         private void HandleOnesComplement(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
@@ -276,6 +295,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Equality comparison - inline (simple CMP)</summary>
         private void HandleEquality(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -293,6 +313,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Inequality comparison - inline (simple CMP)</summary>
         private void HandleInequality(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -310,6 +331,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Less-than comparison - inline (signed)</summary>
         private void HandleLessThan(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -327,6 +349,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Greater-than comparison - inline (signed)</summary>
         private void HandleGreaterThan(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -344,6 +367,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Less-than-or-equal comparison - inline</summary>
         private void HandleLessThanOrEqual(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -361,6 +385,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Greater-than-or-equal comparison - inline</summary>
         private void HandleGreaterThanOrEqual(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
@@ -378,21 +403,33 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push(resultReg);
         }
 
+        /// <summary>Object.Equals override - delegates to library</summary>
         private void HandleEquals(IBackendStackSimulator stack)
         {
             string objRef = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Int32.Equals({objRef})");
+            string self = stack.Pop();
+
+            AsmWriter?.WriteLine($"    MOVE.L {self},D0         ; this (as int value)");
+            AsmWriter?.WriteLine($"    MOVE.L {objRef},D1       ; other (as int value)");
+            AsmWriter?.WriteLine($"    JSR Int32_Equals         ; Library function");
+
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Equals comparison");
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}");
             stack.Push(resultReg);
         }
 
+        /// <summary>CompareTo override - delegates to library</summary>
         private void HandleCompareTo(IBackendStackSimulator stack)
         {
             string objRef = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Int32.CompareTo({objRef})");
+            string self = stack.Pop();
+
+            AsmWriter?.WriteLine($"    MOVE.L {self},D0         ; this (as int value)");
+            AsmWriter?.WriteLine($"    MOVE.L {objRef},D1       ; other (as int value)");
+            AsmWriter?.WriteLine($"    JSR Int32_CompareTo      ; Library function");
+
             string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: CompareTo result");
+            AsmWriter?.WriteLine($"    MOVE.L D0,{resultReg}    ; Result: -1, 0, or 1");
             stack.Push(resultReg);
         }
     }

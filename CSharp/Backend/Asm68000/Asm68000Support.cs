@@ -37,7 +37,8 @@ namespace JumpCS.Backend.Asm68000
 
             _mathHandler = new SystemMathHandler(
                 writer,
-                (stack) => stack.AllocateDataRegister()
+                (stack) => stack.AllocateDataRegister(),
+                () => labels.GetUniqueLabel()  // ADD THIS LINE
             );
 
             _decimalHandler = new SystemDecimalHandler(

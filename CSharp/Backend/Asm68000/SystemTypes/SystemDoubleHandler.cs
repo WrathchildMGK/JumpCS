@@ -44,7 +44,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            AsmWriter?.WriteLine($"    ; System.Double.{methodName} (inline)");
+            AsmWriter?.WriteLine($"    ; System.Double.{methodName} (library call)");
 
             if (methodName == "op_Addition")
             {
@@ -128,10 +128,10 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             }
         }
 
-        /// <summary>Public method for double addition - delegates to library function</summary>
+        /// <summary>Double addition - delegates to LIBGCC __adddf3</summary>
         public void HandleAddition(IBackendStackSimulator stack)
         {
-            // Double addition: pop two doubles (4 regs total), call __adddf3
+            // Double addition: pop two doubles (4 regs total)
             string right_lo = stack.Pop();  // Low word of second double
             string right_hi = stack.Pop();  // High word of second double
             string left_lo = stack.Pop();   // Low word of first double
@@ -142,8 +142,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
-            // Call library function for double addition
             AsmWriter?.WriteLine($"    JSR __adddf3          ; IEEE 754 double addition");
 
             // Result is in D0/D1
@@ -152,11 +150,11 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.ReleaseDataRegister(right_hi);
             stack.ReleaseDataRegister(right_lo);
 
-            stack.Push("D0", isDoubleWord: true);  // High word
-            stack.Push("D1", isDoubleWord: true);  // Low word
+            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D1", isDoubleWord: true);
         }
 
-        /// <summary>Public method for double subtraction - delegates to library function</summary>
+        /// <summary>Double subtraction - delegates to LIBGCC __subdf3</summary>
         public void HandleSubtraction(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -168,7 +166,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __subdf3          ; IEEE 754 double subtraction");
 
             stack.ReleaseDataRegister(left_hi);
@@ -180,7 +177,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D1", isDoubleWord: true);
         }
 
-        /// <summary>Public method for double multiplication - delegates to library function</summary>
+        /// <summary>Double multiplication - delegates to LIBGCC __muldf3</summary>
         public void HandleMultiply(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -192,7 +189,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __muldf3          ; IEEE 754 double multiply");
 
             stack.ReleaseDataRegister(left_hi);
@@ -204,7 +200,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D1", isDoubleWord: true);
         }
 
-        /// <summary>Public method for double division - delegates to library function</summary>
+        /// <summary>Double division - delegates to LIBGCC __divdf3</summary>
         public void HandleDivision(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -216,7 +212,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __divdf3          ; IEEE 754 double division");
 
             stack.ReleaseDataRegister(left_hi);
@@ -228,7 +223,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D1", isDoubleWord: true);
         }
 
-        /// <summary>Public method for double remainder - delegates to library function</summary>
+        /// <summary>Double remainder - delegates to LIBGCC __fmod (or custom implementation)</summary>
         public void HandleRemainder(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -240,7 +235,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __fmod            ; IEEE 754 double remainder/modulo");
 
             stack.ReleaseDataRegister(left_hi);
@@ -252,15 +246,15 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D1", isDoubleWord: true);
         }
 
+        /// <summary>Double negation - flip sign bit (bit 63)</summary>
         private void HandleUnaryNegation(IBackendStackSimulator stack)
         {
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
 
-            // Flip the sign bit (bit 63 of the IEEE 754 double)
-            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0    ; Value high word");
-            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1    ; Value low word");
-            AsmWriter?.WriteLine($"    EORI.L #$80000000,D0  ; Flip sign bit");
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    EORI.L #$80000000,D0  ; Flip sign bit (bit 63 of 64-bit value)");
 
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
@@ -269,6 +263,7 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.Push("D1", isDoubleWord: true);
         }
 
+        /// <summary>Double equality - delegates to LIBGCC __eqdf2</summary>
         private void HandleEquality(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -280,18 +275,17 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __eqdf2           ; IEEE 754 double equality");
-            // Result: D0 = 0 if not equal, non-zero if equal
 
             stack.ReleaseDataRegister(left_hi);
             stack.ReleaseDataRegister(left_lo);
             stack.ReleaseDataRegister(right_hi);
             stack.ReleaseDataRegister(right_lo);
 
-            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D0");
         }
 
+        /// <summary>Double inequality - delegates to LIBGCC __nedf2</summary>
         private void HandleInequality(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -303,18 +297,17 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __nedf2           ; IEEE 754 double inequality");
-            // Result: D0 = 0 if equal, non-zero if not equal
 
             stack.ReleaseDataRegister(left_hi);
             stack.ReleaseDataRegister(left_lo);
             stack.ReleaseDataRegister(right_hi);
             stack.ReleaseDataRegister(right_lo);
 
-            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D0");
         }
 
+        /// <summary>Double less-than - delegates to LIBGCC __ltdf2</summary>
         private void HandleLessThan(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -326,18 +319,17 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __ltdf2           ; IEEE 754 double less-than");
-            // Result: D0 = 0 if not less, 1 if less
 
             stack.ReleaseDataRegister(left_hi);
             stack.ReleaseDataRegister(left_lo);
             stack.ReleaseDataRegister(right_hi);
             stack.ReleaseDataRegister(right_lo);
 
-            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D0");
         }
 
+        /// <summary>Double greater-than - delegates to LIBGCC __gtdf2</summary>
         private void HandleGreaterThan(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -349,18 +341,17 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __gtdf2           ; IEEE 754 double greater-than");
-            // Result: D0 = 0 if not greater, 1 if greater
 
             stack.ReleaseDataRegister(left_hi);
             stack.ReleaseDataRegister(left_lo);
             stack.ReleaseDataRegister(right_hi);
             stack.ReleaseDataRegister(right_lo);
 
-            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D0");
         }
 
+        /// <summary>Double less-than-or-equal - delegates to LIBGCC __ledf2</summary>
         private void HandleLessThanOrEqual(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -372,7 +363,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __ledf2           ; IEEE 754 double less-than-or-equal");
 
             stack.ReleaseDataRegister(left_hi);
@@ -380,9 +370,10 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.ReleaseDataRegister(right_hi);
             stack.ReleaseDataRegister(right_lo);
 
-            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D0");
         }
 
+        /// <summary>Double greater-than-or-equal - delegates to LIBGCC __gedf2</summary>
         private void HandleGreaterThanOrEqual(IBackendStackSimulator stack)
         {
             string right_lo = stack.Pop();
@@ -394,7 +385,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {left_lo},D1   ; Left low");
             AsmWriter?.WriteLine($"    MOVE.L {right_hi},D2  ; Right high");
             AsmWriter?.WriteLine($"    MOVE.L {right_lo},D3  ; Right low");
-
             AsmWriter?.WriteLine($"    JSR __gedf2           ; IEEE 754 double greater-than-or-equal");
 
             stack.ReleaseDataRegister(left_hi);
@@ -402,9 +392,10 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.ReleaseDataRegister(right_hi);
             stack.ReleaseDataRegister(right_lo);
 
-            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D0");
         }
 
+        /// <summary>Double Equals - check if two double values are equal</summary>
         private void HandleEquals(IBackendStackSimulator stack)
         {
             // Object.Equals(other) - compare the double values
@@ -417,7 +408,6 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             AsmWriter?.WriteLine($"    MOVE.L {self_lo},D1   ; Self low");
             AsmWriter?.WriteLine($"    MOVE.L {other_hi},D2  ; Other high");
             AsmWriter?.WriteLine($"    MOVE.L {other_lo},D3  ; Other low");
-
             AsmWriter?.WriteLine($"    JSR __eqdf2           ; IEEE 754 double equality");
 
             stack.ReleaseDataRegister(self_hi);
@@ -425,91 +415,70 @@ namespace JumpCS.Backend.Asm68000.SystemTypes
             stack.ReleaseDataRegister(other_hi);
             stack.ReleaseDataRegister(other_lo);
 
-            stack.Push("D0", isDoubleWord: true);
+            stack.Push("D0");
         }
 
+        /// <summary>Check if double is NaN - library call</summary>
         private void HandleIsNaN(IBackendStackSimulator stack)
         {
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            string label = GetUniqueLabel();
+
             AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
-            AsmWriter?.WriteLine($"    ANDI.L #$7FF00000,D0  ; Isolate exponent");
-            AsmWriter?.WriteLine($"    CMPI.L #$7FF00000,D0");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
-            AsmWriter?.WriteLine($"    ANDI.L #$000FFFFF,D0  ; Isolate mantissa high");
-            AsmWriter?.WriteLine($"    TST.L D0");
-            AsmWriter?.WriteLine($"    BNE {label}_true");
-            AsmWriter?.WriteLine($"    TST.L {val_lo}");
-            AsmWriter?.WriteLine($"    BNE {label}_true");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_true:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Double_IsNaN      ; Library function checks NaN");
+
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
+
             stack.Push("D0");
         }
 
+        /// <summary>Check if double is positive or negative infinity - library call</summary>
         private void HandleIsInfinity(IBackendStackSimulator stack)
         {
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            string label = GetUniqueLabel();
+
             AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
-            AsmWriter?.WriteLine($"    ANDI.L #$7FFFFFFF,D0  ; Clear sign bit");
-            AsmWriter?.WriteLine($"    CMPI.L #$7FF00000,D0");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    TST.L {val_lo}");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Double_IsInfinity ; Library function checks infinity");
+
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
+
             stack.Push("D0");
         }
 
+        /// <summary>Check if double is positive infinity - library call</summary>
         private void HandleIsPositiveInfinity(IBackendStackSimulator stack)
         {
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMPI.L #$7FF00000,{val_hi}");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    TST.L {val_lo}");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Double_IsPositiveInfinity");
+
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
+
             stack.Push("D0");
         }
 
+        /// <summary>Check if double is negative infinity - library call</summary>
         private void HandleIsNegativeInfinity(IBackendStackSimulator stack)
         {
             string val_lo = stack.Pop();
             string val_hi = stack.Pop();
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMPI.L #$FFF00000,{val_hi}");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    TST.L {val_lo}");
-            AsmWriter?.WriteLine($"    BNE {label}_false");
-            AsmWriter?.WriteLine($"    MOVE.L #1,D0");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_false:");
-            AsmWriter?.WriteLine($"    CLR.L D0");
-            AsmWriter?.WriteLine($"{label}_end:");
+
+            AsmWriter?.WriteLine($"    MOVE.L {val_hi},D0");
+            AsmWriter?.WriteLine($"    MOVE.L {val_lo},D1");
+            AsmWriter?.WriteLine($"    JSR Double_IsNegativeInfinity");
+
             stack.ReleaseDataRegister(val_hi);
             stack.ReleaseDataRegister(val_lo);
+
             stack.Push("D0");
         }
     }
