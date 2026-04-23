@@ -6,7 +6,7 @@ using JumpCS.Core;
 
 namespace JumpCS.Backend.CC65.SystemTypes
 {
-    /// <summary>Handler for System.Object type operations — CC65 C output</summary>
+    /// <summary>Handler for System.Object type operations - CC65 (6502) target</summary>
     public class SystemObjectHandler : SystemHandlerBase, ISystemObjectHandler
     {
         public SystemObjectHandler(
@@ -29,16 +29,21 @@ namespace JumpCS.Backend.CC65.SystemTypes
 
         public override void HandleMethodCall(MethodMetadata method, IBackendStackSimulator stack)
         {
-            AsmWriter?.WriteLine($"    /* System.Object.{method.Name} */");
+            AsmWriter?.WriteLine($"    ; TODO: System.Object.{method.Name}");
         }
 
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
         {
             string methodName = methodInfo.Name;
+            AsmWriter?.WriteLine($"    ; System.Object.{methodName}");
 
             if (methodName == "Equals")
             {
                 HandleEquals(stack, methodInfo);
+            }
+            else if (methodName == "ReferenceEquals")
+            {
+                HandleReferenceEquals(stack);
             }
             else if (methodName == "GetHashCode")
             {
@@ -52,86 +57,74 @@ namespace JumpCS.Backend.CC65.SystemTypes
             {
                 HandleToString(stack);
             }
-            else if (methodName == "ReferenceEquals")
-            {
-                HandleReferenceEquals(stack);
-            }
             else
             {
-                AsmWriter?.WriteLine($"    /* TODO: System.Object.{methodName} */");
-                var paramCount = methodInfo is MethodInfo mi ? mi.GetParameters().Length : 0;
-                for (int i = 0; i < paramCount; i++)
-                {
-                    try { stack.Pop(); } catch { }
-                }
-                if (methodInfo is MethodInfo methodInfoTyped && methodInfoTyped.ReturnType != typeof(void))
-                {
-                    string resultReg = GetAvailableRegister(stack);
-                    AsmWriter?.WriteLine($"    {resultReg} = 0; /* TODO: System.Object.{methodName} */");
-                    stack.Push(resultReg);
-                }
+                AsmWriter?.WriteLine($"    ; TODO: System.Object.{methodName}");
+                PopMethodParameters(methodInfo, stack);
             }
         }
 
-        private void HandleEquals(IBackendStackSimulator stack, MethodBase methodInfo)
+        public void HandleEquals(IBackendStackSimulator stack, MethodBase methodInfo)
         {
-            var parameters = (methodInfo as MethodInfo)?.GetParameters() ?? Array.Empty<ParameterInfo>();
+            var parameters = ((MethodInfo)methodInfo).GetParameters();
 
             if (parameters.Length == 2)
             {
                 // Static method: Object.Equals(object a, object b)
                 string objB = stack.Pop();
                 string objA = stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                AsmWriter?.WriteLine($"    {resultReg} = ({objA} == {objB}) ? 1 : 0;");
-                stack.Push(resultReg);
+                AsmWriter?.WriteLine($"    JSR Object_Equals");
             }
             else if (parameters.Length == 1)
             {
                 // Instance method: this.Equals(object obj)
                 string obj = stack.Pop();
-                string instance = stack.Pop();
-                string resultReg = GetAvailableRegister(stack);
-                AsmWriter?.WriteLine($"    {resultReg} = ({instance} == {obj}) ? 1 : 0;");
-                stack.Push(resultReg);
+                AsmWriter?.WriteLine($"    JSR Object_InstanceEquals");
             }
         }
 
-        private void HandleGetHashCode(IBackendStackSimulator stack)
+        public void HandleReferenceEquals(IBackendStackSimulator stack)
         {
-            // For integer types, the value itself is a reasonable hash
-            string obj = stack.Pop();
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    {resultReg} = {obj}; /* GetHashCode — identity for integers */");
-            stack.Push(resultReg);
-        }
-
-        private void HandleGetType(IBackendStackSimulator stack)
-        {
-            if (stack.StackDepth > 0)
-                stack.Pop(); // pop 'this'
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    {resultReg} = 0; /* GetType — not supported on 6502 */");
-            stack.Push(resultReg);
-        }
-
-        private void HandleToString(IBackendStackSimulator stack)
-        {
-            if (stack.StackDepth > 0)
-                stack.Pop(); // pop 'this'
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    {resultReg} = 0; /* ToString — not supported on 6502 */");
-            stack.Push(resultReg);
-        }
-
-        private void HandleReferenceEquals(IBackendStackSimulator stack)
-        {
-            // ReferenceEquals — same as Equals for value types
             string objB = stack.Pop();
             string objA = stack.Pop();
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    {resultReg} = ({objA} == {objB}) ? 1 : 0;");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    JSR Object_ReferenceEquals");
+        }
+
+        public void HandleGetHashCode(IBackendStackSimulator stack)
+        {
+            string instance = stack.Pop();
+            AsmWriter?.WriteLine($"    JSR Object_GetHashCode");
+        }
+
+        public void HandleGetType(IBackendStackSimulator stack)
+        {
+            string instance = stack.Pop();
+            AsmWriter?.WriteLine($"    ; TODO: GetType requires metadata access");
+            AsmWriter?.WriteLine($"    JSR Object_GetType");
+        }
+
+        public void HandleToString(IBackendStackSimulator stack)
+        {
+            string instance = stack.Pop();
+            AsmWriter?.WriteLine($"    ; TODO: ToString requires virtual dispatch");
+            AsmWriter?.WriteLine($"    JSR Object_ToString");
+        }
+
+        private void PopMethodParameters(MethodBase methodInfo, IBackendStackSimulator stack)
+        {
+            if (methodInfo is MethodInfo mi)
+            {
+                var paramCount = mi.GetParameters().Length;
+                for (int i = 0; i < paramCount; i++)
+                {
+                    try { stack.Pop(); } catch { }
+                }
+                if (mi.ReturnType != typeof(void))
+                {
+                    AsmWriter?.WriteLine($"    LDA #0");
+                    stack.Push("A");
+                }
+            }
         }
     }
 }

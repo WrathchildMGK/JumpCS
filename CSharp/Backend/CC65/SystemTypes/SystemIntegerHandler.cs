@@ -6,7 +6,7 @@ using JumpCS.Core;
 
 namespace JumpCS.Backend.CC65.SystemTypes
 {
-    /// <summary>Handler for System.Int32 (int) type operations</summary>
+    /// <summary>Handler for System.Int32 (int) type operations - CC65 (6502) target</summary>
     public class SystemIntegerHandler : SystemHandlerBase, ISystemIntegerHandler
     {
         public SystemIntegerHandler(
@@ -45,7 +45,7 @@ namespace JumpCS.Backend.CC65.SystemTypes
         public override void HandleReflectionMethodCall(MethodBase methodInfo, IBackendStackSimulator stack)
         {
             string methodName = methodInfo.Name;
-            AsmWriter?.WriteLine($"    ; System.Int32.{methodName} (inline)");
+            AsmWriter?.WriteLine($"    ; System.Int32.{methodName}");
 
             if (methodName == "op_Addition")
             {
@@ -138,262 +138,212 @@ namespace JumpCS.Backend.CC65.SystemTypes
                 if (methodInfo is MethodInfo methodInfoTyped && methodInfoTyped.ReturnType != typeof(void))
                 {
                     string resultReg = GetAvailableRegister(stack);
-                    AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: {methodName} result");
+                    AsmWriter?.WriteLine($"    LDA #0          ; TODO: {methodName} result");
                     stack.Push(resultReg);
                 }
             }
         }
 
+        /// <summary>32-bit addition: a + b (uses 6502 native instructions)</summary>
         private void HandleAddition(IBackendStackSimulator stack)
         {
-            string right = stack.Pop();
-            string left = stack.Pop();
+            string right = stack.Pop();      // High 16 bits, low 16 bits
+            string left = stack.Pop();       // High 16 bits, low 16 bits
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-            AsmWriter?.WriteLine($"    ADD.L {right},{resultReg}");
-            stack.Push(resultReg);
+            // For 6502, we need to work with 8-bit chunks via zero page
+            AsmWriter?.WriteLine($"    ; Int32 Addition");
+            AsmWriter?.WriteLine($"    ; Left value already in acc/XY");
+            AsmWriter?.WriteLine($"    ; Right value in {right}");
+            AsmWriter?.WriteLine($"    JSR __add32");
         }
 
+        /// <summary>32-bit subtraction: a - b</summary>
         private void HandleSubtraction(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-            AsmWriter?.WriteLine($"    SUB.L {right},{resultReg}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Subtraction");
+            AsmWriter?.WriteLine($"    JSR __sub32");
         }
 
+        /// <summary>32-bit multiplication: a * b (delegates to library)</summary>
         private void HandleMultiply(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-            AsmWriter?.WriteLine($"    MULS.L {right},{resultReg}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Multiply");
+            AsmWriter?.WriteLine($"    JSR __mul32");
         }
 
+        /// <summary>32-bit division: a / b (delegates to library)</summary>
         private void HandleDivision(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-            AsmWriter?.WriteLine($"    DIVS.L {right},{resultReg}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Division");
+            AsmWriter?.WriteLine($"    JSR __div32");
         }
 
+        /// <summary>32-bit modulus: a % b (delegates to library)</summary>
         private void HandleModulus(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},D0");
-            AsmWriter?.WriteLine($"    DIVS.L {right},D0");
-            AsmWriter?.WriteLine($"    ; TODO: Modulus calculation (use remainder from division)");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Modulus");
+            AsmWriter?.WriteLine($"    JSR Int32_Modulus");
         }
 
+        /// <summary>32-bit bitwise AND (inline - simple operation)</summary>
         private void HandleBitwiseAnd(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-            AsmWriter?.WriteLine($"    AND.L {right},{resultReg}");
-            stack.Push(resultReg);
+            // 6502 AND is only available for accumulator with memory/immediate
+            AsmWriter?.WriteLine($"    ; Int32 Bitwise AND");
+            AsmWriter?.WriteLine($"    JSR Int32_BitwiseAnd");
         }
 
+        /// <summary>32-bit bitwise OR (inline - simple operation)</summary>
         private void HandleBitwiseOr(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-            AsmWriter?.WriteLine($"    OR.L {right},{resultReg}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Bitwise OR");
+            AsmWriter?.WriteLine($"    JSR Int32_BitwiseOr");
         }
 
+        /// <summary>32-bit bitwise XOR (inline - simple operation)</summary>
         private void HandleExclusiveOr(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {left},{resultReg}");
-            AsmWriter?.WriteLine($"    EOR.L {right},{resultReg}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Bitwise XOR");
+            AsmWriter?.WriteLine($"    JSR Int32_BitwiseXor");
         }
 
+        /// <summary>32-bit left shift: a << amount (variable shift - delegates to library)</summary>
         private void HandleLeftShift(IBackendStackSimulator stack)
         {
             string shiftAmount = stack.Pop();
             string value = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-            AsmWriter?.WriteLine($"    ; TODO: Left shift by {shiftAmount}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Left Shift");
+            AsmWriter?.WriteLine($"    JSR Int32_ShiftLeft");
         }
 
+        /// <summary>32-bit right shift: a >> amount (variable shift - delegates to library)</summary>
         private void HandleRightShift(IBackendStackSimulator stack)
         {
             string shiftAmount = stack.Pop();
             string value = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {value},{resultReg}");
-            AsmWriter?.WriteLine($"    ; TODO: Right shift by {shiftAmount}");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Right Shift");
+            AsmWriter?.WriteLine($"    JSR Int32_ShiftRight");
         }
 
+        /// <summary>32-bit unary negation: -a (inline - uses simple arithmetic)</summary>
         private void HandleUnaryNegation(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    SUB.L {val},{resultReg}");
-            stack.Push(resultReg);
+            // 6502: negate by EOR with $FF and add 1 (two's complement)
+            AsmWriter?.WriteLine($"    ; Int32 Unary Negation");
+            AsmWriter?.WriteLine($"    JSR Int32_Negate");
         }
 
+        /// <summary>32-bit ones complement: ~a (inline - bitwise NOT)</summary>
         private void HandleOnesComplement(IBackendStackSimulator stack)
         {
             string val = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    MOVE.L {val},{resultReg}");
-            AsmWriter?.WriteLine($"    NOT.L {resultReg}");
-            stack.Push(resultReg);
+            // 6502: EOR all bytes with $FF
+            AsmWriter?.WriteLine($"    ; Int32 Ones Complement");
+            AsmWriter?.WriteLine($"    JSR Int32_OnesComplement");
         }
 
+        /// <summary>32-bit equality: a == b (delegates to library)</summary>
         private void HandleEquality(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMP.L {right},{left}");
-            AsmWriter?.WriteLine($"    BEQ {label}_eq");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_eq:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Equality");
+            AsmWriter?.WriteLine($"    JSR Int32_Equals");
         }
 
+        /// <summary>32-bit inequality: a != b</summary>
         private void HandleInequality(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMP.L {right},{left}");
-            AsmWriter?.WriteLine($"    BNE {label}_ne");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_ne:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Inequality");
+            AsmWriter?.WriteLine($"    JSR Int32_NotEquals");
         }
 
+        /// <summary>32-bit less than: a < b (delegates to library)</summary>
         private void HandleLessThan(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMP.L {right},{left}");
-            AsmWriter?.WriteLine($"    BLT {label}_lt");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_lt:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Less Than");
+            AsmWriter?.WriteLine($"    JSR Int32_LessThan");
         }
 
+        /// <summary>32-bit greater than: a > b</summary>
         private void HandleGreaterThan(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMP.L {right},{left}");
-            AsmWriter?.WriteLine($"    BGT {label}_gt");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_gt:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Greater Than");
+            AsmWriter?.WriteLine($"    JSR Int32_GreaterThan");
         }
 
+        /// <summary>32-bit less than or equal: a <= b</summary>
         private void HandleLessThanOrEqual(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMP.L {right},{left}");
-            AsmWriter?.WriteLine($"    BLE {label}_le");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_le:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Less Than Or Equal");
+            AsmWriter?.WriteLine($"    JSR Int32_LessOrEqual");
         }
 
+        /// <summary>32-bit greater than or equal: a >= b</summary>
         private void HandleGreaterThanOrEqual(IBackendStackSimulator stack)
         {
             string right = stack.Pop();
             string left = stack.Pop();
 
-            string resultReg = GetAvailableRegister(stack);
-            string label = GetUniqueLabel();
-            AsmWriter?.WriteLine($"    CMP.L {right},{left}");
-            AsmWriter?.WriteLine($"    BGE {label}_ge");
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}");
-            AsmWriter?.WriteLine($"    BRA {label}_end");
-            AsmWriter?.WriteLine($"{label}_ge:");
-            AsmWriter?.WriteLine($"    MOVE.L #1,{resultReg}");
-            AsmWriter?.WriteLine($"{label}_end:");
-            stack.Push(resultReg);
+            AsmWriter?.WriteLine($"    ; Int32 Greater Than Or Equal");
+            AsmWriter?.WriteLine($"    JSR Int32_GreaterOrEqual");
         }
 
+        /// <summary>Equals(object) instance method</summary>
         private void HandleEquals(IBackendStackSimulator stack)
         {
             string objRef = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Int32.Equals({objRef})");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: Equals comparison");
-            stack.Push(resultReg);
+
+            AsmWriter?.WriteLine($"    ; Int32 Instance Equals");
+            AsmWriter?.WriteLine($"    JSR Int32_InstanceEquals");
         }
 
+        /// <summary>CompareTo(object) instance method</summary>
         private void HandleCompareTo(IBackendStackSimulator stack)
         {
             string objRef = stack.Pop();
-            AsmWriter?.WriteLine($"    ; Int32.CompareTo({objRef})");
-            string resultReg = GetAvailableRegister(stack);
-            AsmWriter?.WriteLine($"    CLR.L {resultReg}     ; TODO: CompareTo result");
-            stack.Push(resultReg);
+
+            AsmWriter?.WriteLine($"    ; Int32 CompareTo");
+            AsmWriter?.WriteLine($"    JSR Int32_CompareTo");
         }
     }
 }
